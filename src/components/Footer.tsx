@@ -40,10 +40,6 @@ export default function Footer() {
             <p className="text-secondary text-[10px] tracking-widest uppercase font-semibold font-serif mt-2">
               Where Every Story Finds Its Stage.
             </p>
-
-            <p className="text-xs text-accent-muted/80 leading-relaxed font-light">
-              Viora is a creative media platform celebrating independent filmmakers through festivals, collaboration, and storytelling.
-            </p>
           </div>
 
           {/* Quick Links Column */}
