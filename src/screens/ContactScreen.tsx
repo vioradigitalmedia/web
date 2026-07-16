@@ -23,24 +23,24 @@ export default function ContactScreen() {
     const wave1 = Math.sin(i * 0.25) * 80;
     const wave2 = Math.cos(i * 0.1) * 40;
     const noise = Math.sin(i * 1.5) * 30; // Jagged high-frequency details
-    
+
     const rawHeight = 110 + wave1 + wave2 + noise;
     const height = Math.min(230, Math.max(20, rawHeight));
     const delay = `${(i % 7) * 0.12}s`;
     const duration = `${0.35 + (i % 4) * 0.12}s`;
-    
+
     return { h: height, d: delay, s: duration };
   });
 
   return (
     <div className="w-full bg-black min-h-screen pt-12 pb-24">
-      
+
       {/* Intro */}
       <section className="max-w-7xl mx-auto px-6 py-16 text-center relative overflow-hidden">
         {/* Background Audio Waveform Equalizer */}
         <div className="absolute inset-0 flex items-center justify-center gap-1 md:gap-1.5 opacity-25 pointer-events-none z-0 select-none">
           {equalizerBars.map((bar, idx) => (
-            <span 
+            <span
               key={idx}
               className="w-1 bg-secondary rounded-full"
               style={{
@@ -51,25 +51,22 @@ export default function ContactScreen() {
             />
           ))}
         </div>
-        
+
         <div className="relative z-10">
           <span className="text-xs tracking-[0.3em] text-secondary font-semibold uppercase">Connect</span>
           <h1 className="font-serif text-4xl md:text-7xl text-white tracking-wide mt-4 mb-8">
             Initiate The <span className="text-gold-gradient font-italic font-normal">Dialogue</span>
           </h1>
-          <p className="text-sm text-accent-muted max-w-2xl mx-auto font-light leading-relaxed tracking-wide">
-            Let’s discuss your project requirements. Complete the concierge briefing form below, or reach out directly to our Mayfair office.
-          </p>
         </div>
       </section>
 
       {/* Grid Layout: Form and Info */}
       <section className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-12 mt-4">
-        
+
         {/* Form Column - Spans 7 columns on desktop */}
         <div className="lg:col-span-7 bg-primary-light border border-white/5 p-8 md:p-10 rounded-sm relative">
           <h2 className="font-serif text-2xl text-white mb-6 tracking-wide">Briefing Inquiry</h2>
-          
+
           {submitted ? (
             <div className="h-64 flex flex-col items-center justify-center text-center animate-fade-in">
               <div className="h-14 w-14 rounded-full border border-secondary flex items-center justify-center mb-4 shadow-[0_0_15px_rgba(197,160,89,0.3)]">
@@ -84,13 +81,13 @@ export default function ContactScreen() {
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-6">
-              
+
               <div>
                 <label htmlFor="name" className="block text-[10px] tracking-widest text-secondary font-semibold uppercase mb-2">
                   Your Name
                 </label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   id="name"
                   required
                   value={formState.name}
@@ -103,8 +100,8 @@ export default function ContactScreen() {
                 <label htmlFor="email" className="block text-[10px] tracking-widest text-secondary font-semibold uppercase mb-2">
                   Email Address
                 </label>
-                <input 
-                  type="email" 
+                <input
+                  type="email"
                   id="email"
                   required
                   value={formState.email}
@@ -117,7 +114,7 @@ export default function ContactScreen() {
                 <label htmlFor="message" className="block text-[10px] tracking-widest text-secondary font-semibold uppercase mb-2">
                   Brief Overview
                 </label>
-                <textarea 
+                <textarea
                   id="message"
                   required
                   rows={5}
@@ -128,8 +125,8 @@ export default function ContactScreen() {
                 />
               </div>
 
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 className="w-full py-4 bg-gold-gradient hover:bg-none hover:bg-secondary text-black font-semibold text-xs tracking-widest uppercase transition-all duration-300 rounded-sm hover:shadow-[0_0_15px_rgba(197,160,89,0.4)] border border-secondary"
               >
                 Transmit Brief
@@ -141,11 +138,11 @@ export default function ContactScreen() {
 
         {/* Info Column - Spans 5 columns on desktop */}
         <div className="lg:col-span-5 flex flex-col justify-start gap-8">
-          
+
           <div className="border border-white/5 bg-primary-light p-8 rounded-sm">
             <h3 className="font-serif text-xl text-white mb-6 tracking-wide">Direct Line</h3>
             <div className="space-y-6">
-              
+
               <div className="flex gap-4">
                 <div className="h-8 w-8 rounded-full border border-secondary/30 flex items-center justify-center flex-shrink-0">
                   <svg className="h-4 w-4 text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -154,8 +151,8 @@ export default function ContactScreen() {
                 </div>
                 <div>
                   <span className="block text-[9px] tracking-widest uppercase font-semibold text-secondary">Electronic Inquiries</span>
-                  <a 
-                    href="mailto:contact@vioramedia.in" 
+                  <a
+                    href="mailto:contact@vioramedia.in"
                     className="text-xs text-white hover:text-secondary transition-colors duration-300 font-light break-all"
                   >
                     contact@vioramedia.in
