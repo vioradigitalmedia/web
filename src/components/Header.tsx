@@ -5,10 +5,10 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
 
-  const navItems = [
+  const navItems: { path: string; label: string; isComingSoon?: boolean }[] = [
     { path: '/', label: 'Home' },
     { path: '/aboutus', label: 'About Us' },
-    { path: '#', label: 'Festivals', isComingSoon: true },
+    { path: '/festivals', label: 'Festivals' },
   ];
 
   return (

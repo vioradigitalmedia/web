@@ -64,3 +64,12 @@
   15% { opacity: 1; }
   100% { transform: scale(1.08); opacity: 1; }
 }
+
+@keyframes roll-reel {
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(0%); }
+}
+
+.animate-roll-reel {
+  animation: roll-reel 20s linear infinite;
+}

@@ -5,6 +5,7 @@ import HomeScreen from './screens/HomeScreen';
 import AboutScreen from './screens/AboutScreen';
 import ContactScreen from './screens/ContactScreen';
 import PrivacyPolicyScreen from './screens/PrivacyPolicyScreen';
+import FestivalsScreen from './screens/FestivalsScreen';
 import AdminDashboard from './admin/AdminDashboard';
 import ScrollToTop from './components/ScrollToTop';
 
@@ -41,6 +42,7 @@ function App() {
             <Route path="/" element={<HomeScreen />} />
             <Route path="/aboutus" element={<AboutScreen />} />
             <Route path="/contact" element={<ContactScreen />} />
+            <Route path="/festivals" element={<FestivalsScreen />} />
             <Route path="/privacy-policy" element={<PrivacyPolicyScreen />} />
             <Route path="*" element={<HomeScreen />} />
           </Routes>

@@ -58,11 +58,10 @@ export default function Footer() {
                   About Us
                 </Link>
               </li>
-              <li className="relative group">
-                <span className="text-accent-muted/40 cursor-not-allowed flex items-center justify-between">
-                  <span>Festivals</span>
-                  <span className="text-[7px] bg-zinc-900 border border-secondary/20 text-secondary px-1 py-0.5 rounded-sm">Soon</span>
-                </span>
+              <li>
+                <Link to="/festivals" className="hover:text-secondary transition-colors duration-200">
+                  Festivals
+                </Link>
               </li>
               <li className="relative group">
                 <span className="text-accent-muted/40 cursor-not-allowed flex items-center justify-between">
