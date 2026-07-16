@@ -73,11 +73,11 @@ export default function HomeScreen() {
 
           {/* Right Graphic Column - Revolving Cinematic Elements around V */}
           <div className="lg:col-span-5 hidden lg:flex justify-end items-center relative z-10 select-none">
-            <div className="relative w-[440px] h-[440px] flex items-center justify-center">
+            <div className="relative w-[500px] h-[500px] flex items-center justify-center">
               
               {/* Center V Symbol */}
               <div className="relative z-10 flex flex-col items-center">
-                <span className="font-serif font-bold text-[180px] text-gold-gradient leading-none animate-pulse">
+                <span className="font-serif font-bold text-[180px] text-gold-gradient leading-none select-none">
                   V
                 </span>
                 <span className="text-[12px] tracking-[0.45em] text-secondary font-semibold uppercase -mt-4">
@@ -85,42 +85,50 @@ export default function HomeScreen() {
                 </span>
               </div>
 
-              {/* Axis 1 (Innermost - Radius 75px / Diameter 150px) */}
-              <div className="absolute w-[150px] h-[150px] rounded-full border border-secondary/20 flex items-center justify-center">
-                {/* Spotlight Icon */}
-                <div className="absolute w-full h-full animate-spin-orbit" style={{ animationDuration: '18s' }}>
-                  <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-black border border-secondary/40 flex items-center justify-center shadow-[0_0_8px_rgba(197,160,89,0.2)] animate-spin-reverse" style={{ animationDuration: '18s' }}>
-                    <i className="fa-solid fa-lightbulb text-secondary text-xs"></i>
-                  </div>
-                </div>
-              </div>
-
-              {/* Axis 2 (Inner-Mid - Radius 110px / Diameter 220px) */}
+              {/* Axis 1 (Innermost - Radius 110px / Diameter 220px) */}
               <div className="absolute w-[220px] h-[220px] rounded-full border border-secondary/20 flex items-center justify-center">
+                {/* Spotlight Icon */}
+                <div className="absolute" style={{ animation: 'spin-orbit 18s linear infinite' }}>
+                  <div className="absolute" style={{ transform: 'translate(-50%, -50%) translateY(-110px)' }}>
+                    <div className="h-8 w-8 rounded-full bg-black border border-secondary/40 flex items-center justify-center shadow-[0_0_8px_rgba(197,160,89,0.2)]" style={{ animation: 'spin-reverse 18s linear infinite' }}>
+                      <i className="fa-solid fa-lightbulb text-secondary text-xs"></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Axis 2 (Inner-Mid - Radius 150px / Diameter 300px) */}
+              <div className="absolute w-[300px] h-[300px] rounded-full border border-secondary/20 flex items-center justify-center">
                 {/* Film Reel Icon */}
-                <div className="absolute w-full h-full animate-spin-orbit" style={{ animationDuration: '26s', animationDelay: '-6.5s' }}>
-                  <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-black border border-secondary/40 flex items-center justify-center shadow-[0_0_8px_rgba(197,160,89,0.2)] animate-spin-reverse" style={{ animationDuration: '26s', animationDelay: '-6.5s' }}>
-                    <i className="fa-solid fa-film text-secondary text-xs"></i>
+                <div className="absolute" style={{ animation: 'spin-orbit 26s linear infinite', animationDelay: '-6.5s' }}>
+                  <div className="absolute" style={{ transform: 'translate(-50%, -50%) translateY(-150px)' }}>
+                    <div className="h-9 w-9 rounded-full bg-black border border-secondary/40 flex items-center justify-center shadow-[0_0_8px_rgba(197,160,89,0.2)]" style={{ animation: 'spin-reverse 26s linear infinite', animationDelay: '-6.5s' }}>
+                      <i className="fa-solid fa-film text-secondary text-xs"></i>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              {/* Axis 3 (Outer-Mid - Radius 145px / Diameter 290px) */}
-              <div className="absolute w-[290px] h-[290px] rounded-full border border-secondary/20 flex items-center justify-center">
+              {/* Axis 3 (Outer-Mid - Radius 190px / Diameter 380px) */}
+              <div className="absolute w-[380px] h-[380px] rounded-full border border-secondary/20 flex items-center justify-center">
                 {/* Clapboard Icon */}
-                <div className="absolute w-full h-full animate-spin-orbit" style={{ animationDuration: '34s', animationDelay: '-17s' }}>
-                  <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-black border border-secondary/40 flex items-center justify-center shadow-[0_0_10px_rgba(197,160,89,0.25)] animate-spin-reverse" style={{ animationDuration: '34s', animationDelay: '-17s' }}>
-                    <i className="fa-solid fa-clapperboard text-secondary text-sm"></i>
+                <div className="absolute" style={{ animation: 'spin-orbit 34s linear infinite', animationDelay: '-17s' }}>
+                  <div className="absolute" style={{ transform: 'translate(-50%, -50%) translateY(-190px)' }}>
+                    <div className="h-10 w-10 rounded-full bg-black border border-secondary/40 flex items-center justify-center shadow-[0_0_10px_rgba(197,160,89,0.25)]" style={{ animation: 'spin-reverse 34s linear infinite', animationDelay: '-17s' }}>
+                      <i className="fa-solid fa-clapperboard text-secondary text-sm"></i>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              {/* Axis 4 (Outermost - Radius 180px / Diameter 360px) */}
-              <div className="absolute w-[360px] h-[360px] rounded-full border border-secondary/20 flex items-center justify-center">
+              {/* Axis 4 (Outermost - Radius 230px / Diameter 460px) */}
+              <div className="absolute w-[460px] h-[460px] rounded-full border border-secondary/20 flex items-center justify-center">
                 {/* Camera Icon */}
-                <div className="absolute w-full h-full animate-spin-orbit" style={{ animationDuration: '42s', animationDelay: '-31.5s' }}>
-                  <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 h-11 w-11 rounded-full bg-black border border-secondary/40 flex items-center justify-center shadow-[0_0_10px_rgba(197,160,89,0.25)] animate-spin-reverse" style={{ animationDuration: '42s', animationDelay: '-31.5s' }}>
-                    <i className="fa-solid fa-video text-secondary text-sm"></i>
+                <div className="absolute" style={{ animation: 'spin-orbit 42s linear infinite', animationDelay: '-31.5s' }}>
+                  <div className="absolute" style={{ transform: 'translate(-50%, -50%) translateY(-230px)' }}>
+                    <div className="h-11 w-11 rounded-full bg-black border border-secondary/40 flex items-center justify-center shadow-[0_0_10px_rgba(197,160,89,0.25)]" style={{ animation: 'spin-reverse 42s linear infinite', animationDelay: '-31.5s' }}>
+                      <i className="fa-solid fa-video text-secondary text-sm"></i>
+                    </div>
                   </div>
                 </div>
               </div>
