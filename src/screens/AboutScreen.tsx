@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 
 export default function AboutScreen() {
   const vioraMeaning = [
@@ -139,26 +140,275 @@ export default function AboutScreen() {
     }
   ];
 
+  const [scene, setScene] = useState<number>(0);
+  const [isIntroActive, setIsIntroActive] = useState<boolean>(true);
+  const [miniScene, setMiniScene] = useState<number>(0);
+
+  useEffect(() => {
+    if (scene >= 7) {
+      setIsIntroActive(false);
+      return;
+    }
+
+    const durations = [2000, 2500, 2500, 2500, 2500, 3000, 2000];
+    const timer = setTimeout(() => {
+      setScene(prev => prev + 1);
+    }, durations[scene]);
+
+    return () => clearTimeout(timer);
+  }, [scene]);
+
+  useEffect(() => {
+    if (isIntroActive) return;
+
+    const interval = setInterval(() => {
+      setMiniScene(prev => (prev + 1) % 7);
+    }, 2500);
+
+    return () => clearInterval(interval);
+  }, [isIntroActive]);
+
+  if (isIntroActive) {
+    return (
+      <div className="fixed inset-0 z-[100] bg-black flex flex-col items-center justify-center overflow-hidden font-sans select-none">
+        
+        {/* Skip Intro Button */}
+        <button 
+          onClick={() => setIsIntroActive(false)} 
+          className="absolute top-8 right-8 px-5 py-2.5 border border-secondary/20 text-secondary hover:text-black hover:bg-gold-gradient transition-all duration-300 rounded-sm text-[10px] tracking-widest uppercase cursor-pointer"
+        >
+          Skip Intro ✕
+        </button>
+
+        {/* Visual Scene Container */}
+        <div className="relative w-full max-w-lg h-96 flex flex-col items-center justify-center text-center px-6">
+          
+          {/* Scene 1: Darkness (Glowing dot) */}
+          {scene === 0 && (
+            <div className="flex flex-col items-center justify-center animate-[fade-in_1s_ease-out_forwards]">
+              <div className="h-3 w-3 rounded-full bg-secondary shadow-[0_0_20px_#C5A059] animate-pulse mb-8" />
+              <p className="font-serif italic text-white/90 text-lg md:text-xl tracking-wide">
+                Every story begins with a vision.
+              </p>
+            </div>
+          )}
+
+          {/* Scene 2: Vision (Eye Outline + slowly zooming camera) */}
+          {scene === 1 && (
+            <div className="flex flex-col items-center justify-center animate-[scale-up_2.5s_linear_forwards]">
+              <svg className="h-24 w-24 text-secondary/80 mb-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+              <span className="text-xs tracking-[0.35em] text-secondary/40 uppercase font-semibold block mb-2">Vizhi</span>
+              <h2 className="font-serif text-3xl md:text-4xl text-white tracking-widest font-light">
+                Vision.
+              </h2>
+            </div>
+          )}
+
+          {/* Scene 3: Innovation (Interconnected Lines / Frames) */}
+          {scene === 2 && (
+            <div className="flex flex-col items-center justify-center animate-[fade-in_0.5s_ease-out_forwards]">
+              <div className="relative h-28 w-28 mb-8 flex items-center justify-center">
+                <div className="absolute inset-0 border border-secondary/20 rounded-md rotate-45 scale-90 animate-pulse" />
+                <div className="absolute inset-2 border border-secondary/20 rounded-md -rotate-12 scale-95" />
+                <svg className="h-10 w-10 text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
+              <h2 className="font-serif text-3xl md:text-4xl text-white tracking-widest font-light">
+                Innovation.
+              </h2>
+            </div>
+          )}
+
+          {/* Scene 4: Oli / Light (Spotlight + Dust Particles) */}
+          {scene === 3 && (
+            <div className="flex flex-col items-center justify-center w-full h-full animate-[fade-in_0.5s_ease-out_forwards]">
+              <div className="absolute top-[-40px] left-1/2 -translate-x-1/2 w-48 h-56 bg-gradient-to-b from-secondary/15 to-transparent rounded-b-[100px] blur-sm" />
+              <div className="absolute top-20 left-1/3 h-1 w-1 rounded-full bg-secondary/80 animate-ping" />
+              <div className="absolute top-32 right-1/4 h-1 w-1 rounded-full bg-secondary/60 animate-ping" style={{ animationDelay: '1s' }} />
+              <div className="absolute top-16 right-1/3 h-1 w-1 rounded-full bg-secondary/40 animate-ping" style={{ animationDelay: '0.5s' }} />
+              
+              <div className="relative z-10 mt-24">
+                <span className="text-xs tracking-[0.35em] text-secondary/40 uppercase font-semibold block mb-2">Oli</span>
+                <h2 className="font-serif text-3xl md:text-4xl text-white tracking-widest font-light">
+                  Light.
+                </h2>
+              </div>
+            </div>
+          )}
+
+          {/* Scene 5: Rhythm (Audio Waves / film cuts in sync) */}
+          {scene === 4 && (
+            <div className="flex flex-col items-center justify-center animate-[fade-in_0.5s_ease-out_forwards]">
+              <div className="flex gap-2 items-end h-16 mb-10">
+                <span className="w-1 bg-secondary rounded-full h-4 animate-[pulse_0.4s_infinite_alternate]" />
+                <span className="w-1 bg-secondary rounded-full h-12 animate-[pulse_0.6s_infinite_alternate]" style={{ animationDelay: '0.1s' }} />
+                <span className="w-1 bg-secondary rounded-full h-6 animate-[pulse_0.5s_infinite_alternate]" style={{ animationDelay: '0.2s' }} />
+                <span className="w-1 bg-secondary rounded-full h-16 animate-[pulse_0.7s_infinite_alternate]" style={{ animationDelay: '0.3s' }} />
+                <span className="w-1 bg-secondary rounded-full h-8 animate-[pulse_0.4s_infinite_alternate]" style={{ animationDelay: '0.4s' }} />
+                <span className="w-1 bg-secondary rounded-full h-12 animate-[pulse_0.6s_infinite_alternate]" style={{ animationDelay: '0.2s' }} />
+                <span className="w-1 bg-secondary rounded-full h-4 animate-[pulse_0.5s_infinite_alternate]" style={{ animationDelay: '0.1s' }} />
+              </div>
+              <h2 className="font-serif text-3xl md:text-4xl text-white tracking-widest font-light">
+                Rhythm.
+              </h2>
+            </div>
+          )}
+
+          {/* Scene 6: Art (VIORA Logo emerges) */}
+          {scene === 5 && (
+            <div className="flex flex-col items-center justify-center animate-[scale-up_3s_ease-out_forwards]">
+              <img 
+                src="/logo.jpg" 
+                alt="Viora Logo" 
+                className="h-20 w-20 object-contain rounded-md border border-secondary/30 shadow-[0_0_20px_rgba(197,160,89,0.3)] mb-6"
+              />
+              <h2 className="font-serif text-3xl md:text-4xl text-white tracking-widest font-light mb-2">
+                Art.
+              </h2>
+            </div>
+          )}
+
+          {/* Scene 7: Ending (Text + Subtitle tagline) */}
+          {scene === 6 && (
+            <div className="flex flex-col items-center justify-center animate-[fade-in_0.5s_ease-out_forwards]">
+              <span className="font-serif tracking-[0.3em] text-5xl md:text-6xl font-semibold text-white mb-4">
+                VIORA
+              </span>
+              <span className="text-secondary tracking-[0.25em] text-xs md:text-sm uppercase font-light">
+                Where Every Story Finds Its Stage.
+              </span>
+            </div>
+          )}
+
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full bg-black min-h-screen pt-12 pb-24 text-white">
       
       {/* Hero Section */}
-      <section className="max-w-7xl mx-auto px-6 py-20 text-center relative">
+      <section className="max-w-7xl mx-auto px-6 py-12 md:py-20 relative">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-secondary/5 rounded-full blur-[100px] pointer-events-none" />
         
-        <span className="text-xs tracking-[0.35em] text-secondary font-semibold uppercase">Platform</span>
-        <h1 className="font-serif text-5xl md:text-8xl text-white tracking-wide mt-4 mb-6">
-          About Viora
-        </h1>
-        
-        <p className="text-gold-gradient font-serif italic text-lg md:text-2xl tracking-wide mb-10">
-          "Where Vision Becomes Art."
-        </p>
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12 items-center">
+          
+          {/* Left Column - Miniature About Us Loop Animation */}
+          <div className="md:col-span-5 flex justify-center items-center select-none">
+            <div className="relative w-56 h-56 flex items-center justify-center border border-secondary/15 bg-primary-light rounded-sm overflow-hidden border-gold-glow p-4">
+              <div className="absolute inset-0 bg-black/60 backdrop-blur-[1px]" />
+              
+              <div className="relative w-full h-full flex flex-col items-center justify-center text-center px-4">
+                
+                {/* Mini Scene 0: Darkness (Glowing dot) */}
+                {miniScene === 0 && (
+                  <div className="flex flex-col items-center justify-center animate-[fade-in_0.5s_ease-out_forwards]">
+                    <div className="h-2 w-2 rounded-full bg-secondary shadow-[0_0_12px_#C5A059] animate-pulse mb-3" />
+                    <span className="text-[9px] tracking-widest text-white/80 italic font-serif leading-tight">"Every story begins..."</span>
+                  </div>
+                )}
 
-        <p className="text-sm md:text-base text-accent-muted max-w-3xl mx-auto font-light leading-relaxed tracking-wide">
-          Viora is a creative media platform dedicated to discovering, celebrating, and empowering storytellers. 
-          We believe every great filmmaker deserves a stage, and every meaningful story deserves an audience.
-        </p>
+                {/* Mini Scene 1: Vision (Eye Outline) */}
+                {miniScene === 1 && (
+                  <div className="flex flex-col items-center justify-center animate-[scale-up_2s_linear_forwards]">
+                    <svg className="h-10 w-10 text-secondary/80 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                    <span className="text-[9px] tracking-[0.25em] text-secondary uppercase font-semibold">Vision</span>
+                  </div>
+                )}
+
+                {/* Mini Scene 2: Innovation (Interconnected Lines) */}
+                {miniScene === 2 && (
+                  <div className="flex flex-col items-center justify-center animate-[fade-in_0.5s_ease-out_forwards]">
+                    <div className="relative h-10 w-10 mb-2 flex items-center justify-center">
+                      <div className="absolute inset-0 border border-secondary/20 rounded-md rotate-45 scale-90 animate-pulse" />
+                      <div className="absolute inset-1 border border-secondary/20 rounded-md -rotate-12 scale-95" />
+                      <svg className="h-4 w-4 text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                    </div>
+                    <span className="text-[9px] tracking-[0.25em] text-secondary uppercase font-semibold">Innovation</span>
+                  </div>
+                )}
+
+                {/* Mini Scene 3: Oli / Light (Spotlight) */}
+                {miniScene === 3 && (
+                  <div className="flex flex-col items-center justify-center w-full h-full animate-[fade-in_0.5s_ease-out_forwards] relative">
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-20 h-24 bg-gradient-to-b from-secondary/15 to-transparent rounded-b-[40px] blur-[2px]" />
+                    <div className="relative z-10 mt-6 flex flex-col items-center">
+                      <span className="text-[9px] tracking-[0.25em] text-secondary uppercase font-semibold">Light</span>
+                      <span className="text-[7px] tracking-widest text-accent-muted/60 uppercase font-light mt-0.5">(Oli)</span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Mini Scene 4: Rhythm (Audio Waves) */}
+                {miniScene === 4 && (
+                  <div className="flex flex-col items-center justify-center animate-[fade-in_0.5s_ease-out_forwards]">
+                    <div className="flex gap-1 items-end h-6 mb-3">
+                      <span className="w-0.5 bg-secondary rounded-full h-2 animate-[pulse_0.4s_infinite_alternate]" />
+                      <span className="w-0.5 bg-secondary rounded-full h-5 animate-[pulse_0.6s_infinite_alternate]" style={{ animationDelay: '0.1s' }} />
+                      <span className="w-0.5 bg-secondary rounded-full h-3 animate-[pulse_0.5s_infinite_alternate]" style={{ animationDelay: '0.2s' }} />
+                      <span className="w-0.5 bg-secondary rounded-full h-6 animate-[pulse_0.7s_infinite_alternate]" style={{ animationDelay: '0.3s' }} />
+                      <span className="w-0.5 bg-secondary rounded-full h-3 animate-[pulse_0.4s_infinite_alternate]" style={{ animationDelay: '0.4s' }} />
+                    </div>
+                    <span className="text-[9px] tracking-[0.25em] text-secondary uppercase font-semibold">Rhythm</span>
+                  </div>
+                )}
+
+                {/* Mini Scene 5: Art (Logo) */}
+                {miniScene === 5 && (
+                  <div className="flex flex-col items-center justify-center animate-[scale-up_2s_ease-out_forwards]">
+                    <img 
+                      src="/logo.jpg" 
+                      alt="Viora Logo" 
+                      className="h-8 w-8 object-contain rounded-md border border-secondary/35 shadow-[0_0_10px_rgba(197,160,89,0.3)] mb-2"
+                    />
+                    <span className="text-[9px] tracking-[0.25em] text-secondary uppercase font-semibold">Art</span>
+                  </div>
+                )}
+
+                {/* Mini Scene 6: Ending (Tagline) */}
+                {miniScene === 6 && (
+                  <div className="flex flex-col items-center justify-center animate-[fade-in_0.5s_ease-out_forwards] px-1">
+                    <span className="font-serif tracking-[0.2em] text-sm font-semibold text-white mb-1">
+                      VIORA
+                    </span>
+                    <span className="text-secondary tracking-widest text-[7px] uppercase font-light leading-tight">
+                      Where Every Story Finds Its Stage.
+                    </span>
+                  </div>
+                )}
+
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column - Text Content */}
+          <div className="md:col-span-7 text-left flex flex-col items-start">
+            <span className="text-xs tracking-[0.35em] text-secondary font-semibold uppercase">Platform</span>
+            <h1 className="font-serif text-4xl md:text-6xl text-white tracking-wide mt-2 mb-4 leading-tight">
+              About Viora
+            </h1>
+            
+            <p className="text-gold-gradient font-serif italic text-lg md:text-xl tracking-wide mb-6">
+              "Where Vision Becomes Art."
+            </p>
+
+            <p className="text-sm md:text-base text-accent-muted font-light leading-relaxed tracking-wide">
+              Viora is a creative media platform dedicated to discovering, celebrating, and empowering storytellers. 
+              We believe every great filmmaker deserves a stage, and every meaningful story deserves an audience.
+            </p>
+          </div>
+
+        </div>
       </section>
 
       {/* Our Story Section */}
