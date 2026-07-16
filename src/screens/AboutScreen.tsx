@@ -168,6 +168,23 @@ export default function AboutScreen() {
     return () => clearInterval(interval);
   }, [isIntroActive]);
 
+  useEffect(() => {
+    if (!isIntroActive) return;
+
+    const audioPath = '/remo--sivakarthikeyan-keerthi-suresh--anirudh-ravichander (1).mp3';
+    const audio = new Audio(audioPath);
+    audio.volume = 0.55;
+
+    audio.play().catch(err => {
+      console.warn("Autoplay block: Interaction needed to trigger audio.", err);
+    });
+
+    return () => {
+      audio.pause();
+      audio.src = '';
+    };
+  }, [isIntroActive]);
+
   if (isIntroActive) {
     return (
       <div className="fixed inset-0 z-[100] bg-black flex flex-col items-center justify-center overflow-hidden font-sans select-none">
@@ -232,9 +249,8 @@ export default function AboutScreen() {
               <div className="absolute top-16 right-1/3 h-1 w-1 rounded-full bg-secondary/40 animate-ping" style={{ animationDelay: '0.5s' }} />
               
               <div className="relative z-10 mt-24">
-                <span className="text-xs tracking-[0.35em] text-secondary/40 uppercase font-semibold block mb-2">Oli</span>
-                <h2 className="font-serif text-3xl md:text-4xl text-white tracking-widest font-light">
-                  Light.
+                <h2 className="font-serif text-3xl md:text-4xl text-white tracking-widest font-light animate-[scale-up_2s_linear_forwards]">
+                  Oli.
                 </h2>
               </div>
             </div>
@@ -264,7 +280,7 @@ export default function AboutScreen() {
               <img 
                 src="/logo.jpg" 
                 alt="Viora Logo" 
-                className="h-20 w-20 object-contain rounded-md border border-secondary/30 shadow-[0_0_20px_rgba(197,160,89,0.3)] mb-6"
+                className="h-40 w-40 md:h-48 md:w-48 object-contain rounded-md border border-secondary/30 shadow-[0_0_35px_rgba(197,160,89,0.4)] mb-8"
               />
               <h2 className="font-serif text-3xl md:text-4xl text-white tracking-widest font-light mb-2">
                 Art.
@@ -343,8 +359,7 @@ export default function AboutScreen() {
                   <div className="flex flex-col items-center justify-center w-full h-full animate-[fade-in_0.5s_ease-out_forwards] relative">
                     <div className="absolute top-0 left-1/2 -translate-x-1/2 w-20 h-24 bg-gradient-to-b from-secondary/15 to-transparent rounded-b-[40px] blur-[2px]" />
                     <div className="relative z-10 mt-6 flex flex-col items-center">
-                      <span className="text-[9px] tracking-[0.25em] text-secondary uppercase font-semibold">Light</span>
-                      <span className="text-[7px] tracking-widest text-accent-muted/60 uppercase font-light mt-0.5">(Oli)</span>
+                      <span className="text-[10px] tracking-[0.25em] text-secondary uppercase font-semibold">Oli</span>
                     </div>
                   </div>
                 )}
