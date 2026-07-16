@@ -135,7 +135,7 @@ export default function Footer() {
                 Follow Us
               </span>
               <div className="flex gap-4">
-                <a href="#instagram" className="hover:text-secondary text-base transition-colors duration-200" aria-label="Instagram">
+                <a href="https://www.instagram.com/vioramediahub/" target="_blank" rel="noopener noreferrer" className="hover:text-secondary text-base transition-colors duration-200" aria-label="Instagram">
                   <i className="fa-brands fa-instagram"></i>
                 </a>
                 <a href="#youtube" className="hover:text-secondary text-base transition-colors duration-200" aria-label="YouTube">

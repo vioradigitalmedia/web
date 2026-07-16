@@ -193,6 +193,23 @@ export default function ContactScreen() {
                 </div>
               </div>
 
+              <div className="flex gap-4">
+                <div className="h-8 w-8 rounded-full border border-secondary/30 flex items-center justify-center flex-shrink-0">
+                  <i className="fa-brands fa-instagram text-secondary text-sm"></i>
+                </div>
+                <div>
+                  <span className="block text-[9px] tracking-widest uppercase font-semibold text-secondary">Instagram</span>
+                  <a
+                    href="https://www.instagram.com/vioramediahub/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-white hover:text-secondary transition-colors duration-300 font-light break-all"
+                  >
+                    @vioramediahub
+                  </a>
+                </div>
+              </div>
+
             </div>
           </div>
 
