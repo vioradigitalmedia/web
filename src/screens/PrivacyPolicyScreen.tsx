@@ -74,10 +74,10 @@ export default function PrivacyPolicyScreen() {
               If you have any questions or feedback regarding this Privacy Policy, please contact us directly at:
             </p>
             <a 
-              href="mailto:vioradigitalmedia@gmail.com" 
+              href="mailto:contact@vioramedia.in" 
               className="inline-block text-secondary hover:text-white transition-colors duration-300 font-serif italic"
             >
-              vioradigitalmedia@gmail.com
+              contact@vioramedia.in
             </a>
           </div>
 

@@ -125,7 +125,7 @@ export default function Footer() {
                 <i className="fa-solid fa-location-dot text-secondary w-4 text-center"></i> <span>Chennai, Tamil Nadu, India</span>
               </p>
               <p className="text-xs font-light leading-relaxed mb-3 flex items-center gap-2.5">
-                <i className="fa-solid fa-envelope text-secondary w-4 text-center"></i> <a href="mailto:vioradigitalmedia@gmail.com" className="hover:text-secondary transition-colors duration-200 break-all">vioradigitalmedia@gmail.com</a>
+                <i className="fa-solid fa-envelope text-secondary w-4 text-center"></i> <a href="mailto:contact@vioramedia.in" className="hover:text-secondary transition-colors duration-200 break-all">contact@vioramedia.in</a>
               </p>
             </div>
 

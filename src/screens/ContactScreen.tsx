@@ -155,10 +155,10 @@ export default function ContactScreen() {
                 <div>
                   <span className="block text-[9px] tracking-widest uppercase font-semibold text-secondary">Electronic Inquiries</span>
                   <a 
-                    href="mailto:vioradigitalmedia@gmail.com" 
+                    href="mailto:contact@vioramedia.in" 
                     className="text-xs text-white hover:text-secondary transition-colors duration-300 font-light break-all"
                   >
-                    vioradigitalmedia@gmail.com
+                    contact@vioramedia.in
                   </a>
                 </div>
               </div>
