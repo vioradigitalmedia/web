@@ -1,0 +1,45 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-black text-white font-sans antialiased overflow-x-hidden;
+  }
+  
+  /* Custom elegant scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #000000;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #C5A059;
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #E2C792;
+  }
+}
+
+@layer utilities {
+  .bg-gold-gradient {
+    background: linear-gradient(135deg, #E2C792 0%, #C5A059 50%, #9A7B3E 100%);
+  }
+  .text-gold-gradient {
+    background: linear-gradient(135deg, #E2C792 0%, #C5A059 50%, #9A7B3E 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .border-gold-glow {
+    box-shadow: 0 0 15px rgba(197, 160, 89, 0.15);
+    border: 1px solid rgba(197, 160, 89, 0.3);
+  }
+  .border-gold-glow:hover {
+    box-shadow: 0 0 25px rgba(197, 160, 89, 0.35);
+    border-color: rgba(197, 160, 89, 0.8);
+  }
+}

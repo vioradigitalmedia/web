@@ -1,0 +1,117 @@
+import { useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+
+export default function Header() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const location = useLocation();
+
+  const navItems = [
+    { path: '/', label: 'Home' },
+    { path: '/aboutus', label: 'About Us' },
+    { path: '/contact', label: 'Contact' },
+  ];
+
+  return (
+    <header className="sticky top-0 z-50 w-full bg-black/80 backdrop-blur-md border-b border-secondary/20">
+      <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+        
+        {/* Logo and Brand */}
+        <Link 
+          to="/"
+          className="flex items-center gap-3 cursor-pointer group"
+          onClick={() => setIsMenuOpen(false)}
+        >
+          <img 
+            src="/logo.jpg" 
+            alt="Viora Media Logo" 
+            className="h-12 w-12 object-contain rounded-md border border-secondary/35 group-hover:border-secondary transition-colors duration-300"
+          />
+          <div className="flex flex-col">
+            <span className="font-serif tracking-[0.25em] text-lg font-semibold text-white group-hover:text-secondary transition-colors duration-300">
+              VIORA
+            </span>
+            <span className="text-[9px] tracking-[0.4em] text-secondary font-medium -mt-1 uppercase">
+              Media
+            </span>
+          </div>
+        </Link>
+
+        {/* Desktop Navigation */}
+        <nav className="hidden md:flex items-center gap-8">
+          {navItems.map((item) => {
+            const isActive = location.pathname === item.path;
+            return (
+              <Link
+                key={item.path}
+                to={item.path}
+                className={`relative py-2 text-sm font-medium tracking-widest uppercase transition-colors duration-300 ${
+                  isActive 
+                    ? 'text-secondary' 
+                    : 'text-accent-muted hover:text-white'
+                }`}
+              >
+                {item.label}
+                {isActive && (
+                  <span className="absolute bottom-0 left-0 w-full h-[2px] bg-secondary shadow-[0_0_8px_#C5A059]" />
+                )}
+              </Link>
+            );
+          })}
+        </nav>
+
+        {/* CTA Button */}
+        <div className="hidden md:block">
+          <Link 
+            to="/contact"
+            className="relative px-6 py-2.5 text-xs font-semibold tracking-widest uppercase border border-secondary text-secondary hover:text-black hover:bg-gold-gradient transition-all duration-300 rounded-sm hover:shadow-[0_0_15px_rgba(197,160,89,0.4)] inline-block text-center"
+          >
+            Get In Touch
+          </Link>
+        </div>
+
+        {/* Mobile Menu Button */}
+        <button 
+          className="md:hidden text-white hover:text-secondary focus:outline-none"
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          aria-label="Toggle Menu"
+        >
+          <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            {isMenuOpen ? (
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            ) : (
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
+            )}
+          </svg>
+        </button>
+      </div>
+
+      {/* Mobile Drawer Menu */}
+      {isMenuOpen && (
+        <div className="md:hidden absolute top-20 left-0 w-full bg-black/95 border-b border-secondary/20 py-6 px-6 flex flex-col gap-4 animate-fade-in">
+          {navItems.map((item) => {
+            const isActive = location.pathname === item.path;
+            return (
+              <Link
+                key={item.path}
+                to={item.path}
+                onClick={() => setIsMenuOpen(false)}
+                className={`text-left py-2 text-sm font-medium tracking-widest uppercase transition-colors duration-300 ${
+                  isActive ? 'text-secondary' : 'text-accent-muted hover:text-white'
+                }`}
+              >
+                {item.label}
+              </Link>
+            );
+          })}
+          <Link 
+            to="/contact"
+            onClick={() => setIsMenuOpen(false)}
+            className="mt-2 w-full py-3 text-xs font-semibold tracking-widest uppercase text-center border border-secondary text-secondary hover:bg-secondary hover:text-black transition-all duration-300 inline-block"
+          >
+            Get In Touch
+          </Link>
+        </div>
+      )}
+    </header>
+  );
+}
