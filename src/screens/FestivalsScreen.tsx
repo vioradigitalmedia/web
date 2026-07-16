@@ -1,58 +1,5 @@
 import { Link } from 'react-router-dom';
 
-function FilmReel() {
-  return (
-    <div className="w-36 h-36 relative select-none">
-      <svg viewBox="0 0 100 100" className="w-full h-full animate-spin-reverse drop-shadow-[0_0_15px_rgba(197,160,89,0.15)]" style={{ animationDuration: '6s' }}>
-        <defs>
-          <radialGradient id="metal-gradient" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="#9A7B3E" />
-            <stop offset="50%" stopColor="#C5A059" />
-            <stop offset="75%" stopColor="#E2C792" />
-            <stop offset="100%" stopColor="#9A7B3E" />
-          </radialGradient>
-          <mask id="reel-mask">
-            {/* Everything white stays, black gets cut out */}
-            <circle cx="50" cy="50" r="47" fill="white" />
-            {/* Central spindle hole */}
-            <circle cx="50" cy="50" r="10" fill="black" />
-            {/* 5 radial holes */}
-            <circle cx="50" cy="24" r="8.5" fill="black" />
-            <circle cx="74.7" cy="42" r="8.5" fill="black" />
-            <circle cx="65.3" cy="71" r="8.5" fill="black" />
-            <circle cx="34.7" cy="71" r="8.5" fill="black" />
-            <circle cx="25.3" cy="42" r="8.5" fill="black" />
-          </mask>
-        </defs>
-
-        {/* 1. Coiled Film Tape Background (visible through holes) */}
-        <circle cx="50" cy="50" r="45" fill="#121212" />
-        <circle cx="50" cy="50" r="42" fill="none" stroke="#222" strokeWidth="1" />
-        <circle cx="50" cy="50" r="39" fill="none" stroke="#1c1c1c" strokeWidth="1" strokeDasharray="3, 1" />
-        <circle cx="50" cy="50" r="36" fill="none" stroke="#2c2c2c" strokeWidth="1" />
-        <circle cx="50" cy="50" r="33" fill="none" stroke="#1c1c1c" strokeWidth="1" strokeDasharray="2, 2" />
-        <circle cx="50" cy="50" r="30" fill="none" stroke="#222" strokeWidth="1" />
-        <circle cx="50" cy="50" r="27" fill="none" stroke="#111" strokeWidth="1" />
-        <circle cx="50" cy="50" r="24" fill="none" stroke="#1c1c1c" strokeWidth="1" strokeDasharray="4, 1" />
-        <circle cx="50" cy="50" r="21" fill="none" stroke="#111" strokeWidth="1" />
-
-        {/* 2. Metal Reel Plate with cutouts */}
-        <circle cx="50" cy="50" r="47" fill="url(#metal-gradient)" mask="url(#reel-mask)" />
-        
-        {/* Rim Highlights */}
-        <circle cx="50" cy="50" r="47" fill="none" stroke="#E2C792" strokeWidth="0.5" opacity="0.6" />
-        <circle cx="50" cy="50" r="45" fill="none" stroke="#5c451b" strokeWidth="0.5" opacity="0.8" />
-
-        {/* 3. Center Spindle Core (non-rotating/rotating on top) */}
-        <circle cx="50" cy="50" r="12" fill="#1c1c1c" stroke="#C5A059" strokeWidth="1.5" />
-        <circle cx="50" cy="50" r="8" fill="#0d0d0d" stroke="#5c451b" strokeWidth="0.5" />
-        {/* Center square/pin lock hole */}
-        <rect x="47.5" y="47.5" width="5" height="5" rx="0.5" fill="#000" />
-      </svg>
-    </div>
-  );
-}
-
 export default function FestivalsScreen() {
   const categories = [
     {
@@ -164,87 +111,77 @@ export default function FestivalsScreen() {
       {/* Film Reel Animation Section */}
       <section className="w-full py-12 bg-primary-light border-y border-white/5 relative mb-24">
         
-        {/* Film Strip Section Container (Reel + Track) */}
-        <div className="w-full pl-6 min-[1328px]:pl-[calc((100vw-1280px)/2+24px)] pr-0 flex items-center gap-8 relative">
-          
-          {/* Circular Reel on the Left */}
-          <div className="hidden sm:block flex-shrink-0 z-20">
-            <FilmReel />
-          </div>
+        {/* Film Strip Section Container (Full width) */}
+        <div className="w-full overflow-hidden relative flex py-4 border-y-2 border-dashed border-white/10 bg-black/40 z-10">
+          <div className="flex animate-roll-reel">
 
-          {/* Film Track in the Middle */}
-          <div className="flex-grow overflow-hidden relative flex py-4 border-y-2 border-dashed border-white/10 bg-black/40 z-10">
-            <div className="flex animate-roll-reel">
+            {/* First Set of Frames */}
+            <div className="flex gap-8 px-4 flex-shrink-0">
+              {reelFrames.map((frame, idx) => (
+                <div key={`reel-1-${idx}`} className="flex flex-col items-center gap-3 w-56 relative">
+                  {/* Sprocket Top */}
+                  <div className="w-full h-3.5 relative opacity-25">
+                    <div className="absolute left-0 w-7 h-3.5 bg-white rounded-[3px]"></div>
+                    <div className="absolute left-16 w-7 h-3.5 bg-white rounded-[3px]"></div>
+                    <div className="absolute left-32 w-7 h-3.5 bg-white rounded-[3px]"></div>
+                    <div className="absolute left-48 w-7 h-3.5 bg-white rounded-[3px]"></div>
+                  </div>
 
-              {/* First Set of Frames */}
-              <div className="flex gap-8 px-4 flex-shrink-0">
-                {reelFrames.map((frame, idx) => (
-                  <div key={`reel-1-${idx}`} className="flex flex-col items-center gap-3 w-56 relative">
-                    {/* Sprocket Top */}
-                    <div className="w-full h-3.5 relative opacity-25">
-                      <div className="absolute left-0 w-7 h-3.5 bg-white rounded-[3px]"></div>
-                      <div className="absolute left-16 w-7 h-3.5 bg-white rounded-[3px]"></div>
-                      <div className="absolute left-32 w-7 h-3.5 bg-white rounded-[3px]"></div>
-                      <div className="absolute left-48 w-7 h-3.5 bg-white rounded-[3px]"></div>
-                    </div>
-
-                    {/* Film Frame Card */}
-                    <div className="w-56 h-36 bg-black border border-white/10 rounded-sm p-4 flex flex-col items-center justify-center text-center relative group hover:border-secondary/50 transition-colors duration-300">
-                      {/* Frame border lines resembling slide frame */}
-                      <div className="absolute top-0 bottom-0 left-2 right-2 border-x border-white/5"></div>
-                      <div className="relative z-10">
-                        <div className="mb-2 text-2xl text-secondary">{frame.icon}</div>
-                        <span className="block font-serif text-sm text-white font-medium tracking-wide mb-1">{frame.title}</span>
-                      </div>
-                    </div>
-
-                    {/* Sprocket Bottom */}
-                    <div className="w-full h-3.5 relative opacity-25">
-                      <div className="absolute left-0 w-7 h-3.5 bg-white rounded-[3px]"></div>
-                      <div className="absolute left-16 w-7 h-3.5 bg-white rounded-[3px]"></div>
-                      <div className="absolute left-32 w-7 h-3.5 bg-white rounded-[3px]"></div>
-                      <div className="absolute left-48 w-7 h-3.5 bg-white rounded-[3px]"></div>
+                  {/* Film Frame Card */}
+                  <div className="w-56 h-36 bg-black border border-white/10 rounded-sm p-4 flex flex-col items-center justify-center text-center relative group hover:border-secondary/50 transition-colors duration-300">
+                    {/* Frame border lines resembling slide frame */}
+                    <div className="absolute top-0 bottom-0 left-2 right-2 border-x border-white/5"></div>
+                    <div className="relative z-10">
+                      <div className="mb-2 text-2xl text-secondary">{frame.icon}</div>
+                      <span className="block font-serif text-sm text-white font-medium tracking-wide mb-1">{frame.title}</span>
                     </div>
                   </div>
-                ))}
-              </div>
 
-              {/* Second Set of Frames (for seamless infinite loop) */}
-              <div className="flex gap-8 px-4 flex-shrink-0">
-                {reelFrames.map((frame, idx) => (
-                  <div key={`reel-2-${idx}`} className="flex flex-col items-center gap-3 w-56 relative">
-                    {/* Sprocket Top */}
-                    <div className="w-full h-3.5 relative opacity-25">
-                      <div className="absolute left-0 w-7 h-3.5 bg-white rounded-[3px]"></div>
-                      <div className="absolute left-16 w-7 h-3.5 bg-white rounded-[3px]"></div>
-                      <div className="absolute left-32 w-7 h-3.5 bg-white rounded-[3px]"></div>
-                      <div className="absolute left-48 w-7 h-3.5 bg-white rounded-[3px]"></div>
-                    </div>
-
-                    {/* Film Frame Card */}
-                    <div className="w-56 h-36 bg-black border border-white/10 rounded-sm p-4 flex flex-col items-center justify-center text-center relative group hover:border-secondary/50 transition-colors duration-300">
-                      {/* Frame border lines resembling slide frame */}
-                      <div className="absolute top-0 bottom-0 left-2 right-2 border-x border-white/5"></div>
-                      <div className="relative z-10">
-                        <div className="mb-2 text-2xl text-secondary">{frame.icon}</div>
-                        <span className="block font-serif text-sm text-white font-medium tracking-wide mb-1">{frame.title}</span>
-                      </div>
-                    </div>
-
-                    {/* Sprocket Bottom */}
-                    <div className="w-full h-3.5 relative opacity-25">
-                      <div className="absolute left-0 w-7 h-3.5 bg-white rounded-[3px]"></div>
-                      <div className="absolute left-16 w-7 h-3.5 bg-white rounded-[3px]"></div>
-                      <div className="absolute left-32 w-7 h-3.5 bg-white rounded-[3px]"></div>
-                      <div className="absolute left-48 w-7 h-3.5 bg-white rounded-[3px]"></div>
-                    </div>
+                  {/* Sprocket Bottom */}
+                  <div className="w-full h-3.5 relative opacity-25">
+                    <div className="absolute left-0 w-7 h-3.5 bg-white rounded-[3px]"></div>
+                    <div className="absolute left-16 w-7 h-3.5 bg-white rounded-[3px]"></div>
+                    <div className="absolute left-32 w-7 h-3.5 bg-white rounded-[3px]"></div>
+                    <div className="absolute left-48 w-7 h-3.5 bg-white rounded-[3px]"></div>
                   </div>
-                ))}
-              </div>
-
+                </div>
+              ))}
             </div>
-          </div>
 
+            {/* Second Set of Frames (for seamless infinite loop) */}
+            <div className="flex gap-8 px-4 flex-shrink-0">
+              {reelFrames.map((frame, idx) => (
+                <div key={`reel-2-${idx}`} className="flex flex-col items-center gap-3 w-56 relative">
+                  {/* Sprocket Top */}
+                  <div className="w-full h-3.5 relative opacity-25">
+                    <div className="absolute left-0 w-7 h-3.5 bg-white rounded-[3px]"></div>
+                    <div className="absolute left-16 w-7 h-3.5 bg-white rounded-[3px]"></div>
+                    <div className="absolute left-32 w-7 h-3.5 bg-white rounded-[3px]"></div>
+                    <div className="absolute left-48 w-7 h-3.5 bg-white rounded-[3px]"></div>
+                  </div>
+
+                  {/* Film Frame Card */}
+                  <div className="w-56 h-36 bg-black border border-white/10 rounded-sm p-4 flex flex-col items-center justify-center text-center relative group hover:border-secondary/50 transition-colors duration-300">
+                    {/* Frame border lines resembling slide frame */}
+                    <div className="absolute top-0 bottom-0 left-2 right-2 border-x border-white/5"></div>
+                    <div className="relative z-10">
+                      <div className="mb-2 text-2xl text-secondary">{frame.icon}</div>
+                      <span className="block font-serif text-sm text-white font-medium tracking-wide mb-1">{frame.title}</span>
+                    </div>
+                  </div>
+
+                  {/* Sprocket Bottom */}
+                  <div className="w-full h-3.5 relative opacity-25">
+                    <div className="absolute left-0 w-7 h-3.5 bg-white rounded-[3px]"></div>
+                    <div className="absolute left-16 w-7 h-3.5 bg-white rounded-[3px]"></div>
+                    <div className="absolute left-32 w-7 h-3.5 bg-white rounded-[3px]"></div>
+                    <div className="absolute left-48 w-7 h-3.5 bg-white rounded-[3px]"></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+          </div>
         </div>
       </section>
 
