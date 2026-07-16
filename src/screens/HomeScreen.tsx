@@ -3,33 +3,53 @@ import { Link } from 'react-router-dom';
 export default function HomeScreen() {
   const whatWeDo = [
     {
-      title: 'Short Film Festivals',
-      desc: 'Showcase your work on a platform built for independent creators.',
-      icon: <i className="fa-solid fa-video text-secondary text-2xl"></i>
+      title: 'Digital Media',
+      desc: 'Stay informed through original interviews, industry news, podcasts, reviews, and exclusive storytelling.',
+      icon: <i className="fa-solid fa-newspaper text-secondary text-2xl"></i>
     },
     {
-      title: 'Creator Community',
-      desc: 'Connect with filmmakers, writers, actors, editors, and artists.',
+      title: 'Short Film Festivals',
+      desc: 'Discover exceptional films, celebrate emerging talent, and experience cinema through curated festivals.',
+      icon: <i className="fa-solid fa-film text-secondary text-2xl"></i>
+    },
+    {
+      title: 'Academy',
+      desc: 'Learn from filmmakers and industry experts through workshops, masterclasses, and practical training.',
+      icon: <i className="fa-solid fa-graduation-cap text-secondary text-2xl"></i>
+    },
+    {
+      title: 'Community',
+      desc: 'Join a thriving network of filmmakers, actors, writers, technicians, students, and cinema enthusiasts.',
       icon: <i className="fa-solid fa-users text-secondary text-2xl"></i>
     },
     {
-      title: 'Workshops & Networking',
-      desc: 'Learn from industry professionals and collaborate with like-minded creators.',
-      icon: <i className="fa-solid fa-chalkboard-user text-secondary text-2xl"></i>
+      title: 'Awards & Recognition',
+      desc: 'Recognize creative excellence and celebrate the people shaping the future of cinema.',
+      icon: <i className="fa-solid fa-trophy text-secondary text-2xl"></i>
     },
     {
-      title: 'Awards & Recognition',
-      desc: 'Celebrate outstanding storytelling and creative excellence.',
-      icon: <i className="fa-solid fa-trophy text-secondary text-2xl"></i>
+      title: 'Opportunities',
+      desc: 'Access casting calls, crew opportunities, internships, collaborations, competitions, and career resources.',
+      icon: <i className="fa-solid fa-briefcase text-secondary text-2xl"></i>
+    },
+    {
+      title: 'Viora Originals',
+      desc: 'Watch exclusive films, documentaries, conversations, and premium Viora productions.',
+      icon: <i className="fa-solid fa-clapperboard text-secondary text-2xl"></i>
+    },
+    {
+      title: 'Events',
+      desc: 'Experience meetups, screenings, networking sessions, conferences, and live industry experiences.',
+      icon: <i className="fa-solid fa-calendar-days text-secondary text-2xl"></i>
     }
   ];
 
   const whyViora = [
-    'Open to emerging filmmakers',
-    'Transparent judging process',
-    'Creative networking opportunities',
-    'Recognition through awards and screenings',
-    'A growing community passionate about cinema'
+    'Open to creators at every stage',
+    'Industry-led workshops and mentorship',
+    'Meaningful networking and collaboration',
+    'Recognition through festivals and awards',
+    'A thriving community built around cinema'
   ];
 
   return (
@@ -167,8 +187,7 @@ export default function HomeScreen() {
           </div>
           <div className="md:col-span-7 text-left md:pl-8 border-l-0 md:border-l border-secondary/20 pl-0 md:pl-8 mt-4 md:mt-0">
             <p className="text-sm md:text-base text-accent-muted font-light leading-relaxed tracking-wide">
-              At Viora, we believe every filmmaker deserves an audience. Our festivals bring together storytellers, creators, and cinema lovers to celebrate original films and emerging talent.
-            </p>
+              Cinema has never been built by one person. It is shaped by storytellers, dreamers, technicians, artists, innovators, and audiences who come together to create something greater than themselves. Viora exists to unite these voices under one platform—where ideas become collaborations, talent finds opportunity, and every contribution moves cinema forward.            </p>
           </div>
         </div>
       </section>
@@ -286,45 +305,14 @@ export default function HomeScreen() {
             <div className="p-6 border border-white/5 bg-primary-light hover:border-secondary/20 transition-all duration-300 rounded-sm">
               <span className="text-[10px] tracking-widest text-secondary font-bold uppercase block mb-3">Today</span>
               <p className="text-xs text-accent-muted font-light leading-relaxed">
-                We host film festivals and creative showcases built to reward raw talent.
-              </p>
+                We are bringing creators together through digital media, film festivals, workshops, industry conversations, networking events, and meaningful opportunities that celebrate creativity and spark collaboration.              </p>
             </div>
 
             <div className="p-6 border border-white/5 bg-primary-light hover:border-secondary/20 transition-all duration-300 rounded-sm">
               <span className="text-[10px] tracking-widest text-secondary font-bold uppercase block mb-3">Tomorrow</span>
               <p className="text-xs text-accent-muted font-light leading-relaxed">
-                We aim to build a creative ecosystem that nurtures filmmakers, produces original content, and brings powerful stories to audiences everywhere.
-              </p>
+                Our vision is to build the world's most connected cinema ecosystem—a platform where creators learn, collaborate, showcase their work, gain recognition, discover opportunities, and shape the future of storytelling together.              </p>
             </div>
-          </div>
-
-        </div>
-      </section>
-
-      {/* Call to Action - Left text / Right Button */}
-      <section className="bg-primary-light border-t border-white/5 py-24 px-6 md:px-16 relative overflow-hidden">
-        <div className="absolute top-1/2 left-1/3 w-[300px] h-[300px] bg-secondary/5 rounded-full blur-[80px] pointer-events-none" />
-
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
-
-          {/* Left Text */}
-          <div className="lg:col-span-8 text-left">
-            <h2 className="font-serif text-3xl md:text-5xl text-white tracking-wide mb-4">
-              Ready to Share Your Story?
-            </h2>
-            <p className="text-xs md:text-sm text-accent-muted font-light leading-relaxed max-w-xl">
-              Whether you’re a first-time filmmaker or an experienced creator, Viora is your stage.
-            </p>
-          </div>
-
-          {/* Right Button */}
-          <div className="lg:col-span-4 flex lg:justify-end">
-            <Link
-              to="/contact"
-              className="w-full sm:w-auto px-10 py-4 bg-gold-gradient hover:bg-none hover:bg-secondary text-black font-semibold text-xs tracking-widest uppercase transition-all duration-300 rounded-sm hover:shadow-[0_0_15px_rgba(197,160,89,0.4)] border border-secondary text-center inline-block"
-            >
-              Contact Us
-            </Link>
           </div>
 
         </div>

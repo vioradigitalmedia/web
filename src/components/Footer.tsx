@@ -166,7 +166,7 @@ export default function Footer() {
             &copy; {currentYear} Viora. All rights reserved.
           </p>
           <div className="flex flex-wrap justify-center gap-6">
-            <a href="#privacy" className="hover:text-secondary transition-colors duration-200">Privacy Policy</a>
+            <Link to="/privacy-policy" className="hover:text-secondary transition-colors duration-200">Privacy Policy</Link>
             <a href="#terms" className="hover:text-secondary transition-colors duration-200">Terms & Conditions</a>
             <a href="#cookies" className="hover:text-secondary transition-colors duration-200">Cookie Policy</a>
           </div>

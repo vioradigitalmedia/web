@@ -11,89 +11,42 @@ export default function AboutScreen() {
 
   const activities = [
     {
+      title: 'Digital Media',
+      icon: <i className="fa-solid fa-newspaper text-secondary text-lg"></i>
+    },
+    {
       title: 'Short Film Festivals',
-      icon: (
-        <svg className="h-5 w-5 text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          {/* Vintage Video Camera */}
-          <rect x="2" y="7" width="11" height="9" rx="1" strokeWidth={1.5} />
-          <circle cx="5" cy="4.5" r="2" strokeWidth={1.5} />
-          <circle cx="10" cy="4.5" r="2" strokeWidth={1.5} />
-          <path d="M13 10.5l5-3.5v9l-5-3.5" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      )
+      icon: <i className="fa-solid fa-film text-secondary text-lg"></i>
     },
     {
-      title: 'Film Competitions',
-      icon: (
-        <svg className="h-5 w-5 text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          {/* Cinematic Clapboard */}
-          <rect x="3" y="9" width="18" height="11" rx="1.5" strokeWidth={1.5} />
-          <path d="M3 9l18-3" strokeWidth={1.5} strokeLinecap="round" />
-          <path d="M6 8.5L8 6.5M11 7.5l2-2M16 6.5l2-2" strokeWidth={1.5} strokeLinecap="round" />
-        </svg>
-      )
+      title: 'Academy',
+      icon: <i className="fa-solid fa-graduation-cap text-secondary text-lg"></i>
     },
     {
-      title: 'Creator Community',
-      icon: (
-        <svg className="h-5 w-5 text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          {/* Film Strip */}
-          <rect x="4" y="3" width="16" height="18" rx="2" strokeWidth={1.5} />
-          <path d="M7 5v.01M7 9v.01M7 13v.01M7 17v.01" strokeWidth={2} strokeLinecap="round" />
-          <path d="M17 5v.01M17 9v.01M17 13v.01M17 17v.01" strokeWidth={2} strokeLinecap="round" />
-          <path d="M10 3v18M14 3v18" strokeWidth={1} strokeDasharray="2 2" />
-        </svg>
-      )
+      title: 'Community',
+      icon: <i className="fa-solid fa-users text-secondary text-lg"></i>
     },
     {
-      title: 'Workshops & Networking',
-      icon: (
-        <svg className="h-5 w-5 text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          {/* Spotlight / Studio Light */}
-          <circle cx="12" cy="7" r="4.5" strokeWidth={1.5} />
-          <path d="M12 11.5v6.5M7 21h10M12 18l-3.5 3M12 18l3.5 3" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" />
-          <path d="M6 7.5L5 6M18 7.5l1-1.5" strokeWidth={1.5} strokeLinecap="round" />
-        </svg>
-      )
+      title: 'Awards & Recognition',
+      icon: <i className="fa-solid fa-trophy text-secondary text-lg"></i>
     },
     {
-      title: 'Film Screenings',
-      icon: (
-        <svg className="h-5 w-5 text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          {/* Theater Curtain / Stage Screen */}
-          <path d="M3 4h18v16H3V4z" strokeWidth={1.5} strokeLinecap="round" />
-          <path d="M3 4c3.5 3.5 2 11 0 16" strokeWidth={1.5} strokeLinecap="round" />
-          <path d="M21 4c-3.5 3.5-2 11 0 16" strokeWidth={1.5} strokeLinecap="round" />
-          <path d="M2 17.5h20" strokeWidth={1.5} strokeLinecap="round" />
-        </svg>
-      )
+      title: 'Opportunities',
+      icon: <i className="fa-solid fa-briefcase text-secondary text-lg"></i>
     },
     {
-      title: 'Industry Collaborations',
-      icon: (
-        <svg className="h-5 w-5 text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          {/* Director Megaphone */}
-          <path d="M3 17.5l3-3h4l5.5 4.5V5l-5.5 4.5h-4l-3-3v11z" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" />
-          <path d="M19 8c1.5 1.5 1.5 6.5 0 8" strokeWidth={1.5} strokeLinecap="round" />
-        </svg>
-      )
+      title: 'Viora Originals',
+      icon: <i className="fa-solid fa-clapperboard text-secondary text-lg"></i>
     },
     {
-      title: 'Viora Originals (coming in the future)',
-      icon: (
-        <svg className="h-5 w-5 text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          {/* Cinema Ticket */}
-          <rect x="3" y="6" width="18" height="12" rx="2" strokeWidth={1.5} />
-          <path d="M3 12c1.2 0 1.2-2 0-2M21 12c-1.2 0-1.2-2 0-2" strokeWidth={1.5} strokeLinejoin="round" />
-          <path d="M8 9h8M8 13h5" strokeWidth={1.5} strokeLinecap="round" />
-        </svg>
-      )
+      title: 'Events',
+      icon: <i className="fa-solid fa-calendar-days text-secondary text-lg"></i>
     }
   ];
 
   const values = [
-    { 
-      title: 'Creativity', 
+    {
+      title: 'Creativity',
       desc: 'Every story deserves a chance.',
       icon: (
         <svg className="h-8 w-8 text-secondary mb-4 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -101,8 +54,8 @@ export default function AboutScreen() {
         </svg>
       )
     },
-    { 
-      title: 'Innovation', 
+    {
+      title: 'Innovation',
       desc: 'We embrace new ideas and new voices.',
       icon: (
         <svg className="h-8 w-8 text-secondary mb-4 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -110,8 +63,8 @@ export default function AboutScreen() {
         </svg>
       )
     },
-    { 
-      title: 'Community', 
+    {
+      title: 'Community',
       desc: 'Great cinema grows through collaboration.',
       icon: (
         <svg className="h-8 w-8 text-secondary mb-4 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -119,8 +72,8 @@ export default function AboutScreen() {
         </svg>
       )
     },
-    { 
-      title: 'Quality', 
+    {
+      title: 'Quality',
       desc: 'We value thoughtful storytelling and craftsmanship.',
       icon: (
         <svg className="h-8 w-8 text-secondary mb-4 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -128,8 +81,8 @@ export default function AboutScreen() {
         </svg>
       )
     },
-    { 
-      title: 'Inclusivity', 
+    {
+      title: 'Inclusivity',
       desc: 'Creators from every background are welcome.',
       icon: (
         <svg className="h-8 w-8 text-secondary mb-4 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -188,10 +141,10 @@ export default function AboutScreen() {
   if (isIntroActive) {
     return (
       <div className="fixed inset-0 z-[100] bg-black flex flex-col items-center justify-center overflow-hidden font-sans select-none">
-        
+
         {/* Skip Intro Button */}
-        <button 
-          onClick={() => setIsIntroActive(false)} 
+        <button
+          onClick={() => setIsIntroActive(false)}
           className="absolute top-8 right-8 px-5 py-2.5 border border-secondary/20 text-secondary hover:text-black hover:bg-gold-gradient transition-all duration-300 rounded-sm text-[10px] tracking-widest uppercase cursor-pointer"
         >
           Skip Intro ✕
@@ -199,7 +152,7 @@ export default function AboutScreen() {
 
         {/* Visual Scene Container */}
         <div className="relative w-full max-w-lg h-96 flex flex-col items-center justify-center text-center px-6">
-          
+
           {/* Scene 1: Darkness (Glowing dot) */}
           {scene === 0 && (
             <div className="flex flex-col items-center justify-center animate-[fade-in_1s_ease-out_forwards]">
@@ -247,7 +200,7 @@ export default function AboutScreen() {
               <div className="absolute top-20 left-1/3 h-1 w-1 rounded-full bg-secondary/80 animate-ping" />
               <div className="absolute top-32 right-1/4 h-1 w-1 rounded-full bg-secondary/60 animate-ping" style={{ animationDelay: '1s' }} />
               <div className="absolute top-16 right-1/3 h-1 w-1 rounded-full bg-secondary/40 animate-ping" style={{ animationDelay: '0.5s' }} />
-              
+
               <div className="relative z-10 mt-24">
                 <h2 className="font-serif text-3xl md:text-4xl text-white tracking-widest font-light animate-[scale-up_2s_linear_forwards]">
                   Oli.
@@ -277,9 +230,9 @@ export default function AboutScreen() {
           {/* Scene 6: Art (VIORA Logo emerges) */}
           {scene === 5 && (
             <div className="flex flex-col items-center justify-center animate-[scale-up_3s_ease-out_forwards]">
-              <img 
-                src="/logo.jpg" 
-                alt="Viora Logo" 
+              <img
+                src="/logo.jpg"
+                alt="Viora Logo"
                 className="h-40 w-40 md:h-48 md:w-48 object-contain rounded-md border border-secondary/30 shadow-[0_0_35px_rgba(197,160,89,0.4)] mb-8"
               />
               <h2 className="font-serif text-3xl md:text-4xl text-white tracking-widest font-light mb-2">
@@ -307,20 +260,20 @@ export default function AboutScreen() {
 
   return (
     <div className="w-full bg-black min-h-screen pt-12 pb-24 text-white">
-      
+
       {/* Hero Section */}
       <section className="max-w-7xl mx-auto px-6 py-12 md:py-20 relative">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-secondary/5 rounded-full blur-[100px] pointer-events-none" />
-        
+
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12 items-center">
-          
+
           {/* Left Column - Miniature About Us Loop Animation */}
           <div className="md:col-span-5 flex justify-center items-center select-none">
             <div className="relative w-56 h-56 flex items-center justify-center border border-secondary/15 bg-primary-light rounded-sm overflow-hidden border-gold-glow p-4">
               <div className="absolute inset-0 bg-black/60 backdrop-blur-[1px]" />
-              
+
               <div className="relative w-full h-full flex flex-col items-center justify-center text-center px-4">
-                
+
                 {/* Mini Scene 0: Darkness (Glowing dot) */}
                 {miniScene === 0 && (
                   <div className="flex flex-col items-center justify-center animate-[fade-in_0.5s_ease-out_forwards]">
@@ -381,9 +334,9 @@ export default function AboutScreen() {
                 {/* Mini Scene 5: Art (Logo) */}
                 {miniScene === 5 && (
                   <div className="flex flex-col items-center justify-center animate-[scale-up_2s_ease-out_forwards]">
-                    <img 
-                      src="/logo.jpg" 
-                      alt="Viora Logo" 
+                    <img
+                      src="/logo.jpg"
+                      alt="Viora Logo"
                       className="h-8 w-8 object-contain rounded-md border border-secondary/35 shadow-[0_0_10px_rgba(197,160,89,0.3)] mb-2"
                     />
                     <span className="text-[9px] tracking-[0.25em] text-secondary uppercase font-semibold">Art</span>
@@ -412,14 +365,15 @@ export default function AboutScreen() {
             <h1 className="font-serif text-4xl md:text-6xl text-white tracking-wide mt-2 mb-4 leading-tight">
               About Viora
             </h1>
-            
+
             <p className="text-gold-gradient font-serif italic text-lg md:text-xl tracking-wide mb-6">
               "Where Vision Becomes Art."
             </p>
 
             <p className="text-sm md:text-base text-accent-muted font-light leading-relaxed tracking-wide">
-              Viora is a creative media platform dedicated to discovering, celebrating, and empowering storytellers. 
-              We believe every great filmmaker deserves a stage, and every meaningful story deserves an audience.
+              Viora is a premium cinema ecosystem dedicated to bringing together creators, industry professionals, and audiences under one unified platform. Through digital media, film festivals, workshops, networking, awards, original content, and creative collaborations, we create meaningful opportunities that inspire growth, celebrate excellence, and strengthen the creative community.
+              Built on the values of innovation, integrity, and artistic excellence, Viora is committed to supporting storytellers at every stage of their journey. Our mission is to foster a trusted ecosystem where talent is discovered, ideas become collaborations, and every voice in cinema has the opportunity to thrive.
+
             </p>
           </div>
 
@@ -440,19 +394,19 @@ export default function AboutScreen() {
           </p>
 
           <p>
-            Viora was founded to create opportunities for emerging creators through short film festivals, 
-            creative collaborations, and a growing community that celebrates independent cinema. We want to 
-            bridge the gap between aspiring filmmakers and the audiences, mentors, and opportunities they need to grow.
+            Viora was founded with a clear vision: to create a platform that brings every aspect of cinema together under one ecosystem. We recognized that while the industry is filled with exceptional talent and countless opportunities, they often exist in separate spaces. Creators seek guidance, professionals seek meaningful collaborations, emerging voices seek recognition, and audiences seek authentic stories. Viora was established to bridge these gaps and create a connected environment where everyone can learn, collaborate, grow, and contribute to the future of cinema.
+            Our journey is driven by a long-term commitment to supporting the creative community through digital media, film festivals, workshops, industry conversations, networking initiatives, awards, and original content. Every initiative we undertake is designed with purpose—to create opportunities, encourage collaboration, celebrate excellence, and make the world of cinema more accessible to aspiring and established creators alike.
+            We believe lasting impact is built through trust, consistency, and meaningful relationships. As Viora continues to grow, our mission remains unchanged: to build a platform where creators are empowered, talent is recognized, and the entire cinema community can come together to shape the future of storytelling.
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6">
             <div className="p-6 border border-secondary/20 bg-primary-light rounded-sm">
               <span className="text-xs tracking-widest text-secondary uppercase font-bold block mb-2">Today</span>
-              <p className="text-sm text-white">We organize film festivals.</p>
+              <p className="text-sm text-white">We are bringing creators together through digital media, film festivals, workshops, industry conversations, networking events, and meaningful opportunities that celebrate creativity and spark collaboration.</p>
             </div>
             <div className="p-6 border border-secondary/20 bg-primary-light rounded-sm">
               <span className="text-xs tracking-widest text-secondary uppercase font-bold block mb-2">Tomorrow</span>
-              <p className="text-sm text-white">We aim to build a creative ecosystem where stories are developed, produced, and shared with the world.</p>
+              <p className="text-sm text-white">Our vision is to build the world's most connected cinema ecosystem—a platform where creators learn, collaborate, showcase their work, gain recognition, discover opportunities, and shape the future of storytelling together.</p>
             </div>
           </div>
         </div>
@@ -469,8 +423,8 @@ export default function AboutScreen() {
           {/* Golden Letter Cards Grid */}
           <div className="grid grid-cols-2 md:grid-cols-5 gap-6 mb-12">
             {vioraMeaning.map((item, idx) => (
-              <div 
-                key={idx} 
+              <div
+                key={idx}
                 className="border border-white/5 bg-black p-6 rounded-sm text-center flex flex-col items-center justify-center border-gold-glow transition-all duration-300"
               >
                 <span className="font-serif text-5xl md:text-6xl text-gold-gradient font-bold mb-4">
@@ -501,9 +455,7 @@ export default function AboutScreen() {
           <span className="text-xs tracking-[0.25em] text-secondary uppercase font-semibold block mb-4">Focus</span>
           <h3 className="font-serif text-2xl md:text-3xl text-white mb-4">Our Mission</h3>
           <p className="text-xs md:text-sm text-accent-muted font-light leading-relaxed">
-            To empower the next generation of filmmakers by providing platforms to showcase their work, 
-            connect with audiences, and transform creative ideas into impactful stories.
-          </p>
+            Our mission is to build a thriving cinema ecosystem where creativity meets opportunity. We are committed to empowering storytellers by connecting creators, industry professionals, and audiences through meaningful experiences, education, collaboration, recognition, and innovative digital media. By fostering a culture of excellence, inclusivity, and integrity, Viora aims to inspire the next generation of creators while shaping the future of cinema.</p>
         </div>
 
         <div className="p-8 border border-white/5 bg-primary-light hover:border-secondary/35 transition-colors duration-500 rounded-sm relative group">
@@ -511,9 +463,7 @@ export default function AboutScreen() {
           <span className="text-xs tracking-[0.25em] text-secondary uppercase font-semibold block mb-4">Future</span>
           <h3 className="font-serif text-2xl md:text-3xl text-white mb-4">Our Vision</h3>
           <p className="text-xs md:text-sm text-accent-muted font-light leading-relaxed">
-            To become one of India’s leading independent media platforms, nurturing creators through 
-            festivals, production, education, and original storytelling that inspires audiences worldwide.
-          </p>
+            Our vision is to build one of the world's most trusted and influential cinema ecosystems, where creativity, collaboration, and opportunity come together. We aspire to create a future where every storyteller has access to the platform, knowledge, recognition, and community they need to inspire audiences and shape the future of cinema.</p>
         </div>
       </section>
 
@@ -525,10 +475,10 @@ export default function AboutScreen() {
             <h2 className="font-serif text-3xl md:text-5xl text-white mt-2">What We Do</h2>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
             {activities.map((item, idx) => (
-              <div 
-                key={idx} 
+              <div
+                key={idx}
                 className="flex items-center gap-4 p-5 bg-black border border-white/5 rounded-sm hover:border-secondary/30 transition-all duration-300 group"
               >
                 <div className="h-10 w-10 rounded-full border border-secondary/20 flex items-center justify-center flex-shrink-0 bg-secondary/5 group-hover:border-secondary transition-colors duration-300">
@@ -552,8 +502,8 @@ export default function AboutScreen() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
           {values.map((item, idx) => (
-            <div 
-              key={idx} 
+            <div
+              key={idx}
               className="p-6 border border-white/5 bg-primary-light hover:border-secondary/30 transition-all duration-300 rounded-sm text-center flex flex-col justify-start border-gold-glow"
             >
               <div className="flex justify-center">
@@ -573,16 +523,13 @@ export default function AboutScreen() {
       {/* Join the Journey Section */}
       <section className="max-w-3xl mx-auto px-6 py-20 text-center relative overflow-hidden">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-secondary/5 rounded-full blur-[80px] pointer-events-none" />
-        
+
         <h2 className="font-serif text-3xl md:text-5xl text-white tracking-wide mb-6">
           Join the Journey
         </h2>
-        
+
         <p className="text-xs md:text-sm text-accent-muted leading-relaxed mb-10 max-w-xl mx-auto font-light">
-          Whether you’re a filmmaker, writer, actor, cinematographer, editor, musician, 
-          or simply someone who loves cinema, Viora is a place to create, collaborate, and celebrate stories.
-        </p>
-        
+          Be part of a community that's shaping the future of cinema—where creativity connects, opportunities grow, and every story matters.</p>
         <div className="font-serif text-2xl md:text-3xl text-gold-gradient font-bold tracking-wide">
           Welcome to Viora.
         </div>

@@ -4,6 +4,7 @@ import Footer from './components/Footer';
 import HomeScreen from './screens/HomeScreen';
 import AboutScreen from './screens/AboutScreen';
 import ContactScreen from './screens/ContactScreen';
+import PrivacyPolicyScreen from './screens/PrivacyPolicyScreen';
 import ScrollToTop from './components/ScrollToTop';
 
 function App() {
@@ -17,12 +18,13 @@ function App() {
 
         {/* Main page content area wrapped in router switch */}
         <main className="flex-grow">
-          <Routes>
-            <Route path="/" element={<HomeScreen />} />
-            <Route path="/aboutus" element={<AboutScreen />} />
-            <Route path="/contact" element={<ContactScreen />} />
-            <Route path="*" element={<HomeScreen />} />
-          </Routes>
+            <Routes>
+              <Route path="/" element={<HomeScreen />} />
+              <Route path="/aboutus" element={<AboutScreen />} />
+              <Route path="/contact" element={<ContactScreen />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicyScreen />} />
+              <Route path="*" element={<HomeScreen />} />
+            </Routes>
         </main>
 
         {/* Footer Layout */}
