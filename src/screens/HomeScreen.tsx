@@ -44,7 +44,7 @@ export default function HomeScreen() {
         <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           
           {/* Left Text Column */}
-          <div className="lg:col-span-7 text-left flex flex-col items-start z-10">
+          <div className="lg:col-span-7 text-left flex flex-col items-start z-10 order-2 lg:order-1 mt-8 lg:mt-0">
 
             <h1 className="font-serif text-4xl md:text-7xl tracking-tight text-white mb-6 leading-tight">
               Where Every Story <br />
@@ -72,8 +72,8 @@ export default function HomeScreen() {
           </div>
 
           {/* Right Graphic Column - Revolving Cinematic Elements around V */}
-          <div className="lg:col-span-5 hidden lg:flex justify-end items-center relative z-10 select-none">
-            <div className="relative w-[500px] h-[500px] flex items-center justify-center">
+          <div className="lg:col-span-5 flex justify-center lg:justify-end items-center relative z-10 select-none order-1 lg:order-2 w-full">
+            <div className="relative w-[500px] h-[500px] flex items-center justify-center scale-[0.65] sm:scale-[0.85] lg:scale-100 origin-center my-[-90px] sm:my-[-30px] lg:my-0">
               
               {/* Center V Symbol */}
               <div className="relative z-10 flex flex-col items-center">
@@ -166,7 +166,7 @@ export default function HomeScreen() {
             <span className="text-xs tracking-[0.25em] text-secondary uppercase font-semibold">Core Philosophy</span>
             <h2 className="font-serif text-3xl md:text-5xl text-white tracking-wide mt-2">Discover. Create. Inspire.</h2>
           </div>
-          <div className="md:col-span-7 text-left md:pl-8 border-l border-secondary/20">
+          <div className="md:col-span-7 text-left md:pl-8 border-l-0 md:border-l border-secondary/20 pl-0 md:pl-8 mt-4 md:mt-0">
             <p className="text-sm md:text-base text-accent-muted font-light leading-relaxed tracking-wide">
               At Viora, we believe every filmmaker deserves an audience. Our festivals bring together storytellers, creators, and cinema lovers to celebrate original films and emerging talent.
             </p>
