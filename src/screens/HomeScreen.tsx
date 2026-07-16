@@ -34,7 +34,7 @@ export default function HomeScreen() {
 
   return (
     <div className="w-full bg-black min-h-screen">
-      
+
       {/* Hero Section - Left aligned content / Right graphic */}
       <section className="relative min-h-[90vh] flex items-center px-6 md:px-16 pt-24 pb-20 overflow-hidden">
         {/* Background glowing effects with slow pulsing and floating animations */}
@@ -42,7 +42,7 @@ export default function HomeScreen() {
         <div className="absolute right-10 bottom-10 w-[300px] h-[300px] bg-secondary/5 rounded-full blur-[90px] pointer-events-none animate-float-slow" />
 
         <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-          
+
           {/* Left Text Column */}
           <div className="lg:col-span-7 text-left flex flex-col items-start z-10 order-2 lg:order-1 mt-8 lg:mt-0">
 
@@ -52,17 +52,16 @@ export default function HomeScreen() {
             </h1>
 
             <p className="text-sm md:text-base text-accent-muted max-w-xl font-light tracking-wide leading-relaxed mb-10">
-              Viora is a creative media platform dedicated to discovering and celebrating independent filmmakers through short film festivals, creative collaborations, and a thriving storytelling community.
-            </p>
+              Viora is a premium cinema ecosystem that brings together creators, audiences, industry professionals, and aspiring talent through media, festivals, education, networking, awards, and original storytelling. We exist to connect every corner of cinema under one vision.            </p>
 
             <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-              <button 
+              <button
                 disabled
                 className="px-8 py-3.5 bg-transparent border border-secondary/20 text-secondary/40 font-semibold text-xs tracking-widest uppercase rounded-sm cursor-not-allowed text-center"
               >
                 Submit Film (Coming Soon)
               </button>
-              <Link 
+              <Link
                 to="/aboutus"
                 className="px-8 py-3.5 border border-white/20 text-white hover:text-secondary hover:border-secondary transition-all duration-300 text-xs tracking-widest uppercase rounded-sm text-center inline-block"
               >
@@ -74,7 +73,7 @@ export default function HomeScreen() {
           {/* Right Graphic Column - Revolving Cinematic Elements around V */}
           <div className="lg:col-span-5 flex justify-center lg:justify-end items-center relative z-10 select-none order-1 lg:order-2 w-full">
             <div className="relative w-[500px] h-[500px] flex items-center justify-center scale-[0.65] sm:scale-[0.85] lg:scale-100 origin-center my-[-90px] sm:my-[-30px] lg:my-0">
-              
+
               {/* Center V Symbol */}
               <div className="relative z-10 flex flex-col items-center">
                 <span className="font-serif font-bold text-[180px] text-gold-gradient leading-none select-none">
@@ -184,11 +183,10 @@ export default function HomeScreen() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl">
             {whatWeDo.map((item, idx) => (
-              <div 
-                key={idx} 
-                className={`p-8 border border-white/5 bg-black hover:border-secondary/30 transition-all duration-300 rounded-sm flex items-start gap-5 border-gold-glow ${
-                  idx % 2 === 0 ? 'text-left lg:translate-y-0' : 'text-left lg:translate-y-4'
-                }`}
+              <div
+                key={idx}
+                className={`p-8 border border-white/5 bg-black hover:border-secondary/30 transition-all duration-300 rounded-sm flex items-start gap-5 border-gold-glow ${idx % 2 === 0 ? 'text-left lg:translate-y-0' : 'text-left lg:translate-y-4'
+                  }`}
               >
                 <div className="h-12 w-12 rounded-full border border-secondary/20 flex items-center justify-center bg-secondary/5 flex-shrink-0">
                   {item.icon}
@@ -206,7 +204,7 @@ export default function HomeScreen() {
       {/* Why Viora Section - Left Text / Right Checkbox List */}
       <section className="max-w-7xl mx-auto px-6 md:px-16 py-24">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-          
+
           {/* Left Text */}
           <div className="lg:col-span-6 text-left">
             <span className="text-xs tracking-[0.25em] text-secondary uppercase font-semibold">Platform Edge</span>
@@ -238,7 +236,7 @@ export default function HomeScreen() {
       {/* Upcoming Festival Section - Asymmetric Right Box */}
       <section id="upcoming-festival" className="bg-primary-light border-y border-white/5 py-24 px-6 md:px-16">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-          
+
           {/* Left Description */}
           <div className="lg:col-span-6 text-left">
             <span className="text-xs tracking-[0.25em] text-secondary uppercase font-semibold">Seasonal Event</span>
@@ -254,7 +252,7 @@ export default function HomeScreen() {
               <span className="absolute -top-3 -right-3 px-4 py-1.5 bg-zinc-900 border border-secondary/35 text-secondary font-semibold text-[8px] tracking-widest uppercase rounded-sm">
                 Coming Soon
               </span>
-              
+
               <div>
                 <h3 className="font-serif text-xl md:text-2xl text-white">Viora Short Film Festival 2026</h3>
                 <p className="text-xs text-accent-muted font-light leading-relaxed mt-3">
@@ -262,7 +260,7 @@ export default function HomeScreen() {
                 </p>
               </div>
 
-              <button 
+              <button
                 disabled
                 className="w-full py-3.5 bg-transparent border border-secondary/20 text-secondary/40 font-semibold text-xs tracking-widest uppercase rounded-sm cursor-not-allowed text-center"
               >
@@ -277,7 +275,7 @@ export default function HomeScreen() {
       {/* Our Vision Section - Alternating Left/Right layout boxes */}
       <section className="max-w-7xl mx-auto px-6 md:px-16 py-24">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-12">
-          
+
           <div className="md:col-span-4 text-left">
             <span className="text-xs tracking-[0.25em] text-secondary uppercase font-semibold">Roadmap</span>
             <h2 className="font-serif text-3xl md:text-5xl text-white tracking-wide mt-2">Our Vision</h2>
@@ -306,9 +304,9 @@ export default function HomeScreen() {
       {/* Call to Action - Left text / Right Button */}
       <section className="bg-primary-light border-t border-white/5 py-24 px-6 md:px-16 relative overflow-hidden">
         <div className="absolute top-1/2 left-1/3 w-[300px] h-[300px] bg-secondary/5 rounded-full blur-[80px] pointer-events-none" />
-        
+
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
-          
+
           {/* Left Text */}
           <div className="lg:col-span-8 text-left">
             <h2 className="font-serif text-3xl md:text-5xl text-white tracking-wide mb-4">
@@ -321,7 +319,7 @@ export default function HomeScreen() {
 
           {/* Right Button */}
           <div className="lg:col-span-4 flex lg:justify-end">
-            <Link 
+            <Link
               to="/contact"
               className="w-full sm:w-auto px-10 py-4 bg-gold-gradient hover:bg-none hover:bg-secondary text-black font-semibold text-xs tracking-widest uppercase transition-all duration-300 rounded-sm hover:shadow-[0_0_15px_rgba(197,160,89,0.4)] border border-secondary text-center inline-block"
             >
