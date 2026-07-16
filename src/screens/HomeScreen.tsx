@@ -104,23 +104,12 @@ export default function HomeScreen() {
                 </span>
               </div>
 
-              {/* Axis 1 (Innermost - Radius 110px / Diameter 220px) */}
-              <div className="absolute w-[220px] h-[220px] rounded-full border border-secondary/20 flex items-center justify-center">
-                {/* Spotlight Icon */}
-                <div className="absolute" style={{ animation: 'spin-orbit 18s linear infinite' }}>
-                  <div className="absolute" style={{ transform: 'translate(-50%, -50%) translateY(-110px)' }}>
-                    <div className="h-8 w-8 rounded-full bg-black border border-secondary/40 flex items-center justify-center shadow-[0_0_8px_rgba(197,160,89,0.2)]" style={{ animation: 'spin-reverse 18s linear infinite' }}>
-                      <i className="fa-solid fa-lightbulb text-secondary text-xs"></i>
-                    </div>
-                  </div>
-                </div>
-              </div>
 
-              {/* Axis 2 (Inner-Mid - Radius 150px / Diameter 300px) */}
-              <div className="absolute w-[300px] h-[300px] rounded-full border border-secondary/20 flex items-center justify-center">
+              {/* Axis 2 (Innermost - Radius 110px / Diameter 220px) */}
+              <div className="absolute w-[220px] h-[220px] rounded-full border border-secondary/20 flex items-center justify-center">
                 {/* Film Reel Icon */}
                 <div className="absolute" style={{ animation: 'spin-orbit 26s linear infinite', animationDelay: '-6.5s' }}>
-                  <div className="absolute" style={{ transform: 'translate(-50%, -50%) translateY(-150px)' }}>
+                  <div className="absolute" style={{ transform: 'translate(-50%, -50%) translateY(-110px)' }}>
                     <div className="h-9 w-9 rounded-full bg-black border border-secondary/40 flex items-center justify-center shadow-[0_0_8px_rgba(197,160,89,0.2)]" style={{ animation: 'spin-reverse 26s linear infinite', animationDelay: '-6.5s' }}>
                       <i className="fa-solid fa-film text-secondary text-xs"></i>
                     </div>
@@ -128,11 +117,11 @@ export default function HomeScreen() {
                 </div>
               </div>
 
-              {/* Axis 3 (Outer-Mid - Radius 190px / Diameter 380px) */}
-              <div className="absolute w-[380px] h-[380px] rounded-full border border-secondary/20 flex items-center justify-center">
+              {/* Axis 3 (Inner-Mid - Radius 150px / Diameter 300px) */}
+              <div className="absolute w-[300px] h-[300px] rounded-full border border-secondary/20 flex items-center justify-center">
                 {/* Clapboard Icon */}
                 <div className="absolute" style={{ animation: 'spin-orbit 34s linear infinite', animationDelay: '-17s' }}>
-                  <div className="absolute" style={{ transform: 'translate(-50%, -50%) translateY(-190px)' }}>
+                  <div className="absolute" style={{ transform: 'translate(-50%, -50%) translateY(-150px)' }}>
                     <div className="h-10 w-10 rounded-full bg-black border border-secondary/40 flex items-center justify-center shadow-[0_0_10px_rgba(197,160,89,0.25)]" style={{ animation: 'spin-reverse 34s linear infinite', animationDelay: '-17s' }}>
                       <i className="fa-solid fa-clapperboard text-secondary text-sm"></i>
                     </div>
@@ -140,16 +129,30 @@ export default function HomeScreen() {
                 </div>
               </div>
 
-              {/* Axis 4 (Outermost - Radius 230px / Diameter 460px) */}
-              <div className="absolute w-[460px] h-[460px] rounded-full border border-secondary/20 flex items-center justify-center">
+              {/* Axis 4 (Outer-Mid - Radius 190px / Diameter 380px) */}
+              <div className="absolute w-[380px] h-[380px] rounded-full border border-secondary/20 flex items-center justify-center">
                 {/* Camera Icon */}
                 <div className="absolute" style={{ animation: 'spin-orbit 42s linear infinite', animationDelay: '-31.5s' }}>
-                  <div className="absolute" style={{ transform: 'translate(-50%, -50%) translateY(-230px)' }}>
+                  <div className="absolute" style={{ transform: 'translate(-50%, -50%) translateY(-190px)' }}>
                     <div className="h-11 w-11 rounded-full bg-black border border-secondary/40 flex items-center justify-center shadow-[0_0_10px_rgba(197,160,89,0.25)]" style={{ animation: 'spin-reverse 42s linear infinite', animationDelay: '-31.5s' }}>
                       <i className="fa-solid fa-video text-secondary text-sm"></i>
                     </div>
                   </div>
                 </div>
+              </div>
+
+              {/* Axis 5 (Outermost - Radius 230px / Diameter 460px with Music Icon) */}
+              <div className="absolute w-[460px] h-[460px] rounded-full border border-secondary/20 flex items-center justify-center">
+                
+                {/* Music Note Icon */}
+                <div className="absolute" style={{ animation: 'spin-orbit 50s linear infinite' }}>
+                  <div className="absolute" style={{ transform: 'translate(-50%, -50%) translateY(-230px)' }}>
+                    <div className="h-12 w-12 rounded-full bg-black border border-secondary/40 flex items-center justify-center shadow-[0_0_12px_rgba(197,160,89,0.3)]" style={{ animation: 'spin-reverse 50s linear infinite' }}>
+                      <i className="fa-solid fa-music text-secondary text-base"></i>
+                    </div>
+                  </div>
+                </div>
+
               </div>
 
             </div>
