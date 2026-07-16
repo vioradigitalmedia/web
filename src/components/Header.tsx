@@ -8,6 +8,7 @@ export default function Header() {
   const navItems = [
     { path: '/', label: 'Home' },
     { path: '/aboutus', label: 'About Us' },
+    { path: '#', label: 'Festivals', isComingSoon: true },
   ];
 
   return (
@@ -40,6 +41,18 @@ export default function Header() {
           <nav className="flex items-center gap-8">
             {navItems.map((item) => {
               const isActive = location.pathname === item.path;
+              if (item.isComingSoon) {
+                return (
+                  <div key={item.label} className="relative flex flex-col items-center select-none cursor-not-allowed gap-0.5">
+                    <span className="text-sm font-medium tracking-widest uppercase text-accent-muted/40">
+                      {item.label}
+                    </span>
+                    <span className="text-[8px] tracking-[0.2em] uppercase font-semibold text-secondary">
+                      Coming Soon
+                    </span>
+                  </div>
+                );
+              }
               return (
                 <Link
                   key={item.path}
@@ -88,6 +101,18 @@ export default function Header() {
         <div className="md:hidden absolute top-20 left-0 w-full bg-black/95 border-b border-secondary/20 py-6 px-6 flex flex-col gap-4 animate-fade-in">
           {navItems.map((item) => {
             const isActive = location.pathname === item.path;
+            if (item.isComingSoon) {
+              return (
+                <div key={item.label} className="flex flex-col items-start py-2 select-none cursor-not-allowed gap-0.5">
+                  <span className="text-sm font-medium tracking-widest uppercase text-accent-muted/40">
+                    {item.label}
+                  </span>
+                  <span className="text-[8px] tracking-[0.2em] uppercase font-semibold text-secondary">
+                    Coming Soon
+                  </span>
+                </div>
+              );
+            }
             return (
               <Link
                 key={item.path}
