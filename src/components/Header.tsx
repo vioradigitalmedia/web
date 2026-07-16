@@ -35,31 +35,30 @@ export default function Header() {
           </div>
         </Link>
 
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-8">
-          {navItems.map((item) => {
-            const isActive = location.pathname === item.path;
-            return (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={`relative py-2 text-sm font-medium tracking-widest uppercase transition-colors duration-300 ${
-                  isActive 
-                    ? 'text-secondary' 
-                    : 'text-accent-muted hover:text-white'
-                }`}
-              >
-                {item.label}
-                {isActive && (
-                  <span className="absolute bottom-0 left-0 w-full h-[2px] bg-secondary shadow-[0_0_8px_#C5A059]" />
-                )}
-              </Link>
-            );
-          })}
-        </nav>
+        {/* Desktop Navigation & CTA Button grouped together on the right */}
+        <div className="hidden md:flex items-center gap-8">
+          <nav className="flex items-center gap-8">
+            {navItems.map((item) => {
+              const isActive = location.pathname === item.path;
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={`relative py-2 text-sm font-medium tracking-widest uppercase transition-colors duration-300 ${
+                    isActive 
+                      ? 'text-secondary' 
+                      : 'text-accent-muted hover:text-white'
+                  }`}
+                >
+                  {item.label}
+                  {isActive && (
+                    <span className="absolute bottom-0 left-0 w-full h-[2px] bg-secondary shadow-[0_0_8px_#C5A059]" />
+                  )}
+                </Link>
+              );
+            })}
+          </nav>
 
-        {/* CTA Button */}
-        <div className="hidden md:block">
           <Link 
             to="/contact"
             className="relative px-6 py-2.5 text-xs font-semibold tracking-widest uppercase border border-secondary text-secondary hover:text-black hover:bg-gold-gradient transition-all duration-300 rounded-sm hover:shadow-[0_0_15px_rgba(197,160,89,0.4)] inline-block text-center"
