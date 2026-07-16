@@ -131,7 +131,6 @@ export default function FestivalsScreen() {
                   <div className="relative z-10">
                     <div className="mb-2 text-2xl text-secondary">{frame.icon}</div>
                     <span className="block font-serif text-sm text-white font-medium tracking-wide mb-1">{frame.title}</span>
-                    <span className="block text-[9px] text-accent-muted uppercase tracking-widest">{frame.label}</span>
                   </div>
                 </div>
               ))}
@@ -146,7 +145,6 @@ export default function FestivalsScreen() {
                   <div className="relative z-10">
                     <div className="mb-2 text-2xl text-secondary">{frame.icon}</div>
                     <span className="block font-serif text-sm text-white font-medium tracking-wide mb-1">{frame.title}</span>
-                    <span className="block text-[9px] text-accent-muted uppercase tracking-widest">{frame.label}</span>
                   </div>
                 </div>
               ))}
