@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
+import { supabase } from '../supabaseClient';
 
 export default function ContactScreen() {
   const [formState, setFormState] = useState({
@@ -7,14 +8,42 @@ export default function ContactScreen() {
     message: ''
   });
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
-    setTimeout(() => {
-      setSubmitted(false);
+    setSubmitting(true);
+    setError(null);
+
+    try {
+      const { error: insertError } = await supabase
+        .from('contact_messages')
+        .insert([
+          {
+            name: formState.name,
+            email: formState.email,
+            message: formState.message,
+            status: 'pending',
+            created_at: new Date().toISOString()
+          }
+        ]);
+
+      if (insertError) {
+        throw insertError;
+      }
+
+      setSubmitted(true);
       setFormState({ name: '', email: '', message: '' });
-    }, 4000);
+      setTimeout(() => {
+        setSubmitted(false);
+      }, 4000);
+    } catch (err: any) {
+      console.error('Error inserting message:', err);
+      setError(err.message || 'Transmission failed. Please check your credentials or network and try again.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   // Programmatically generate 60 jagged, realistic audio waveform bars
@@ -125,11 +154,18 @@ export default function ContactScreen() {
                 />
               </div>
 
+              {error && (
+                <p className="text-red-500 text-xs font-light tracking-wide bg-red-950/25 border border-red-500/25 p-3.5 rounded-sm">
+                  {error}
+                </p>
+              )}
+
               <button
                 type="submit"
-                className="w-full py-4 bg-gold-gradient hover:bg-none hover:bg-secondary text-black font-semibold text-xs tracking-widest uppercase transition-all duration-300 rounded-sm hover:shadow-[0_0_15px_rgba(197,160,89,0.4)] border border-secondary"
+                disabled={submitting}
+                className="w-full py-4 bg-gold-gradient hover:bg-none hover:bg-secondary text-black font-semibold text-xs tracking-widest uppercase transition-all duration-300 rounded-sm hover:shadow-[0_0_15px_rgba(197,160,89,0.4)] border border-secondary disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Transmit Brief
+                {submitting ? 'Transmitting...' : 'Transmit Brief'}
               </button>
 
             </form>
