@@ -5,7 +5,7 @@ export default function Footer() {
 
   return (
     <div className="w-full bg-black border-t border-white/5">
-      
+
       {/* Above Footer Quote Section */}
       <div className="w-full py-16 text-center bg-black border-b border-white/5">
         <div className="max-w-4xl mx-auto px-6">
@@ -18,13 +18,13 @@ export default function Footer() {
       {/* Main Footer Container */}
       <footer className="max-w-7xl mx-auto px-6 md:px-12 pt-16 pb-8 text-accent-muted">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10 mb-16">
-          
+
           {/* Left Column (Brand) - Spans 1 column on tablet/desktop */}
           <div className="flex flex-col gap-4">
             <Link to="/" className="flex items-center gap-3 cursor-pointer group">
-              <img 
-                src="/logo.jpg" 
-                alt="Viora Logo" 
+              <img
+                src="/logo.jpg"
+                alt="Viora Logo"
                 className="h-10 w-10 object-contain rounded-md border border-secondary/20 group-hover:border-secondary transition-colors duration-300"
               />
               <div className="flex flex-col">
@@ -36,11 +36,11 @@ export default function Footer() {
                 </span>
               </div>
             </Link>
-            
+
             <p className="text-secondary text-[10px] tracking-widest uppercase font-semibold font-serif mt-2">
               Where Every Story Finds Its Stage.
             </p>
-            
+
             <p className="text-xs text-accent-muted/80 leading-relaxed font-light">
               Viora is a creative media platform celebrating independent filmmakers through festivals, collaboration, and storytelling.
             </p>
@@ -70,7 +70,7 @@ export default function Footer() {
               </li>
               <li className="relative group">
                 <span className="text-accent-muted/40 cursor-not-allowed flex items-center justify-between">
-                  <span>Submit Film</span>
+                  <span>Workshops</span>
                   <span className="text-[7px] bg-zinc-900 border border-secondary/20 text-secondary px-1 py-0.5 rounded-sm">Soon</span>
                 </span>
               </li>
