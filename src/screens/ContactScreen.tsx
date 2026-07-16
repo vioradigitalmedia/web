@@ -103,10 +103,7 @@ export default function ContactScreen() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
               </div>
-              <h3 className="font-serif text-lg text-white mb-1">Transmission Received</h3>
-              <p className="text-xs text-accent-muted max-w-xs font-light leading-relaxed">
-                Thank you. A creative consultant will review your brief and contact you within 24 hours.
-              </p>
+              <h3 className="font-serif text-lg text-white mb-1">Our team will get back to you shortly</h3>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-6">
