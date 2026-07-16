@@ -1,28 +1,8 @@
+
 import { Link } from 'react-router-dom';
 
 export default function FestivalsScreen() {
-  const categories = [
-    {
-      title: 'Narrative Short',
-      desc: 'Original storytelling, dramatic and comedic narrative films under 30 minutes.',
-      icon: <i className="fa-solid fa-clapperboard text-secondary text-2xl mb-4"></i>,
-    },
-    {
-      title: 'Documentary Short',
-      desc: 'Non-fiction storytelling highlighting real-world issues, human stories, and unique insights under 30 minutes.',
-      icon: <i className="fa-solid fa-camera text-secondary text-2xl mb-4"></i>,
-    },
-    {
-      title: 'Animation Short',
-      desc: 'All styles of animation (2D, 3D, stop-motion) showing creative visual styles under 20 minutes.',
-      icon: <i className="fa-solid fa-wand-magic-sparkles text-secondary text-2xl mb-4"></i>,
-    },
-    {
-      title: 'Student Film',
-      desc: 'Dedicated category for student filmmakers currently enrolled in high school or university programs.',
-      icon: <i className="fa-solid fa-graduation-cap text-secondary text-2xl mb-4"></i>,
-    },
-  ];
+
 
   const awards = [
     { title: 'Best Narrative Short', category: 'Grand Jury Award' },
@@ -185,28 +165,7 @@ export default function FestivalsScreen() {
         </div>
       </section>
 
-      {/* Categories Section */}
-      <section className="max-w-7xl mx-auto px-6 mb-24">
-        <div className="text-center mb-16">
-          <span className="text-xs tracking-[0.25em] text-secondary uppercase font-semibold">Submission</span>
-          <h2 className="font-serif text-3xl md:text-5xl text-white mt-2">Festival Categories</h2>
-          <p className="text-xs md:text-sm text-accent-muted font-light tracking-wide max-w-xl mx-auto mt-4">
-            We celebrate artistic diversity through multiple dedicated categories. Ensure your film fits one of our primary genres.
-          </p>
-        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {categories.map((cat, idx) => (
-            <div key={idx} className="border border-white/5 bg-primary-light p-8 rounded-sm hover:border-secondary/30 transition-all duration-300 flex flex-col justify-between">
-              <div>
-                {cat.icon}
-                <h3 className="font-serif text-lg text-white mb-3 tracking-wide">{cat.title}</h3>
-                <p className="text-xs text-accent-muted font-light leading-relaxed">{cat.desc}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
 
       {/* Awards Section */}
       <section className="bg-primary-light border-y border-white/5 py-24 px-6 mb-24 relative">
@@ -240,21 +199,6 @@ export default function FestivalsScreen() {
 
 
 
-      {/* CTA Section */}
-      <section className="max-w-4xl mx-auto px-6 text-center">
-        <h2 className="font-serif text-3xl md:text-5xl text-white mb-6">
-          Showcase Your <span className="text-gold-gradient font-italic font-normal">Story</span>
-        </h2>
-        <p className="text-xs md:text-sm text-accent-muted font-light leading-relaxed max-w-xl mx-auto mb-8">
-          Have an upcoming project or film you want to submit? Or want to partner with us for sponsorship and co-curating? Initiate the dialogue today.
-        </p>
-        <Link
-          to="/contact"
-          className="px-8 py-3 bg-black hover:bg-gold-gradient text-secondary hover:text-black font-semibold text-xs tracking-widest uppercase border border-secondary transition-all duration-300 rounded-sm inline-block font-sans"
-        >
-          Get In Touch
-        </Link>
-      </section>
     </div>
   );
 }
