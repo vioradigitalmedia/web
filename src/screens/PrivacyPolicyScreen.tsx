@@ -1,5 +1,10 @@
+import { useSeo } from '../hooks/useSeo';
 
 export default function PrivacyPolicyScreen() {
+  useSeo({
+    title: 'Privacy Policy | Viora Media',
+    description: 'Read the privacy policy of Viora Media to understand how we collect, use, and protect your personal data on our cinema platform.'
+  });
   return (
     <div className="w-full bg-black min-h-screen pt-12 pb-24 text-white">
       <section className="max-w-4xl mx-auto px-6 py-16">

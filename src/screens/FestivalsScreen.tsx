@@ -1,7 +1,11 @@
-
 import { Link } from 'react-router-dom';
+import { useSeo } from '../hooks/useSeo';
 
 export default function FestivalsScreen() {
+  useSeo({
+    title: 'Short Film Festivals 2026 | Submit Your Film to Viora',
+    description: 'Compete for digital laurels, handcrafted trophies, and cash prizes. Submit your narrative, documentary, or animation short film to Viora today.'
+  });
 
 
   const awards = [

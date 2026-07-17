@@ -1,6 +1,11 @@
 import { Link } from 'react-router-dom';
+import { useSeo } from '../hooks/useSeo';
 
 export default function HomeScreen() {
+  useSeo({
+    title: 'Viora Media | Premium Cinema Ecosystem & Film Community',
+    description: 'Viora connects filmmakers, audiences, and industry professionals. Watch original productions, discover resources, and showcase your stories today.'
+  });
   const whatWeDo = [
     {
       title: 'Digital Media',

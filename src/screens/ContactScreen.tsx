@@ -1,7 +1,12 @@
 import { useState } from 'react';
 import { supabase } from '../supabaseClient';
+import { useSeo } from '../hooks/useSeo';
 
 export default function ContactScreen() {
+  useSeo({
+    title: 'Contact Viora Media | Pitch Projects & Partnerships',
+    description: 'Get in touch with our team for film submissions, academy workshops, sponsorship opportunities, or co-curation inquiries. Start your journey today.'
+  });
   const [formState, setFormState] = useState({
     name: '',
     email: '',

@@ -1,6 +1,11 @@
 import { useState, useEffect } from 'react';
+import { useSeo } from '../hooks/useSeo';
 
 export default function AboutScreen() {
+  useSeo({
+    title: 'About Viora Media | Empowering Independent Filmmakers',
+    description: 'Learn about our mission to democratize filmmaking. Discover how Viora provides masterclasses, original digital media, and opportunities for creators.'
+  });
   const vioraMeaning = [
     { letter: 'V', word: 'Vizhi', detail: 'Vision', desc: 'The initial spark of imagination.' },
     { letter: 'I', word: 'Innovation', detail: 'Innovation', desc: 'Pushing boundaries and new perspectives.' },
