@@ -101,12 +101,11 @@ export default function HomeScreen() {
 
               {/* Center V Symbol */}
               <div className="relative z-10 flex flex-col items-center">
-                <span className="font-serif font-bold text-[180px] text-gold-gradient leading-none select-none">
-                  V
-                </span>
-                <span className="text-[12px] tracking-[0.45em] text-secondary font-semibold uppercase -mt-4">
-                  Viora
-                </span>
+                <img
+                  src="/file_no_bg.svg"
+                  alt="Viora Logo"
+                  className="w-56 h-56 object-contain mix-blend-screen select-none -mb-4"
+                />
               </div>
 
 
@@ -148,7 +147,7 @@ export default function HomeScreen() {
 
               {/* Axis 5 (Outermost - Radius 230px / Diameter 460px with Music Icon) */}
               <div className="absolute w-[460px] h-[460px] rounded-full border border-secondary/20 flex items-center justify-center">
-                
+
                 {/* Music Note Icon */}
                 <div className="absolute" style={{ animation: 'spin-orbit 50s linear infinite' }}>
                   <div className="absolute" style={{ transform: 'translate(-50%, -50%) translateY(-230px)' }}>
