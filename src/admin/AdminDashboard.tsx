@@ -12,6 +12,15 @@ interface ContactMessage {
   created_at: string;
 }
 
+interface CfoTransaction {
+  id: string;
+  created_at: string;
+  transaction_date: string;
+  title: string;
+  type: 'income' | 'expense';
+  amount: number;
+}
+
 export default function AdminDashboard() {
   const [messages, setMessages] = useState<ContactMessage[]>([]);
   const [loading, setLoading] = useState(true);
@@ -19,7 +28,24 @@ export default function AdminDashboard() {
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [session, setSession] = useState<any>(null);
   const [authLoading, setAuthLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'messages' | 'media' | 'submissions'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'messages' | 'media' | 'submissions' | 'cfo'>('dashboard');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [selectedMessageId, setSelectedMessageId] = useState<string | null>(null);
+  const [expandedMobileMessageId, setExpandedMobileMessageId] = useState<string | null>(null);
+
+  // CFO States
+  const [cfoTransactions, setCfoTransactions] = useState<CfoTransaction[]>([]);
+  const [cfoLoading, setCfoLoading] = useState(true);
+  const [cfoError, setCfoError] = useState<string | null>(null);
+
+  // CFO Modal & Form States
+  const [isCfoModalOpen, setIsCfoModalOpen] = useState(false);
+  const [newTitle, setNewTitle] = useState('');
+  const [newAmount, setNewAmount] = useState('');
+  const [newType, setNewType] = useState<'income' | 'expense'>('income');
+  const [newDate, setNewDate] = useState(new Date().toISOString().split('T')[0]);
+  const [cfoSubmitting, setCfoSubmitting] = useState(false);
+  const [cfoSubmitError, setCfoSubmitError] = useState<string | null>(null);
 
   useEffect(() => {
     // 1. Fetch current session
@@ -47,7 +73,13 @@ export default function AdminDashboard() {
         .order('created_at', { ascending: false });
 
       if (fetchError) throw fetchError;
-      setMessages(data || []);
+      const loadedMessages = data || [];
+      setMessages(loadedMessages);
+      if (loadedMessages.length > 0) {
+        setSelectedMessageId(loadedMessages[0].id);
+      } else {
+        setSelectedMessageId(null);
+      }
     } catch (err: any) {
       console.error('Error fetching messages:', err);
       setError(err.message || 'Failed to fetch contact submissions.');
@@ -56,9 +88,66 @@ export default function AdminDashboard() {
     }
   };
 
+  const fetchCfoTransactions = async () => {
+    setCfoLoading(true);
+    setCfoError(null);
+    try {
+      const { data, error: fetchError } = await supabase
+        .from('cfo_transactions')
+        .select('*')
+        .order('transaction_date', { ascending: false });
+
+      if (fetchError) throw fetchError;
+      setCfoTransactions(data || []);
+    } catch (err: any) {
+      console.error('Error fetching CFO transactions:', err);
+      setCfoError(err.message || 'Failed to fetch financial transactions.');
+    } finally {
+      setCfoLoading(false);
+    }
+  };
+
+  const handleCreateCfoTransaction = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newTitle.trim() || !newAmount || parseFloat(newAmount) <= 0) {
+      setCfoSubmitError('Please enter a valid title and positive amount.');
+      return;
+    }
+    setCfoSubmitting(true);
+    setCfoSubmitError(null);
+    try {
+      const { error: insertError } = await supabase
+        .from('cfo_transactions')
+        .insert({
+          title: newTitle.trim(),
+          amount: parseFloat(newAmount),
+          type: newType,
+          transaction_date: newDate
+        });
+
+      if (insertError) throw insertError;
+      
+      // Reset form and close modal
+      setNewTitle('');
+      setNewAmount('');
+      setNewType('income');
+      setNewDate(new Date().toISOString().split('T')[0]);
+      setIsCfoModalOpen(false);
+      
+      // Refresh list
+      await fetchCfoTransactions();
+    } catch (err: any) {
+      console.error('Error inserting transaction:', err);
+      setCfoSubmitError(err.message || 'Failed to submit transaction.');
+    } finally {
+      setCfoSubmitting(false);
+    }
+  };
+
   useEffect(() => {
     if (session) {
       fetchMessages();
+      fetchCfoTransactions();
     }
   }, [session]);
 
@@ -95,8 +184,14 @@ export default function AdminDashboard() {
 
       if (deleteError) throw deleteError;
 
-      // Remove from state
-      setMessages(prev => prev.filter(msg => msg.id !== id));
+      // Remove from state and handle selection shifts
+      setMessages(prev => {
+        const remaining = prev.filter(msg => msg.id !== id);
+        if (selectedMessageId === id) {
+          setSelectedMessageId(remaining.length > 0 ? remaining[0].id : null);
+        }
+        return remaining;
+      });
     } catch (err: any) {
       alert('Error deleting message: ' + err.message);
     } finally {
@@ -173,8 +268,10 @@ export default function AdminDashboard() {
         );
 
       case 'messages':
+        const selectedMessage = messages.find(m => m.id === selectedMessageId);
+
         return (
-          <div className="space-y-6 animate-fade-in text-left">
+          <div className="space-y-6 animate-fade-in text-left flex flex-col h-full">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/5 pb-6">
               <div>
                 <span className="text-[10px] tracking-[0.25em] text-secondary font-semibold uppercase">Communication</span>
@@ -214,77 +311,252 @@ export default function AdminDashboard() {
                 <p className="text-sm font-light">No briefs or messages found in the database.</p>
               </div>
             ) : (
-              <div className="overflow-x-auto border border-white/5 bg-primary-light p-4 rounded-sm">
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="border-b border-white/10 text-[10px] tracking-widest uppercase font-semibold text-secondary">
-                      <th className="py-4 px-4">Date</th>
-                      <th className="py-4 px-4">Sender</th>
-                      <th className="py-4 px-4">Email</th>
-                      <th className="py-4 px-4">Message Brief</th>
-                      <th className="py-4 px-4">Status</th>
-                      <th className="py-4 px-4 text-right">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-white/5 text-xs font-light text-accent-muted">
-                    {messages.map((msg) => (
-                      <tr key={msg.id} className="hover:bg-white/[0.02] transition-colors duration-200">
-                        <td className="py-4 px-4 whitespace-nowrap text-white">
-                          {new Date(msg.created_at).toLocaleDateString(undefined, {
-                            month: 'short',
-                            day: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit'
-                          })}
-                        </td>
-                        <td className="py-4 px-4 font-semibold text-white whitespace-nowrap">
-                          {msg.name}
-                        </td>
-                        <td className="py-4 px-4 whitespace-nowrap">
-                          <a 
-                            href={`mailto:${msg.email}`} 
-                            className="text-secondary hover:text-white transition-colors duration-200"
-                          >
-                            {msg.email}
-                          </a>
-                        </td>
-                        <td className="py-4 px-4 max-w-md break-words leading-relaxed">
-                          {msg.message}
-                        </td>
-                        <td className="py-4 px-4 whitespace-nowrap">
+              <div className="flex-grow flex flex-col md:flex-row gap-6 min-h-0">
+                
+                {/* Desktop View: Left column messages list */}
+                <div className="hidden md:flex flex-col w-1/3 min-w-[280px] max-w-[360px] border border-white/5 bg-primary-light rounded-sm overflow-hidden h-[calc(100vh-14rem)]">
+                  <div className="p-4 border-b border-white/5 bg-black/20 flex items-center justify-between">
+                    <span className="text-[10px] tracking-widest uppercase font-bold text-secondary">
+                      Inboxes ({messages.length})
+                    </span>
+                  </div>
+                  
+                  <div className="flex-1 overflow-y-auto divide-y divide-white/5">
+                    {messages.map((msg) => {
+                      const isSelected = msg.id === selectedMessageId;
+                      const snippet = msg.message.length > 80 
+                        ? msg.message.slice(0, 80) + '...' 
+                        : msg.message;
+                      return (
+                        <button
+                          key={msg.id}
+                          onClick={() => setSelectedMessageId(msg.id)}
+                          className={`w-full text-left p-4 transition-all duration-200 cursor-pointer block hover:bg-white/[0.02] ${
+                            isSelected 
+                              ? 'bg-secondary/5 border-l-2 border-secondary shadow-[inset_4px_0_12px_rgba(197,160,89,0.05)]' 
+                              : ''
+                          }`}
+                        >
+                          <div className="flex justify-between items-start gap-2 mb-1.5">
+                            <span className={`text-xs font-semibold truncate ${isSelected ? 'text-white' : 'text-white/80'}`}>
+                              {msg.name}
+                            </span>
+                            <span className="text-[9px] text-accent-muted/80 whitespace-nowrap">
+                              {new Date(msg.created_at).toLocaleDateString(undefined, {
+                                month: 'short',
+                                day: 'numeric'
+                              })}
+                            </span>
+                          </div>
+                          
+                          <p className="text-[11px] text-accent-muted line-clamp-2 leading-relaxed mb-2">
+                            {snippet}
+                          </p>
+                          
+                          <div className="flex items-center justify-between">
+                            <span className="text-[9px] text-secondary font-light truncate max-w-[120px]">
+                              {msg.email}
+                            </span>
+                            <span className={`inline-block px-1.5 py-0.5 text-[8px] tracking-widest uppercase font-bold rounded-sm border ${
+                              msg.status === 'pending'
+                                ? 'bg-amber-950/20 text-amber-400 border-amber-500/20'
+                                : 'bg-emerald-950/20 text-emerald-400 border-emerald-500/20'
+                            }`}>
+                              {msg.status}
+                            </span>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Desktop View: Right column reading pane */}
+                <div className="hidden md:flex flex-col flex-grow border border-white/5 bg-primary-light rounded-sm overflow-hidden h-[calc(100vh-14rem)]">
+                  {selectedMessage ? (
+                    <div className="flex flex-col h-full">
+                      {/* Reader header */}
+                      <div className="p-6 border-b border-white/5 bg-black/20 flex justify-between items-start">
+                        <div>
+                          <h2 className="text-xl font-serif text-white tracking-wide mb-1">
+                            {selectedMessage.name}
+                          </h2>
+                          <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-4 text-xs font-light">
+                            <div>
+                              <span className="text-accent-muted">From: </span>
+                              <a href={`mailto:${selectedMessage.email}`} className="text-secondary hover:text-white transition-colors duration-200">
+                                {selectedMessage.email}
+                              </a>
+                            </div>
+                            <span className="hidden sm:inline text-white/10">|</span>
+                            <div className="text-accent-muted">
+                              <span>Received: </span>
+                              <span>
+                                {new Date(selectedMessage.created_at).toLocaleString(undefined, {
+                                  month: 'short',
+                                  day: 'numeric',
+                                  year: 'numeric',
+                                  hour: '2-digit',
+                                  minute: '2-digit'
+                                })}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-3">
                           <span className={`inline-block px-2.5 py-1 text-[9px] tracking-widest uppercase font-bold rounded-sm border ${
-                            msg.status === 'pending'
+                            selectedMessage.status === 'pending'
                               ? 'bg-amber-950/20 text-amber-400 border-amber-500/20'
                               : 'bg-emerald-950/20 text-emerald-400 border-emerald-500/20'
                           }`}>
-                            {msg.status}
+                            {selectedMessage.status}
                           </span>
-                        </td>
-                        <td className="py-4 px-4 text-right whitespace-nowrap space-x-2">
-                          <button
-                            disabled={updatingId === msg.id}
-                            onClick={() => handleUpdateStatus(msg.id, msg.status)}
-                            className={`px-3 py-1.5 border rounded-sm text-[10px] tracking-widest uppercase transition-all duration-300 cursor-pointer ${
-                              msg.status === 'pending'
-                                ? 'border-emerald-500/20 text-emerald-400 hover:bg-emerald-950/30'
-                                : 'border-amber-500/20 text-amber-400 hover:bg-amber-950/30'
-                            } disabled:opacity-50`}
-                            title={msg.status === 'pending' ? 'Mark as Reviewed' : 'Mark as Pending'}
-                          >
-                            {msg.status === 'pending' ? 'Review' : 'Re-open'}
-                          </button>
-                          <button
-                            disabled={updatingId === msg.id}
-                            onClick={() => handleDeleteMessage(msg.id)}
-                            className="px-3 py-1.5 border border-red-500/20 text-red-400 hover:bg-red-950/30 rounded-sm text-[10px] tracking-widest uppercase transition-all duration-300 cursor-pointer disabled:opacity-50"
-                          >
-                            Delete
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                        </div>
+                      </div>
+
+                      {/* Reader body */}
+                      <div className="flex-1 p-6 overflow-y-auto bg-black/10">
+                        <span className="text-[10px] tracking-widest text-secondary font-semibold uppercase block mb-3">
+                          Message Body
+                        </span>
+                        <div className="text-sm font-light text-accent-muted leading-relaxed whitespace-pre-wrap max-w-3xl bg-black/40 border border-white/5 p-5 rounded-sm">
+                          {selectedMessage.message}
+                        </div>
+                      </div>
+
+                      {/* Reader actions */}
+                      <div className="p-4 border-t border-white/5 bg-black/25 flex justify-end gap-3">
+                        <button
+                          disabled={updatingId === selectedMessage.id}
+                          onClick={() => handleUpdateStatus(selectedMessage.id, selectedMessage.status)}
+                          className={`px-4 py-2 border rounded-sm text-xs tracking-widest uppercase font-semibold transition-all duration-300 cursor-pointer ${
+                            selectedMessage.status === 'pending'
+                              ? 'border-emerald-500/20 text-emerald-400 hover:bg-emerald-950/30'
+                              : 'border-amber-500/20 text-amber-400 hover:bg-amber-950/30'
+                          } disabled:opacity-50`}
+                        >
+                          {selectedMessage.status === 'pending' ? 'Mark as Reviewed' : 'Mark as Pending'}
+                        </button>
+                        <button
+                          disabled={updatingId === selectedMessage.id}
+                          onClick={() => handleDeleteMessage(selectedMessage.id)}
+                          className="px-4 py-2 border border-red-500/20 text-red-400 hover:bg-red-950/30 rounded-sm text-xs tracking-widest uppercase font-semibold transition-all duration-300 cursor-pointer disabled:opacity-50"
+                        >
+                          Delete Message
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex-grow flex flex-col items-center justify-center text-accent-muted p-10">
+                      <div className="h-12 w-12 rounded-full border border-white/10 flex items-center justify-center mb-4 text-white/30">
+                        <i className="fa-solid fa-envelope-open text-lg"></i>
+                      </div>
+                      <p className="text-sm font-light">Select an inquiry from the inbox list to read it.</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Mobile View: Accordion message cards */}
+                <div className="block md:hidden space-y-4 w-full">
+                  {messages.map((msg) => {
+                    const isExpanded = msg.id === expandedMobileMessageId;
+                    const snippet = msg.message.length > 60 
+                      ? msg.message.slice(0, 60) + '...' 
+                      : msg.message;
+                    
+                    return (
+                      <div 
+                        key={msg.id} 
+                        className={`border rounded-sm transition-all duration-300 overflow-hidden ${
+                          isExpanded 
+                            ? 'border-secondary/30 bg-[#0E0E0E]' 
+                            : 'border-white/5 bg-primary-light'
+                        }`}
+                      >
+                        {/* Accordion Toggle Header */}
+                        <button
+                          onClick={() => setExpandedMobileMessageId(isExpanded ? null : msg.id)}
+                          className="w-full text-left p-4 flex flex-col gap-2 cursor-pointer"
+                        >
+                          <div className="flex justify-between items-start gap-2 w-full">
+                            <span className="font-semibold text-white text-sm truncate max-w-[70%]">
+                              {msg.name}
+                            </span>
+                            <span className="text-[9px] text-accent-muted/80 whitespace-nowrap pt-0.5">
+                              {new Date(msg.created_at).toLocaleDateString(undefined, {
+                                month: 'short',
+                                day: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              })}
+                            </span>
+                          </div>
+
+                          {!isExpanded && (
+                            <p className="text-xs text-accent-muted line-clamp-1 leading-relaxed">
+                              {snippet}
+                            </p>
+                          )}
+
+                          <div className="flex justify-between items-center w-full mt-1">
+                            <span className="text-[10px] text-secondary font-light truncate max-w-[70%]">
+                              {msg.email}
+                            </span>
+                            <div className="flex items-center gap-2">
+                              <span className={`inline-block px-1.5 py-0.5 text-[8px] tracking-widest uppercase font-bold rounded-sm border ${
+                                msg.status === 'pending'
+                                  ? 'bg-amber-950/20 text-amber-400 border-amber-500/20'
+                                  : 'bg-emerald-950/20 text-emerald-400 border-emerald-500/20'
+                              }`}>
+                                {msg.status}
+                              </span>
+                              <i className={`fa-solid fa-chevron-down text-[10px] text-accent-muted transition-transform duration-300 ${
+                                isExpanded ? 'rotate-180 text-secondary' : ''
+                              }`}></i>
+                            </div>
+                          </div>
+                        </button>
+
+                        {/* Accordion Expandable Content */}
+                        {isExpanded && (
+                          <div className="px-4 pb-4 pt-2 border-t border-white/5 bg-black/30 space-y-4 animate-fade-in">
+                            <div>
+                              <span className="text-[9px] uppercase tracking-widest text-secondary block mb-1">
+                                Message body
+                              </span>
+                              <p className="text-xs text-accent-muted leading-relaxed break-words bg-black/40 border border-white/5 p-3 rounded-sm">
+                                {msg.message}
+                              </p>
+                            </div>
+
+                            <div className="flex gap-2 pt-2 border-t border-white/5">
+                              <button
+                                disabled={updatingId === msg.id}
+                                onClick={() => handleUpdateStatus(msg.id, msg.status)}
+                                className={`flex-1 py-2 border rounded-sm text-[10px] tracking-widest uppercase font-bold transition-all duration-300 cursor-pointer text-center ${
+                                  msg.status === 'pending'
+                                    ? 'border-emerald-500/20 text-emerald-400 hover:bg-emerald-950/30'
+                                    : 'border-amber-500/20 text-amber-400 hover:bg-amber-950/30'
+                                } disabled:opacity-50`}
+                              >
+                                {msg.status === 'pending' ? 'Review' : 'Re-open'}
+                              </button>
+                              <button
+                                disabled={updatingId === msg.id}
+                                onClick={() => handleDeleteMessage(msg.id)}
+                                className="px-4 py-2 border border-red-500/20 text-red-400 hover:bg-red-950/30 rounded-sm text-[10px] tracking-widest uppercase font-bold transition-all duration-300 cursor-pointer text-center disabled:opacity-50"
+                              >
+                                Delete
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+
               </div>
             )}
           </div>
@@ -327,24 +599,473 @@ export default function AdminDashboard() {
             </div>
           </div>
         );
+
+      case 'cfo':
+        const grossRevenue = cfoTransactions
+          .filter(t => t.type === 'income')
+          .reduce((sum, t) => sum + Number(t.amount), 0);
+          
+        const operatingCosts = cfoTransactions
+          .filter(t => t.type === 'expense')
+          .reduce((sum, t) => sum + Number(t.amount), 0);
+
+        const netIncome = grossRevenue - operatingCosts;
+        const netMargin = grossRevenue > 0 ? (netIncome / grossRevenue) * 100 : 0;
+
+        // Group by month name (Jan - Dec) using transaction_date split to avoid timezone shifting
+        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const monthlyStats = monthNames.map(name => ({ name, income: 0, expense: 0 }));
+        
+        const currentYear = new Date().getFullYear();
+
+        cfoTransactions.forEach(t => {
+          if (t.transaction_date) {
+            const parts = t.transaction_date.split('-');
+            if (parts.length >= 2) {
+              const year = parseInt(parts[0], 10);
+              const monthIdx = parseInt(parts[1], 10) - 1;
+              // Group only transactions for the current year
+              if (year === currentYear && monthIdx >= 0 && monthIdx < 12) {
+                if (t.type === 'income') {
+                  monthlyStats[monthIdx].income += Number(t.amount);
+                } else {
+                  monthlyStats[monthIdx].expense += Number(t.amount);
+                }
+              }
+            }
+          }
+        });
+
+        // Filter to only show months with activity to keep the chart clean, or fallback to first 6 if empty
+        const activeMonthlyData = monthlyStats.filter(m => m.income > 0 || m.expense > 0);
+        const displayData = activeMonthlyData.length > 0 ? activeMonthlyData : monthlyStats.slice(0, 6);
+
+        // Find max value to auto-scale bars
+        const maxVal = Math.max(...displayData.map(d => Math.max(d.income, d.expense)), 1);
+
+        return (
+          <div className="space-y-8 animate-fade-in text-left">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/5 pb-6">
+              <div>
+                <span className="text-[10px] tracking-[0.25em] text-secondary font-semibold uppercase">Finance & Ledger</span>
+                <h1 className="font-serif text-3xl text-white tracking-wide mt-1">CFO Console</h1>
+              </div>
+              <div className="flex gap-3 self-start sm:self-auto">
+                <button 
+                  onClick={() => setIsCfoModalOpen(true)}
+                  className="px-4 py-2 bg-secondary text-black hover:bg-secondary/90 hover:shadow-[0_0_10px_rgba(197,160,89,0.2)] text-xs tracking-widest uppercase font-bold transition-all duration-300 rounded-sm text-center flex items-center gap-2 cursor-pointer"
+                >
+                  <i className="fa-solid fa-plus"></i> New
+                </button>
+                <button 
+                  onClick={fetchCfoTransactions}
+                  disabled={cfoLoading}
+                  className="px-4 py-2 bg-primary-light border border-white/10 hover:border-secondary text-xs tracking-widest uppercase transition-all duration-300 rounded-sm text-center flex items-center gap-2 cursor-pointer disabled:opacity-55"
+                >
+                  <i className="fa-solid fa-arrows-rotate"></i> Refresh
+                </button>
+              </div>
+            </div>
+
+            {cfoLoading ? (
+              <div className="py-20 flex flex-col items-center justify-center gap-4">
+                <div className="h-8 w-8 rounded-full border-2 border-secondary/20 border-t-secondary animate-spin" />
+                <span className="text-xs text-accent-muted tracking-widest uppercase font-light">Retrieving Ledger Records...</span>
+              </div>
+            ) : cfoError ? (
+              <div className="py-12 text-center max-w-md mx-auto space-y-4">
+                <div className="h-12 w-12 rounded-full border border-red-500/20 bg-red-950/20 flex items-center justify-center mx-auto text-red-500">
+                  <i className="fa-solid fa-circle-exclamation text-lg"></i>
+                </div>
+                <p className="text-red-400 text-sm font-light">{cfoError}</p>
+                <button 
+                  onClick={fetchCfoTransactions}
+                  className="px-4 py-2 border border-red-500/20 text-red-400 hover:bg-red-950/20 text-xs tracking-widest uppercase transition-all duration-300 rounded-sm"
+                >
+                  Retry Request
+                </button>
+              </div>
+            ) : (
+              <>
+                {/* Financial Overview Cards Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                  
+                  <div className="border border-white/5 bg-primary-light p-6 rounded-sm flex items-center justify-between border-gold-glow">
+                    <div>
+                      <span className="text-[10px] tracking-widest text-accent-muted uppercase font-semibold">Gross Revenue</span>
+                      <h2 className="text-2xl font-serif text-white mt-1">
+                        ₹{grossRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </h2>
+                      <span className="text-[9px] text-accent-muted font-light block mt-1">
+                        Total inflows registered
+                      </span>
+                    </div>
+                    <div className="h-10 w-10 bg-secondary/5 rounded-full border border-secondary/20 flex items-center justify-center">
+                      <i className="fa-solid fa-chart-line text-secondary text-sm"></i>
+                    </div>
+                  </div>
+
+                  <div className="border border-white/5 bg-primary-light p-6 rounded-sm flex items-center justify-between border-gold-glow">
+                    <div>
+                      <span className="text-[10px] tracking-widest text-accent-muted uppercase font-semibold">Operating Costs</span>
+                      <h2 className="text-2xl font-serif text-white mt-1">
+                        ₹{operatingCosts.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </h2>
+                      <span className="text-[9px] text-accent-muted font-light block mt-1">
+                        Total outflows registered
+                      </span>
+                    </div>
+                    <div className="h-10 w-10 bg-secondary/5 rounded-full border border-secondary/20 flex items-center justify-center">
+                      <i className="fa-solid fa-wallet text-secondary text-sm"></i>
+                    </div>
+                  </div>
+
+                  <div className="border border-white/5 bg-primary-light p-6 rounded-sm flex items-center justify-between border-gold-glow">
+                    <div>
+                      <span className="text-[10px] tracking-widest text-accent-muted uppercase font-semibold">Net Profit Margin</span>
+                      <h2 className="text-2xl font-serif text-secondary mt-1">
+                        {netMargin.toFixed(2)}%
+                      </h2>
+                      <span className="text-[9px] text-accent-muted font-light block mt-1">
+                        Target threshold: 65.00%
+                      </span>
+                    </div>
+                    <div className="h-10 w-10 bg-secondary/5 rounded-full border border-secondary/20 flex items-center justify-center">
+                      <i className="fa-solid fa-percent text-secondary text-sm"></i>
+                    </div>
+                  </div>
+
+                  <div className="border border-white/5 bg-primary-light p-6 rounded-sm flex items-center justify-between border-gold-glow">
+                    <div>
+                      <span className="text-[10px] tracking-widest text-accent-muted uppercase font-semibold">Net Income / Profit</span>
+                      <h2 className={`text-2xl font-serif mt-1 ${netIncome >= 0 ? 'text-white' : 'text-red-400'}`}>
+                        {netIncome < 0 ? '-' : ''}₹{Math.abs(netIncome).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </h2>
+                      <span className="text-[9px] text-accent-muted font-light block mt-1">
+                        Inflows minus outflows
+                      </span>
+                    </div>
+                    <div className="h-10 w-10 bg-secondary/5 rounded-full border border-secondary/20 flex items-center justify-center">
+                      <i className="fa-solid fa-file-invoice-dollar text-secondary text-sm"></i>
+                    </div>
+                  </div>
+
+                </div>
+
+                {/* Bottom Split Layout: Chart Mockup and Ledger Logs */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                  
+                  {/* Chart Mockup (2 Cols) */}
+                  <div className="lg:col-span-2 border border-white/5 bg-primary-light p-6 rounded-sm border-gold-glow flex flex-col justify-between">
+                    <div className="flex justify-between items-center mb-6">
+                      <div>
+                        <span className="text-[9px] uppercase tracking-widest text-secondary font-bold">Analytics</span>
+                        <h3 className="font-serif text-lg text-white">Projected Earnings vs. Expenses</h3>
+                      </div>
+                      <span className="text-[10px] text-accent-muted border border-white/5 bg-black/40 px-3 py-1 rounded-sm">
+                        FY 2026/27
+                      </span>
+                    </div>
+
+                    {/* Chart Container with Axis and Guide Lines */}
+                    <div className="flex flex-col gap-2 h-64 mt-4 w-full">
+                      <div className="flex gap-4 items-stretch flex-grow min-h-0">
+                        {/* Y-Axis Labels */}
+                        <div className="flex flex-col justify-between text-[9px] text-accent-muted/80 text-right pr-3 select-none font-sans w-14 pb-1">
+                          <span>₹{maxVal.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                          <span>₹{(maxVal * 0.75).toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                          <span>₹{(maxVal * 0.5).toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                          <span>₹{(maxVal * 0.25).toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                          <span>₹0</span>
+                        </div>
+
+                        {/* Bar chart area (Border-b is X-axis baseline) */}
+                        <div className="flex-grow flex items-end justify-between gap-2.5 relative border-b border-white/10 pb-1">
+                          {/* Guide Lines */}
+                          <div className="absolute inset-0 flex flex-col justify-between pointer-events-none pb-1">
+                            <div className="border-b border-white/[0.03] w-full"></div>
+                            <div className="border-b border-white/[0.03] w-full"></div>
+                            <div className="border-b border-white/[0.03] w-full"></div>
+                            <div className="border-b border-white/[0.03] w-full"></div>
+                            <div className="w-full"></div> {/* Baseline covered by parent border-b */}
+                          </div>
+
+                          {displayData.map((d) => {
+                            const incHeight = (d.income / maxVal) * 100;
+                            const expHeight = (d.expense / maxVal) * 100;
+                            return (
+                              <div key={d.name} className="flex-1 flex flex-col items-center justify-end h-full group cursor-pointer z-10 relative">
+                                <div className="w-full flex justify-center gap-1 h-full items-end">
+                                  <div 
+                                    className="w-2.5 bg-secondary/60 group-hover:bg-secondary transition-all rounded-t-sm" 
+                                    style={{ height: `${incHeight}%` }} 
+                                    title={`Earnings: ₹${d.income.toLocaleString()}`}
+                                  ></div>
+                                  <div 
+                                    className="w-2.5 bg-white/10 group-hover:bg-white/20 transition-all rounded-t-sm" 
+                                    style={{ height: `${expHeight}%` }} 
+                                    title={`Expenses: ₹${d.expense.toLocaleString()}`}
+                                  ></div>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      {/* X-Axis Month Labels Row */}
+                      <div className="flex gap-4">
+                        {/* Spacer to align with Y-axis */}
+                        <div className="w-14 select-none pr-3"></div>
+                        
+                        {/* Month names matching columns */}
+                        <div className="flex-grow flex justify-between gap-2.5 text-center">
+                          {displayData.map((d) => (
+                            <span key={d.name} className="flex-1 text-[10px] text-accent-muted group-hover:text-white transition-colors">
+                              {d.name}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-4 justify-end mt-4 text-[10px] text-accent-muted font-light font-sans">
+                      <div className="flex items-center gap-1.5">
+                        <div className="h-2 w-2 rounded-full bg-secondary"></div>
+                        <span>Projected Revenue</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <div className="h-2 w-2 rounded-full bg-white/35"></div>
+                        <span>Operational Cost</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Transactions Ledger (1 Col) */}
+                  <div className="border border-white/5 bg-primary-light p-6 rounded-sm border-gold-glow flex flex-col">
+                    <div className="mb-6 font-sans">
+                      <span className="text-[9px] uppercase tracking-widest text-secondary font-bold">Ledger</span>
+                      <h3 className="font-serif text-lg text-white">Recent Transactions</h3>
+                    </div>
+
+                    <div className="flex-1 divide-y divide-white/5 space-y-4 overflow-y-auto max-h-[290px] pr-1">
+                      {cfoTransactions.length === 0 ? (
+                        <div className="py-20 text-center text-accent-muted">
+                          <p className="text-xs font-light">No ledger records found.</p>
+                        </div>
+                      ) : (
+                        cfoTransactions.map((t) => (
+                          <div key={t.id} className="flex items-center justify-between pt-3">
+                            <div className="text-left overflow-hidden mr-2">
+                              <h4 className="text-xs font-semibold text-white truncate max-w-[155px]" title={t.title}>
+                                {t.title}
+                              </h4>
+                              <span className="text-[9px] text-accent-muted block">
+                                {new Date(t.transaction_date).toLocaleDateString(undefined, {
+                                  month: 'short',
+                                  day: 'numeric',
+                                  year: 'numeric'
+                                })}
+                              </span>
+                            </div>
+                            <div className="text-right flex-shrink-0">
+                              <span className={`text-xs font-serif font-bold ${
+                                t.type === 'income' ? 'text-secondary' : 'text-white'
+                              }`}>
+                                {t.type === 'income' ? '+' : '-'}₹{Number(t.amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                              </span>
+                              <span className={`text-[8px] border rounded-sm px-1.5 py-0.5 block mt-0.5 uppercase tracking-widest font-bold text-center ${
+                                t.type === 'income' 
+                                  ? 'bg-emerald-950/20 text-emerald-400 border-emerald-500/20' 
+                                  : 'bg-amber-950/20 text-amber-400 border-amber-500/20'
+                              }`}>
+                                {t.type}
+                              </span>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+
+                </div>
+              </>
+            )}
+          </div>
+        );
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#020202] text-white flex font-sans">
+    <div className="min-h-screen bg-[#020202] text-white flex flex-col md:flex-row font-sans">
       
+      {/* Mobile Top Header bar */}
+      <header className="md:hidden h-16 border-b border-white/5 bg-[#0A0A0A] flex items-center justify-between px-6 sticky top-0 z-30 flex-shrink-0">
+        <div className="flex items-center gap-3">
+          <img 
+            src="/logo.jpg" 
+            alt="Viora Logo" 
+            className="h-8 w-8 object-contain rounded-md border border-secondary/20"
+          />
+          <div className="flex flex-col text-left">
+            <span className="font-serif tracking-[0.2em] text-sm font-semibold text-white">
+              VIORA
+            </span>
+            <span className="text-[8px] tracking-[0.3em] text-secondary font-medium -mt-1 uppercase">
+              Console
+            </span>
+          </div>
+        </div>
+        
+        <button 
+          onClick={() => setSidebarOpen(true)}
+          className="h-10 w-10 border border-white/5 hover:border-secondary/50 rounded-sm flex items-center justify-center text-white transition-all cursor-pointer"
+          aria-label="Open navigation menu"
+        >
+          <i className="fa-solid fa-bars text-lg"></i>
+        </button>
+      </header>
+
       {/* Left Sidebar */}
       <AdminSidebar
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         userEmail={session.user?.email || 'admin@vioramedia.in'}
         onLogout={() => supabase.auth.signOut()}
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
       />
 
       {/* Right Content Area */}
-      <main className="flex-grow h-screen overflow-y-auto p-6 md:p-10">
+      <main className="flex-grow h-[calc(100vh-4rem)] md:h-screen overflow-y-auto p-4 sm:p-6 md:p-10">
         {renderActiveView()}
       </main>
+
+      {/* CFO Transaction Entry Modal */}
+      {isCfoModalOpen && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-opacity duration-300">
+          <div 
+            className="fixed inset-0" 
+            onClick={() => setIsCfoModalOpen(false)}
+          />
+          <div className="relative z-10 w-full max-w-md bg-[#0A0A0A] border border-white/10 p-6 md:p-8 rounded-sm border-gold-glow flex flex-col shadow-[0_0_50px_rgba(197,160,89,0.08)]">
+            <button 
+              onClick={() => setIsCfoModalOpen(false)}
+              className="absolute top-4 right-4 text-accent-muted hover:text-white p-1 cursor-pointer transition-colors"
+              aria-label="Close dialog"
+            >
+              <i className="fa-solid fa-xmark text-lg"></i>
+            </button>
+
+            <span className="text-[9px] tracking-[0.25em] text-secondary font-semibold uppercase mb-1">
+              Add Record
+            </span>
+            <h3 className="font-serif text-xl text-white tracking-wide mb-6">
+              New Ledger Transaction
+            </h3>
+
+            <form onSubmit={handleCreateCfoTransaction} className="space-y-5 text-left">
+              <div>
+                <label className="block text-[10px] tracking-widest text-secondary font-semibold uppercase mb-2">
+                  Transaction Title
+                </label>
+                <input 
+                  type="text" 
+                  required
+                  value={newTitle}
+                  onChange={(e) => setNewTitle(e.target.value)}
+                  placeholder="e.g. Supabase Premium Hosting"
+                  className="w-full bg-black/60 border border-white/10 focus:border-secondary focus:outline-none px-4 py-3 text-xs text-white placeholder-white/20 transition-all rounded-sm focus:ring-1 focus:ring-secondary/30"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[10px] tracking-widest text-secondary font-semibold uppercase mb-2">
+                    Amount (₹)
+                  </label>
+                  <input 
+                    type="number" 
+                    required
+                    step="0.01"
+                    min="0.01"
+                    value={newAmount}
+                    onChange={(e) => setNewAmount(e.target.value)}
+                    placeholder="0.00"
+                    className="w-full bg-black/60 border border-white/10 focus:border-secondary focus:outline-none px-4 py-3 text-xs text-white placeholder-white/20 transition-all rounded-sm focus:ring-1 focus:ring-secondary/30"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[10px] tracking-widest text-secondary font-semibold uppercase mb-2">
+                    Transaction Date
+                  </label>
+                  <input 
+                    type="date" 
+                    required
+                    value={newDate}
+                    onChange={(e) => setNewDate(e.target.value)}
+                    className="w-full bg-black/60 border border-white/10 focus:border-secondary focus:outline-none px-4 py-3 text-xs text-white transition-all rounded-sm focus:ring-1 focus:ring-secondary/30"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[10px] tracking-widest text-secondary font-semibold uppercase mb-2">
+                  Transaction Type
+                </label>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setNewType('income')}
+                    className={`py-3 text-xs uppercase tracking-wider font-semibold border rounded-sm transition-all duration-300 cursor-pointer text-center ${
+                      newType === 'income'
+                        ? 'border-secondary bg-secondary/10 text-secondary'
+                        : 'border-white/10 text-accent-muted hover:border-white/20'
+                    }`}
+                  >
+                    Income
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setNewType('expense')}
+                    className={`py-3 text-xs uppercase tracking-wider font-semibold border rounded-sm transition-all duration-300 cursor-pointer text-center ${
+                      newType === 'expense'
+                        ? 'border-red-500/50 bg-red-950/20 text-red-400'
+                        : 'border-white/10 text-accent-muted hover:border-white/20'
+                    }`}
+                  >
+                    Expense
+                  </button>
+                </div>
+              </div>
+
+              {cfoSubmitError && (
+                <p className="text-red-500 text-xs font-light bg-red-950/25 border border-red-500/25 p-3 rounded-sm text-center">
+                  {cfoSubmitError}
+                </p>
+              )}
+
+              <div className="flex gap-3 pt-3 border-t border-white/5">
+                <button
+                  type="button"
+                  onClick={() => setIsCfoModalOpen(false)}
+                  className="flex-1 py-3 border border-white/10 hover:border-white/20 text-xs tracking-widest uppercase transition-all duration-300 rounded-sm cursor-pointer text-center font-bold text-accent-muted"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={cfoSubmitting}
+                  className="flex-1 py-3 bg-secondary text-black hover:bg-secondary/90 hover:shadow-[0_0_15px_rgba(197,160,89,0.3)] text-xs tracking-widest uppercase transition-all duration-300 rounded-sm cursor-pointer text-center font-bold disabled:opacity-50"
+                >
+                  {cfoSubmitting ? 'Submitting...' : 'Create Entry'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
     </div>
   );
