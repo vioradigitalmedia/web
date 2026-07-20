@@ -9,12 +9,14 @@ export default function FestivalsScreen() {
 
 
   const awards = [
-    { title: 'Best Narrative Short', category: 'Grand Jury Award' },
-    { title: 'Best Director', category: 'Individual Excellence' },
-    { title: 'Best Cinematography', category: 'Visual Excellence' },
-    { title: 'Best Original Screenplay', category: 'Narrative Excellence' },
-    { title: 'Best Actor/Actress', category: 'Performance Excellence' },
-    { title: 'Audience Choice Award', category: 'Popular Recognition' },
+    { title: 'Best Director', category: 'Individual Excellence', icon: 'fa-clapperboard' },
+    { title: 'Best Actor', category: 'Performance Excellence', icon: 'fa-masks-theater' },
+    { title: 'Best Actress', category: 'Performance Excellence', icon: 'fa-masks-theater' },
+    { title: 'Best Supporting Actor', category: 'Performance Excellence', icon: 'fa-star' },
+    { title: 'Best Supporting Actress', category: 'Performance Excellence', icon: 'fa-star' },
+    { title: 'Best Editor', category: 'Post-Production Excellence', icon: 'fa-scissors' },
+    { title: 'Best Cinematographer', category: 'Visual Excellence', icon: 'fa-video' },
+    { title: 'Best Composer', category: 'Auditory Excellence', icon: 'fa-music' },
   ];
 
   const reelFrames = [
@@ -176,13 +178,13 @@ export default function FestivalsScreen() {
             </p>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {awards.map((award, idx) => (
               <div
                 key={idx}
-                className="border border-white/5 bg-black p-6 rounded-sm text-center flex flex-col items-center justify-center hover:border-secondary/20 transition-all duration-300"
+                className="group border border-white/5 bg-black p-6 rounded-sm text-center flex flex-col items-center justify-center hover:border-secondary/35 hover:-translate-y-1 hover:shadow-[0_4px_20px_rgba(197,160,89,0.15)] transition-all duration-300 cursor-default"
               >
-                <i className="fa-solid fa-trophy text-secondary text-xl mb-3"></i>
+                <i className={`fa-solid ${award.icon} text-secondary text-xl mb-3 transition-transform duration-300 group-hover:scale-125 group-hover:rotate-6`}></i>
                 <span className="text-xs font-semibold text-white tracking-wider uppercase mb-1">
                   {award.title}
                 </span>
