@@ -2,6 +2,44 @@ import { useState } from 'react';
 import { useSeo } from '../hooks/useSeo';
 import { supabase } from '../supabaseClient';
 
+interface RazorpayOptions {
+  key: string;
+  amount: number;
+  currency: string;
+  name: string;
+  description: string;
+  prefill: {
+    name: string;
+    email: string;
+    contact: string;
+  };
+  notes: {
+    city: string;
+    genre: string;
+    director: string;
+    film_title: string;
+  };
+  theme: {
+    color: string;
+  };
+  handler: (response: { razorpay_payment_id: string }) => void;
+  modal: {
+    ondismiss: () => void;
+  };
+}
+
+interface RazorpayInstance {
+  open: () => void;
+}
+
+interface RazorpayConstructor {
+  new (options: RazorpayOptions): RazorpayInstance;
+}
+
+interface RazorpayWindow {
+  Razorpay?: RazorpayConstructor;
+}
+
 export default function VioraSFSScreen() {
   useSeo({
     title: 'Viora Short Film Festival 2026 | Official Page',
@@ -40,14 +78,8 @@ export default function VioraSFSScreen() {
   const [agreeRules, setAgreeRules] = useState(false);
   const [allowMediaUse, setAllowMediaUse] = useState(false);
 
-  // Payment Screen State
-  const [showPayment, setShowPayment] = useState(false);
-  const [cardNumber, setCardNumber] = useState('');
-  const [cardExpiry, setCardExpiry] = useState('');
-  const [cardCvv, setCardCvv] = useState('');
+  // Razorpay Integration State
   const [paying, setPaying] = useState(false);
-
-  // Global progress and state
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [submitted, setSubmitted] = useState(false);
@@ -61,7 +93,7 @@ export default function VioraSFSScreen() {
     },
     {
       title: 'Documentary Short',
-      description: 'Non-fiction films offering unique insights, compelling real-life stories, and creative exploration of reality.',
+      description: 'Non-fiction films offering unique insights, leading real-life stories, and creative exploration of reality.',
       duration: 'Under 40 mins'
     },
     {
@@ -93,6 +125,22 @@ export default function VioraSFSScreen() {
       icon: <i className="fa-solid fa-trophy text-secondary text-2xl mb-4"></i>
     }
   ];
+
+  const loadRazorpayScript = () => {
+    return new Promise((resolve) => {
+      const rzpWindow = window as unknown as RazorpayWindow;
+      if (rzpWindow.Razorpay) {
+        resolve(true);
+        return;
+      }
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.async = true;
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -151,32 +199,72 @@ export default function VioraSFSScreen() {
     setStep((prev) => prev - 1);
   };
 
-  const handleProceedToPayment = (e: React.FormEvent) => {
+  const handleProceedToPayment = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (validateStep()) {
-      setShowPayment(true);
-    }
-  };
-
-  const handlePaymentSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!cardNumber || !cardExpiry || !cardCvv) {
-      setErrorMessage('Please enter all payment card details.');
-      return;
-    }
+    if (!validateStep()) return;
 
     setPaying(true);
     setErrorMessage(null);
 
-    // Simulate payment transaction
-    setTimeout(() => {
+    const loaded = await loadRazorpayScript();
+    if (!loaded) {
       setPaying(false);
-      setShowPayment(false);
-      startMovieUpload();
-    }, 1500);
+      setErrorMessage('Failed to load Razorpay payment gateway. Please check your internet connection.');
+      return;
+    }
+
+    const razorpayKey = import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_V3Vq4K9lB5j9yF';
+    const rzpWindow = window as unknown as RazorpayWindow;
+
+    if (!rzpWindow.Razorpay) {
+      setPaying(false);
+      setErrorMessage('Razorpay SDK script not initialized properly.');
+      return;
+    }
+
+    const options: RazorpayOptions = {
+      key: razorpayKey,
+      amount: 99900, // ₹999 in paise (999 * 100)
+      currency: 'INR',
+      name: 'Viora Media',
+      description: `Short Film Fest 2026 Entry: ${filmTitle}`,
+      prefill: {
+        name,
+        email,
+        contact: phone
+      },
+      notes: {
+        city,
+        genre,
+        director,
+        film_title: filmTitle
+      },
+      theme: {
+        color: '#C5A059' // Gold color theme matching Viora branding
+      },
+      handler: function (response: { razorpay_payment_id: string }) {
+        setPaying(false);
+        startMovieUpload(response.razorpay_payment_id);
+      },
+      modal: {
+        ondismiss: function () {
+          setPaying(false);
+        }
+      }
+    };
+
+    try {
+      const Razorpay = rzpWindow.Razorpay;
+      const rzp = new Razorpay(options);
+      rzp.open();
+    } catch (err) {
+      setPaying(false);
+      const errorMsg = err instanceof Error ? err.message : 'Razorpay initiation failed. Please make sure VITE_RAZORPAY_KEY_ID is valid.';
+      setErrorMessage(errorMsg);
+    }
   };
 
-  const startMovieUpload = async () => {
+  const startMovieUpload = async (paymentId: string) => {
     setUploading(true);
     setProgress(0);
 
@@ -222,7 +310,8 @@ File Uploaded: ${selectedFile?.name} (${((selectedFile?.size || 0) / (1024 * 102
 Poster Uploaded: ${posterFile ? `${posterFile.name} (${((posterFile.size || 0) / (1024 * 1024)).toFixed(2)} MB)` : 'None'}
 Agreed to Festival Rules: ${agreeRules ? 'Yes' : 'No'}
 Allowed Viora to use Poster & Cuts: ${allowMediaUse ? 'Yes' : 'No'}
-Payment Status: Completed (₹1,999.00)
+Payment Status: Completed (₹999.00 via Razorpay)
+Razorpay Payment ID: ${paymentId}
 `;
 
       const { error: insertError } = await supabase
@@ -277,10 +366,6 @@ Payment Status: Completed (₹1,999.00)
     setPosterFile(null);
     setAgreeRules(false);
     setAllowMediaUse(false);
-    setShowPayment(false);
-    setCardNumber('');
-    setCardExpiry('');
-    setCardCvv('');
     setProgress(0);
     setUploading(false);
     setSubmitted(false);
@@ -298,6 +383,7 @@ Payment Status: Completed (₹1,999.00)
         </div>
 
         <div className="relative z-10 space-y-6">
+          <span className="text-xs tracking-[0.4em] text-secondary font-semibold uppercase">Official Selection</span>
           <h1 className="font-serif text-4xl md:text-7xl text-white tracking-wide leading-tight max-w-4xl mx-auto">
             Viora Short Film <br />
             <span className="text-gold-gradient font-italic font-normal">Festival 2026</span>
@@ -309,7 +395,7 @@ Payment Status: Completed (₹1,999.00)
             <button
               type="button"
               onClick={() => setIsModalOpen(true)}
-              className="inline-block px-8 py-3.5 bg-secondary text-black font-semibold text-xs tracking-widest uppercase hover:bg-white hover:text-black transition-all duration-300 rounded-sm cursor-pointer"
+              className="inline-block px-8 py-3.5 bg-secondary text-black font-semibold text-xs tracking-widest uppercase hover:bg-white hover:text-black transition-all duration-300 rounded-sm cursor-pointer animate-pulse-slow"
             >
               Submit Your Cut
             </button>
@@ -386,15 +472,15 @@ Payment Status: Completed (₹1,999.00)
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md overflow-y-auto">
           {/* Modal Container */}
-          <div className="relative w-full max-w-2xl bg-primary-light border border-white/10 rounded-sm shadow-[0_0_55px_rgba(197,160,89,0.25)] overflow-hidden my-8">
+          <div className="relative w-full max-w-2xl bg-primary-light border border-white/10 rounded-sm shadow-[0_0_55px_rgba(197,160,89,0.25)] overflow-hidden my-8 animate-fade-in">
             
             {/* Header */}
             <div className="flex items-center justify-between p-6 border-b border-white/5 bg-black/20">
               <div className="space-y-1">
                 <h3 className="font-serif text-xl text-white tracking-wide">Viora Short Film Fest 2026</h3>
-                {!uploading && !submitted && !showPayment && (
+                {!uploading && !submitted && (
                   <p className="text-[10px] text-secondary tracking-widest uppercase font-mono">
-                    SECTION {step} OF 4 : {step === 1 ? 'Contact Details' : step === 2 ? 'Film Details' : step === 3 ? 'Creative Credits' : 'Upload & Consent'}
+                    {paying ? 'CONTACTING PAYMENT GATEWAY...' : `SECTION ${step} OF 4 : ${step === 1 ? 'Contact Details' : step === 2 ? 'Film Details' : step === 3 ? 'Creative Credits' : 'Upload & Consent'}`}
                   </p>
                 )}
               </div>
@@ -408,7 +494,7 @@ Payment Status: Completed (₹1,999.00)
             </div>
 
             {/* Stepper Progress Bar */}
-            {!uploading && !submitted && !showPayment && (
+            {!uploading && !submitted && (
               <div className="w-full bg-black/40 h-1 flex">
                 <div className={`h-full bg-secondary transition-all duration-500`} style={{ width: `${(step / 4) * 100}%` }}></div>
               </div>
@@ -442,15 +528,15 @@ Payment Status: Completed (₹1,999.00)
                   </div>
                 </div>
               ) : paying ? (
-                /* Payment Processing Screen */
-                <div className="py-16 flex flex-col items-center justify-center text-center space-y-6">
-                  <div className="w-16 h-16 rounded-full border border-secondary/20 flex items-center justify-center bg-secondary/5 relative">
-                    <div className="absolute inset-0 border-2 border-transparent border-t-secondary rounded-full animate-spin"></div>
-                    <i className="fa-solid fa-credit-card text-secondary text-xl"></i>
+                /* Payment Redirect / Launch State */
+                <div className="py-16 flex flex-col items-center justify-center text-center space-y-6 bg-black/30 border border-white/5 rounded-md">
+                  <div className="w-16 h-16 rounded-full border border-[#1780cb]/20 flex items-center justify-center bg-[#1780cb]/5 relative">
+                    <div className="absolute inset-0 border-2 border-transparent border-t-[#1780cb] rounded-full animate-spin"></div>
+                    <i className="fa-solid fa-credit-card text-[#1780cb] text-xl animate-pulse"></i>
                   </div>
                   <div className="space-y-2">
-                    <p className="text-sm text-white font-medium">Contacting banking servers...</p>
-                    <p className="text-[10px] text-accent-muted tracking-widest uppercase font-mono">Simulating Payment Gateway</p>
+                    <p className="text-sm text-white font-medium">Launching Razorpay payment portal...</p>
+                    <p className="text-[10px] text-[#8692a6] tracking-widest uppercase font-mono">Please authorize payment in the popup window</p>
                   </div>
                 </div>
               ) : submitted ? (
@@ -462,7 +548,7 @@ Payment Status: Completed (₹1,999.00)
                   <div className="space-y-2">
                     <h4 className="font-serif text-xl text-white">Film Registered Successfully</h4>
                     <p className="text-xs text-accent-muted font-light leading-relaxed max-w-md mx-auto">
-                      Congratulations! Your registration has been finalized. We have received your payment of ₹1,999.00 and uploaded your movie files. A confirmation details package will be emailed to you.
+                      Congratulations! Your registration has been finalized. We have received your payment of ₹999.00 via Razorpay and uploaded your movie files. A confirmation package has been recorded in the system.
                     </p>
                   </div>
                   <button
@@ -472,103 +558,12 @@ Payment Status: Completed (₹1,999.00)
                     Close Screen
                   </button>
                 </div>
-              ) : showPayment ? (
-                /* Payment Form */
-                <form onSubmit={handlePaymentSubmit} className="space-y-6">
-                  <div className="bg-black/40 border border-white/5 p-5 rounded-sm space-y-3">
-                    <div className="flex justify-between items-center text-xs">
-                      <span className="text-accent-muted font-light">Festival Entry Fee</span>
-                      <span className="text-white font-semibold">₹1,999.00</span>
-                    </div>
-                    <div className="flex justify-between items-center text-xs">
-                      <span className="text-accent-muted font-light">Film Title</span>
-                      <span className="text-secondary font-medium italic">"{filmTitle}"</span>
-                    </div>
-                    <div className="border-t border-white/5 pt-3 flex justify-between items-center text-sm font-semibold">
-                      <span className="text-white">Amount Due</span>
-                      <span className="text-secondary">₹1,999.00</span>
-                    </div>
-                  </div>
-
-                  <div className="space-y-4">
-                    <h4 className="text-xs tracking-widest uppercase text-white font-semibold border-b border-white/5 pb-2">Credit / Debit Card</h4>
-                    
-                    <div>
-                      <label className="block text-[10px] tracking-widest text-secondary font-semibold uppercase mb-1.5">
-                        Card Number
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        maxLength={19}
-                        value={cardNumber}
-                        onChange={(e) => {
-                          const val = e.target.value.replace(/\D/g, '').replace(/(.{4})/g, '$1 ').trim();
-                          setCardNumber(val);
-                        }}
-                        className="w-full bg-black/60 border border-white/10 focus:border-secondary focus:outline-none px-4 py-3 text-xs text-white placeholder-white/20 transition-all rounded-sm"
-                        placeholder="4111 2222 3333 4444"
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-[10px] tracking-widest text-secondary font-semibold uppercase mb-1.5">
-                          Expiration (MM/YY)
-                        </label>
-                        <input
-                          type="text"
-                          required
-                          maxLength={5}
-                          value={cardExpiry}
-                          onChange={(e) => {
-                            let val = e.target.value.replace(/\D/g, '');
-                            if (val.length > 2) val = `${val.substring(0, 2)}/${val.substring(2, 4)}`;
-                            setCardExpiry(val);
-                          }}
-                          className="w-full bg-black/60 border border-white/10 focus:border-secondary focus:outline-none px-4 py-3 text-xs text-white placeholder-white/20 transition-all rounded-sm"
-                          placeholder="12/28"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-[10px] tracking-widest text-secondary font-semibold uppercase mb-1.5">
-                          CVV Code
-                        </label>
-                        <input
-                          type="password"
-                          required
-                          maxLength={3}
-                          value={cardCvv}
-                          onChange={(e) => setCardCvv(e.target.value.replace(/\D/g, ''))}
-                          className="w-full bg-black/60 border border-white/10 focus:border-secondary focus:outline-none px-4 py-3 text-xs text-white placeholder-white/20 transition-all rounded-sm"
-                          placeholder="•••"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="pt-4 flex gap-4">
-                    <button
-                      type="button"
-                      onClick={() => setShowPayment(false)}
-                      className="flex-1 py-3 border border-white/10 hover:border-white/25 text-white text-xs font-semibold tracking-widest uppercase transition-all duration-300 rounded-sm cursor-pointer"
-                    >
-                      Back
-                    </button>
-                    <button
-                      type="submit"
-                      className="flex-1 py-3 bg-secondary hover:bg-white text-black font-semibold text-xs tracking-widest uppercase transition-all duration-300 rounded-sm cursor-pointer hover:shadow-[0_0_15px_rgba(197,160,89,0.25)]"
-                    >
-                      Pay Now (₹1,999)
-                    </button>
-                  </div>
-                </form>
               ) : (
                 /* Stepper Forms */
                 <div>
                   {step === 1 && (
                     /* Section 1: Submitter Info */
-                    <div className="space-y-4 animate-fade-in">
+                    <div className="space-y-4 animate-fade-in text-left">
                       <div>
                         <label className="block text-[10px] tracking-widest text-secondary font-semibold uppercase mb-1.5">
                           Full Name
@@ -629,7 +624,7 @@ Payment Status: Completed (₹1,999.00)
 
                   {step === 2 && (
                     /* Section 2: Film Details */
-                    <div className="space-y-4 animate-fade-in">
+                    <div className="space-y-4 animate-fade-in text-left">
                       <div>
                         <label className="block text-[10px] tracking-widest text-secondary font-semibold uppercase mb-1.5">
                           Film Title
@@ -691,7 +686,7 @@ Payment Status: Completed (₹1,999.00)
 
                   {step === 3 && (
                     /* Section 3: Cast & Crew Credits */
-                    <div className="space-y-4 animate-fade-in max-h-[50vh] overflow-y-auto pr-1">
+                    <div className="space-y-4 animate-fade-in max-h-[50vh] overflow-y-auto pr-1 text-left">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                           <label className="block text-[10px] tracking-widest text-secondary font-semibold uppercase mb-1.5">
@@ -817,7 +812,7 @@ Payment Status: Completed (₹1,999.00)
 
                   {step === 4 && (
                     /* Section 4: File Upload & Rules */
-                    <div className="space-y-5 animate-fade-in">
+                    <div className="space-y-5 animate-fade-in text-left">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                           <label className="block text-[10px] tracking-widest text-secondary font-semibold uppercase mb-1.5">
