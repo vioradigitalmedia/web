@@ -1,0 +1,955 @@
+import { useState } from 'react';
+import { useSeo } from '../hooks/useSeo';
+import { supabase } from '../supabaseClient';
+
+export default function VioraSFSScreen() {
+  useSeo({
+    title: 'Viora Short Film Festival 2026 | Official Page',
+    description: 'Welcome to the official page of the Viora Short Film Festival 2026. Submit your projects, view award categories, and explore screening details.'
+  });
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [step, setStep] = useState(1);
+
+  // Section 1: Submitter
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
+  const [city, setCity] = useState('');
+
+  // Section 2: Film Details
+  const [filmTitle, setFilmTitle] = useState('');
+  const [genre, setGenre] = useState('');
+  const [runtime, setRuntime] = useState('');
+  const [logline, setLogline] = useState('');
+
+  // Section 3: Cast & Crew
+  const [director, setDirector] = useState('');
+  const [writer, setWriter] = useState('');
+  const [cinematographer, setCinematographer] = useState('');
+  const [editor, setEditor] = useState('');
+  const [music, setMusic] = useState('');
+  const [mainActor, setMainActor] = useState('');
+  const [mainActress, setMainActress] = useState('');
+  const [supportingActor, setSupportingActor] = useState('');
+  const [supportingActress, setSupportingActress] = useState('');
+
+  // Section 4: Movie Upload, Poster & Agreements
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [posterFile, setPosterFile] = useState<File | null>(null);
+  const [agreeRules, setAgreeRules] = useState(false);
+  const [allowMediaUse, setAllowMediaUse] = useState(false);
+
+  // Payment Screen State
+  const [showPayment, setShowPayment] = useState(false);
+  const [cardNumber, setCardNumber] = useState('');
+  const [cardExpiry, setCardExpiry] = useState('');
+  const [cardCvv, setCardCvv] = useState('');
+  const [paying, setPaying] = useState(false);
+
+  // Global progress and state
+  const [uploading, setUploading] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [submitted, setSubmitted] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const categories = [
+    {
+      title: 'Narrative Short',
+      description: 'Original fictional stories showcasing narrative depth, character development, and cinematic vision.',
+      duration: 'Under 30 mins'
+    },
+    {
+      title: 'Documentary Short',
+      description: 'Non-fiction films offering unique insights, compelling real-life stories, and creative exploration of reality.',
+      duration: 'Under 40 mins'
+    },
+    {
+      title: 'Animation Short',
+      description: 'Vibrant and innovative animated projects utilizing traditional, 2D, 3D, or stop-motion techniques.',
+      duration: 'Under 20 mins'
+    },
+    {
+      title: 'Experimental & Music Video',
+      description: 'Avant-garde cinema, visual poetry, and musical films that push the boundaries of traditional narrative formats.',
+      duration: 'Under 15 mins'
+    }
+  ];
+
+  const highlights = [
+    {
+      title: 'Global Exposure',
+      description: 'Screen your film before a diverse audience of cinema lovers, industry veterans, and emerging artists.',
+      icon: <i className="fa-solid fa-earth-americas text-secondary text-2xl mb-4"></i>
+    },
+    {
+      title: 'Professional Jury',
+      description: 'Receive evaluation and valuable feedback from active directors, screenwriters, and cinematographers.',
+      icon: <i className="fa-solid fa-gavel text-secondary text-2xl mb-4"></i>
+    },
+    {
+      title: 'Premium Trophies',
+      description: 'Compete for custom handcrafted physical awards, certification, and official digital laurels.',
+      icon: <i className="fa-solid fa-trophy text-secondary text-2xl mb-4"></i>
+    }
+  ];
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setSelectedFile(e.target.files[0]);
+    }
+  };
+
+  const handlePosterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setPosterFile(e.target.files[0]);
+    }
+  };
+
+  const validateStep = () => {
+    setErrorMessage(null);
+    if (step === 1) {
+      if (!name || !phone || !email || !city) {
+        setErrorMessage('All contact information fields are required.');
+        return false;
+      }
+    } else if (step === 2) {
+      if (!filmTitle || !genre || !runtime || !logline) {
+        setErrorMessage('All film metadata fields are required.');
+        return false;
+      }
+    } else if (step === 3) {
+      if (!director) {
+        setErrorMessage('Director name is required.');
+        return false;
+      }
+    } else if (step === 4) {
+      if (!selectedFile) {
+        setErrorMessage('Please select a movie file to submit.');
+        return false;
+      }
+      if (!agreeRules) {
+        setErrorMessage('You must agree to the festival rules to proceed.');
+        return false;
+      }
+      if (!allowMediaUse) {
+        setErrorMessage('You must authorize Viora to use the poster/cut.');
+        return false;
+      }
+    }
+    return true;
+  };
+
+  const nextStep = () => {
+    if (validateStep()) {
+      setStep((prev) => prev + 1);
+    }
+  };
+
+  const prevStep = () => {
+    setErrorMessage(null);
+    setStep((prev) => prev - 1);
+  };
+
+  const handleProceedToPayment = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (validateStep()) {
+      setShowPayment(true);
+    }
+  };
+
+  const handlePaymentSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!cardNumber || !cardExpiry || !cardCvv) {
+      setErrorMessage('Please enter all payment card details.');
+      return;
+    }
+
+    setPaying(true);
+    setErrorMessage(null);
+
+    // Simulate payment transaction
+    setTimeout(() => {
+      setPaying(false);
+      setShowPayment(false);
+      startMovieUpload();
+    }, 1500);
+  };
+
+  const startMovieUpload = async () => {
+    setUploading(true);
+    setProgress(0);
+
+    const interval = setInterval(() => {
+      setProgress((prev) => {
+        if (prev >= 95) {
+          clearInterval(interval);
+          return 95;
+        }
+        return prev + Math.floor(Math.random() * 15) + 5;
+      });
+    }, 150);
+
+    try {
+      const messageBody = `
+[FESTIVAL SUBMISSION DETAILS]
+
+--- SUBMITTER & CONTACT INFO ---
+Name: ${name}
+Email: ${email}
+Phone: ${phone}
+City: ${city}
+
+--- FILM DETAILS ---
+Film Title: ${filmTitle}
+Genre: ${genre}
+Runtime: ${runtime}
+Logline: ${logline}
+
+--- CREATIVE CREDITS ---
+Director: ${director}
+Writer: ${writer || 'N/A'}
+Cinematographer: ${cinematographer || 'N/A'}
+Editor: ${editor || 'N/A'}
+Music Composer: ${music || 'N/A'}
+Main Actor: ${mainActor || 'N/A'}
+Main Actress: ${mainActress || 'N/A'}
+Supporting Actor: ${supportingActor || 'N/A'}
+Supporting Actress: ${supportingActress || 'N/A'}
+
+--- SUBMISSION FILES & CONSENTS ---
+File Uploaded: ${selectedFile?.name} (${((selectedFile?.size || 0) / (1024 * 1024)).toFixed(2)} MB)
+Poster Uploaded: ${posterFile ? `${posterFile.name} (${((posterFile.size || 0) / (1024 * 1024)).toFixed(2)} MB)` : 'None'}
+Agreed to Festival Rules: ${agreeRules ? 'Yes' : 'No'}
+Allowed Viora to use Poster & Cuts: ${allowMediaUse ? 'Yes' : 'No'}
+Payment Status: Completed (₹1,999.00)
+`;
+
+      const { error: insertError } = await supabase
+        .from('contact_messages')
+        .insert([
+          {
+            name,
+            email,
+            message: messageBody,
+            status: 'pending',
+            created_at: new Date().toISOString()
+          }
+        ]);
+
+      if (insertError) throw insertError;
+
+      clearInterval(interval);
+      setProgress(100);
+      setTimeout(() => {
+        setUploading(false);
+        setSubmitted(true);
+      }, 500);
+
+    } catch (err) {
+      clearInterval(interval);
+      setUploading(false);
+      const errorMsg = err instanceof Error ? err.message : 'Submission failed. Please check your network and try again.';
+      setErrorMessage(errorMsg);
+    }
+  };
+
+  const resetForm = () => {
+    setStep(1);
+    setName('');
+    setPhone('');
+    setEmail('');
+    setCity('');
+    setFilmTitle('');
+    setGenre('');
+    setRuntime('');
+    setLogline('');
+    setDirector('');
+    setWriter('');
+    setCinematographer('');
+    setEditor('');
+    setMusic('');
+    setMainActor('');
+    setMainActress('');
+    setSupportingActor('');
+    setSupportingActress('');
+    setSelectedFile(null);
+    setPosterFile(null);
+    setAgreeRules(false);
+    setAllowMediaUse(false);
+    setShowPayment(false);
+    setCardNumber('');
+    setCardExpiry('');
+    setCardCvv('');
+    setProgress(0);
+    setUploading(false);
+    setSubmitted(false);
+    setErrorMessage(null);
+    setIsModalOpen(false);
+  };
+
+  return (
+    <div className="w-full bg-black min-h-screen pb-24">
+      {/* Hero Section */}
+      <section className="max-w-7xl mx-auto px-6 py-16 md:py-24 relative overflow-hidden text-center">
+        {/* Glow effect */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
+          <div className="w-[600px] h-[600px] bg-secondary/5 rounded-full blur-[140px] animate-pulse-slow" />
+        </div>
+
+        <div className="relative z-10 space-y-6">
+          <h1 className="font-serif text-4xl md:text-7xl text-white tracking-wide leading-tight max-w-4xl mx-auto">
+            Viora Short Film <br />
+            <span className="text-gold-gradient font-italic font-normal">Festival 2026</span>
+          </h1>
+          <p className="text-sm md:text-base text-accent-muted font-light leading-relaxed tracking-wide max-w-2xl mx-auto">
+            Celebrating the art of visual storytelling. We invite independent directors, scriptwriters, and creators from around the globe to present their finest works on a premium cinematic stage.
+          </p>
+          <div className="pt-6">
+            <button
+              type="button"
+              onClick={() => setIsModalOpen(true)}
+              className="inline-block px-8 py-3.5 bg-secondary text-black font-semibold text-xs tracking-widest uppercase hover:bg-white hover:text-black transition-all duration-300 rounded-sm cursor-pointer"
+            >
+              Submit Your Cut
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* Highlights / Features Grid */}
+      <section className="max-w-7xl mx-auto px-6 py-12 border-t border-white/5">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {highlights.map((item, idx) => (
+            <div
+              key={idx}
+              className="bg-primary-light border border-white/5 p-8 rounded-sm hover:border-secondary/20 transition-all duration-300"
+            >
+              {item.icon}
+              <h3 className="font-serif text-lg text-white tracking-wide mb-3">{item.title}</h3>
+              <p className="text-xs text-accent-muted font-light leading-relaxed">{item.description}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Categories Section */}
+      <section className="max-w-7xl mx-auto px-6 py-20">
+        <div className="text-center mb-16">
+          <h2 className="font-serif text-3xl md:text-5xl text-white tracking-wide">
+            Submission <span className="text-gold-gradient font-italic font-normal">Guidelines</span>
+          </h2>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {categories.map((category, idx) => (
+            <div
+              key={idx}
+              className="border border-white/5 bg-primary-light p-8 md:p-10 rounded-sm relative flex flex-col justify-between"
+            >
+              <div>
+                <div className="flex justify-between items-start mb-4">
+                  <h3 className="font-serif text-xl text-white tracking-wide">{category.title}</h3>
+                  <span className="text-[10px] tracking-widest uppercase text-secondary bg-secondary/10 px-2.5 py-1 rounded-sm border border-secondary/20">
+                    {category.duration}
+                  </span>
+                </div>
+                <p className="text-xs md:text-sm text-accent-muted font-light leading-relaxed mb-6">
+                  {category.description}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Submission CTA Section */}
+      <section className="bg-primary-light border-y border-white/5 py-20 px-6 relative text-center">
+        <div className="max-w-3xl mx-auto space-y-6">
+          <h2 className="font-serif text-3xl md:text-4xl text-white tracking-wide">Bring Your Vision to the Big Screen</h2>
+          <p className="text-xs md:text-sm text-accent-muted font-light leading-relaxed">
+            Ready to share your masterpiece with the world? Reach out to our programming committee to secure submission details, waiver options, and guidelines.
+          </p>
+          <div className="pt-4">
+            <button
+              type="button"
+              onClick={() => setIsModalOpen(true)}
+              className="inline-block px-8 py-3.5 bg-transparent border border-secondary text-secondary font-semibold text-xs tracking-widest uppercase hover:bg-secondary hover:text-black transition-all duration-300 rounded-sm cursor-pointer"
+            >
+              Submit Your Cut Now
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* Modal Overlay / Layover Form */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md overflow-y-auto">
+          {/* Modal Container */}
+          <div className="relative w-full max-w-2xl bg-primary-light border border-white/10 rounded-sm shadow-[0_0_55px_rgba(197,160,89,0.25)] overflow-hidden my-8">
+            
+            {/* Header */}
+            <div className="flex items-center justify-between p-6 border-b border-white/5 bg-black/20">
+              <div className="space-y-1">
+                <h3 className="font-serif text-xl text-white tracking-wide">Viora Short Film Fest 2026</h3>
+                {!uploading && !submitted && !showPayment && (
+                  <p className="text-[10px] text-secondary tracking-widest uppercase font-mono">
+                    SECTION {step} OF 4 : {step === 1 ? 'Contact Details' : step === 2 ? 'Film Details' : step === 3 ? 'Creative Credits' : 'Upload & Consent'}
+                  </p>
+                )}
+              </div>
+              <button
+                onClick={resetForm}
+                disabled={uploading || paying}
+                className="text-accent-muted hover:text-white transition-colors duration-200 cursor-pointer"
+              >
+                <i className="fa-solid fa-xmark text-lg"></i>
+              </button>
+            </div>
+
+            {/* Stepper Progress Bar */}
+            {!uploading && !submitted && !showPayment && (
+              <div className="w-full bg-black/40 h-1 flex">
+                <div className={`h-full bg-secondary transition-all duration-500`} style={{ width: `${(step / 4) * 100}%` }}></div>
+              </div>
+            )}
+
+            {/* Content area */}
+            <div className="p-6 md:p-8 max-h-[70vh] overflow-y-auto">
+              
+              {errorMessage && (
+                <div className="mb-5 p-3.5 bg-red-950/40 border border-red-500/20 text-red-200 text-xs rounded-sm">
+                  {errorMessage}
+                </div>
+              )}
+
+              {uploading ? (
+                /* Uploading Screen */
+                <div className="py-12 flex flex-col items-center justify-center text-center space-y-6">
+                  <div className="w-16 h-16 rounded-full border border-secondary/20 flex items-center justify-center bg-secondary/5 relative">
+                    <div className="absolute inset-0 border-2 border-transparent border-t-secondary rounded-full animate-spin"></div>
+                    <i className="fa-solid fa-film text-secondary text-xl"></i>
+                  </div>
+                  <div className="space-y-2 w-full max-w-xs mx-auto">
+                    <p className="text-sm text-white font-medium">Uploading cinematic files...</p>
+                    <div className="w-full bg-black/60 h-1.5 rounded-full overflow-hidden border border-white/5">
+                      <div
+                        className="bg-gold-gradient h-full transition-all duration-300"
+                        style={{ width: `${progress}%` }}
+                      ></div>
+                    </div>
+                    <p className="text-[10px] text-secondary font-mono tracking-widest">{progress}% COMPLETE</p>
+                  </div>
+                </div>
+              ) : paying ? (
+                /* Payment Processing Screen */
+                <div className="py-16 flex flex-col items-center justify-center text-center space-y-6">
+                  <div className="w-16 h-16 rounded-full border border-secondary/20 flex items-center justify-center bg-secondary/5 relative">
+                    <div className="absolute inset-0 border-2 border-transparent border-t-secondary rounded-full animate-spin"></div>
+                    <i className="fa-solid fa-credit-card text-secondary text-xl"></i>
+                  </div>
+                  <div className="space-y-2">
+                    <p className="text-sm text-white font-medium">Contacting banking servers...</p>
+                    <p className="text-[10px] text-accent-muted tracking-widest uppercase font-mono">Simulating Payment Gateway</p>
+                  </div>
+                </div>
+              ) : submitted ? (
+                /* Success Screen */
+                <div className="py-8 flex flex-col items-center justify-center text-center space-y-6">
+                  <div className="h-16 w-16 rounded-full border border-secondary flex items-center justify-center shadow-[0_0_20px_rgba(197,160,89,0.3)] bg-secondary/5">
+                    <i className="fa-solid fa-check text-secondary text-2xl animate-bounce"></i>
+                  </div>
+                  <div className="space-y-2">
+                    <h4 className="font-serif text-xl text-white">Film Registered Successfully</h4>
+                    <p className="text-xs text-accent-muted font-light leading-relaxed max-w-md mx-auto">
+                      Congratulations! Your registration has been finalized. We have received your payment of ₹1,999.00 and uploaded your movie files. A confirmation details package will be emailed to you.
+                    </p>
+                  </div>
+                  <button
+                    onClick={resetForm}
+                    className="px-8 py-3 bg-secondary text-black font-semibold text-xs tracking-widest uppercase hover:bg-white hover:text-black transition-all duration-300 rounded-sm cursor-pointer"
+                  >
+                    Close Screen
+                  </button>
+                </div>
+              ) : showPayment ? (
+                /* Payment Form */
+                <form onSubmit={handlePaymentSubmit} className="space-y-6">
+                  <div className="bg-black/40 border border-white/5 p-5 rounded-sm space-y-3">
+                    <div className="flex justify-between items-center text-xs">
+                      <span className="text-accent-muted font-light">Festival Entry Fee</span>
+                      <span className="text-white font-semibold">₹1,999.00</span>
+                    </div>
+                    <div className="flex justify-between items-center text-xs">
+                      <span className="text-accent-muted font-light">Film Title</span>
+                      <span className="text-secondary font-medium italic">"{filmTitle}"</span>
+                    </div>
+                    <div className="border-t border-white/5 pt-3 flex justify-between items-center text-sm font-semibold">
+                      <span className="text-white">Amount Due</span>
+                      <span className="text-secondary">₹1,999.00</span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <h4 className="text-xs tracking-widest uppercase text-white font-semibold border-b border-white/5 pb-2">Credit / Debit Card</h4>
+                    
+                    <div>
+                      <label className="block text-[10px] tracking-widest text-secondary font-semibold uppercase mb-1.5">
+                        Card Number
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        maxLength={19}
+                        value={cardNumber}
+                        onChange={(e) => {
+                          const val = e.target.value.replace(/\D/g, '').replace(/(.{4})/g, '$1 ').trim();
+                          setCardNumber(val);
+                        }}
+                        className="w-full bg-black/60 border border-white/10 focus:border-secondary focus:outline-none px-4 py-3 text-xs text-white placeholder-white/20 transition-all rounded-sm"
+                        placeholder="4111 2222 3333 4444"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-[10px] tracking-widest text-secondary font-semibold uppercase mb-1.5">
+                          Expiration (MM/YY)
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          maxLength={5}
+                          value={cardExpiry}
+                          onChange={(e) => {
+                            let val = e.target.value.replace(/\D/g, '');
+                            if (val.length > 2) val = `${val.substring(0, 2)}/${val.substring(2, 4)}`;
+                            setCardExpiry(val);
+                          }}
+                          className="w-full bg-black/60 border border-white/10 focus:border-secondary focus:outline-none px-4 py-3 text-xs text-white placeholder-white/20 transition-all rounded-sm"
+                          placeholder="12/28"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] tracking-widest text-secondary font-semibold uppercase mb-1.5">
+                          CVV Code
+                        </label>
+                        <input
+                          type="password"
+                          required
+                          maxLength={3}
+                          value={cardCvv}
+                          onChange={(e) => setCardCvv(e.target.value.replace(/\D/g, ''))}
+                          className="w-full bg-black/60 border border-white/10 focus:border-secondary focus:outline-none px-4 py-3 text-xs text-white placeholder-white/20 transition-all rounded-sm"
+                          placeholder="•••"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="pt-4 flex gap-4">
+                    <button
+                      type="button"
+                      onClick={() => setShowPayment(false)}
+                      className="flex-1 py-3 border border-white/10 hover:border-white/25 text-white text-xs font-semibold tracking-widest uppercase transition-all duration-300 rounded-sm cursor-pointer"
+                    >
+                      Back
+                    </button>
+                    <button
+                      type="submit"
+                      className="flex-1 py-3 bg-secondary hover:bg-white text-black font-semibold text-xs tracking-widest uppercase transition-all duration-300 rounded-sm cursor-pointer hover:shadow-[0_0_15px_rgba(197,160,89,0.25)]"
+                    >
+                      Pay Now (₹1,999)
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                /* Stepper Forms */
+                <div>
+                  {step === 1 && (
+                    /* Section 1: Submitter Info */
+                    <div className="space-y-4 animate-fade-in">
+                      <div>
+                        <label className="block text-[10px] tracking-widest text-secondary font-semibold uppercase mb-1.5">
+                          Full Name
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
+                          className="w-full bg-black/60 border border-white/10 focus:border-secondary focus:outline-none px-4 py-3.5 text-xs text-white placeholder-white/20 transition-all rounded-sm focus:ring-1 focus:ring-secondary/30"
+                          placeholder="Submitter name"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[10px] tracking-widest text-secondary font-semibold uppercase mb-1.5">
+                          Phone Number
+                        </label>
+                        <input
+                          type="tel"
+                          required
+                          value={phone}
+                          onChange={(e) => setPhone(e.target.value)}
+                          className="w-full bg-black/60 border border-white/10 focus:border-secondary focus:outline-none px-4 py-3.5 text-xs text-white placeholder-white/20 transition-all rounded-sm focus:ring-1 focus:ring-secondary/30"
+                          placeholder="Phone number"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[10px] tracking-widest text-secondary font-semibold uppercase mb-1.5">
+                          Email Address
+                        </label>
+                        <input
+                          type="email"
+                          required
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          className="w-full bg-black/60 border border-white/10 focus:border-secondary focus:outline-none px-4 py-3.5 text-xs text-white placeholder-white/20 transition-all rounded-sm focus:ring-1 focus:ring-secondary/30"
+                          placeholder="Email address"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[10px] tracking-widest text-secondary font-semibold uppercase mb-1.5">
+                          City
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={city}
+                          onChange={(e) => setCity(e.target.value)}
+                          className="w-full bg-black/60 border border-white/10 focus:border-secondary focus:outline-none px-4 py-3.5 text-xs text-white placeholder-white/20 transition-all rounded-sm focus:ring-1 focus:ring-secondary/30"
+                          placeholder="City of residence"
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {step === 2 && (
+                    /* Section 2: Film Details */
+                    <div className="space-y-4 animate-fade-in">
+                      <div>
+                        <label className="block text-[10px] tracking-widest text-secondary font-semibold uppercase mb-1.5">
+                          Film Title
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={filmTitle}
+                          onChange={(e) => setFilmTitle(e.target.value)}
+                          className="w-full bg-black/60 border border-white/10 focus:border-secondary focus:outline-none px-4 py-3.5 text-xs text-white placeholder-white/20 transition-all rounded-sm focus:ring-1 focus:ring-secondary/30"
+                          placeholder="Name of your project"
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-[10px] tracking-widest text-secondary font-semibold uppercase mb-1.5">
+                            Genre
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            value={genre}
+                            onChange={(e) => setGenre(e.target.value)}
+                            className="w-full bg-black/60 border border-white/10 focus:border-secondary focus:outline-none px-4 py-3.5 text-xs text-white placeholder-white/20 transition-all rounded-sm focus:ring-1 focus:ring-secondary/30"
+                            placeholder="e.g. Sci-Fi, Drama"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] tracking-widest text-secondary font-semibold uppercase mb-1.5">
+                            Runtime (e.g. 15 mins)
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            value={runtime}
+                            onChange={(e) => setRuntime(e.target.value)}
+                            className="w-full bg-black/60 border border-white/10 focus:border-secondary focus:outline-none px-4 py-3.5 text-xs text-white placeholder-white/20 transition-all rounded-sm focus:ring-1 focus:ring-secondary/30"
+                            placeholder="Runtime duration"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-[10px] tracking-widest text-secondary font-semibold uppercase mb-1.5">
+                          Logline
+                        </label>
+                        <textarea
+                          required
+                          rows={3}
+                          value={logline}
+                          onChange={(e) => setLogline(e.target.value)}
+                          className="w-full bg-black/60 border border-white/10 focus:border-secondary focus:outline-none px-4 py-3.5 text-xs text-white placeholder-white/20 transition-all rounded-sm focus:ring-1 focus:ring-secondary/30 resize-none"
+                          placeholder="A one-sentence summary of your film..."
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {step === 3 && (
+                    /* Section 3: Cast & Crew Credits */
+                    <div className="space-y-4 animate-fade-in max-h-[50vh] overflow-y-auto pr-1">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-[10px] tracking-widest text-secondary font-semibold uppercase mb-1.5">
+                            Director Name *
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            value={director}
+                            onChange={(e) => setDirector(e.target.value)}
+                            className="w-full bg-black/60 border border-white/10 focus:border-secondary focus:outline-none px-4 py-3.5 text-xs text-white placeholder-white/20 transition-all rounded-sm"
+                            placeholder="Director"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] tracking-widest text-secondary font-semibold uppercase mb-1.5">
+                            Writer
+                          </label>
+                          <input
+                            type="text"
+                            value={writer}
+                            onChange={(e) => setWriter(e.target.value)}
+                            className="w-full bg-black/60 border border-white/10 focus:border-secondary focus:outline-none px-4 py-3.5 text-xs text-white placeholder-white/20 transition-all rounded-sm"
+                            placeholder="Writer"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                          <label className="block text-[10px] tracking-widest text-secondary font-semibold uppercase mb-1.5">
+                            Cinematographer
+                          </label>
+                          <input
+                            type="text"
+                            value={cinematographer}
+                            onChange={(e) => setCinematographer(e.target.value)}
+                            className="w-full bg-black/60 border border-white/10 focus:border-secondary focus:outline-none px-4 py-3.5 text-xs text-white placeholder-white/20 transition-all rounded-sm"
+                            placeholder="DoP"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] tracking-widest text-secondary font-semibold uppercase mb-1.5">
+                            Editor
+                          </label>
+                          <input
+                            type="text"
+                            value={editor}
+                            onChange={(e) => setEditor(e.target.value)}
+                            className="w-full bg-black/60 border border-white/10 focus:border-secondary focus:outline-none px-4 py-3.5 text-xs text-white placeholder-white/20 transition-all rounded-sm"
+                            placeholder="Editor"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] tracking-widest text-secondary font-semibold uppercase mb-1.5">
+                            Music Composer
+                          </label>
+                          <input
+                            type="text"
+                            value={music}
+                            onChange={(e) => setMusic(e.target.value)}
+                            className="w-full bg-black/60 border border-white/10 focus:border-secondary focus:outline-none px-4 py-3.5 text-xs text-white placeholder-white/20 transition-all rounded-sm"
+                            placeholder="Composer"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-white/5 pt-4">
+                        <div>
+                          <label className="block text-[10px] tracking-widest text-secondary font-semibold uppercase mb-1.5">
+                            Main Actor
+                          </label>
+                          <input
+                            type="text"
+                            value={mainActor}
+                            onChange={(e) => setMainActor(e.target.value)}
+                            className="w-full bg-black/60 border border-white/10 focus:border-secondary focus:outline-none px-4 py-3.5 text-xs text-white placeholder-white/20 transition-all rounded-sm"
+                            placeholder="Lead Actor"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] tracking-widest text-secondary font-semibold uppercase mb-1.5">
+                            Main Actress
+                          </label>
+                          <input
+                            type="text"
+                            value={mainActress}
+                            onChange={(e) => setMainActress(e.target.value)}
+                            className="w-full bg-black/60 border border-white/10 focus:border-secondary focus:outline-none px-4 py-3.5 text-xs text-white placeholder-white/20 transition-all rounded-sm"
+                            placeholder="Lead Actress"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-[10px] tracking-widest text-secondary font-semibold uppercase mb-1.5">
+                            Supporting Actor
+                          </label>
+                          <input
+                            type="text"
+                            value={supportingActor}
+                            onChange={(e) => setSupportingActor(e.target.value)}
+                            className="w-full bg-black/60 border border-white/10 focus:border-secondary focus:outline-none px-4 py-3.5 text-xs text-white placeholder-white/20 transition-all rounded-sm"
+                            placeholder="Supporting Actor"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] tracking-widest text-secondary font-semibold uppercase mb-1.5">
+                            Supporting Actress
+                          </label>
+                          <input
+                            type="text"
+                            value={supportingActress}
+                            onChange={(e) => setSupportingActress(e.target.value)}
+                            className="w-full bg-black/60 border border-white/10 focus:border-secondary focus:outline-none px-4 py-3.5 text-xs text-white placeholder-white/20 transition-all rounded-sm"
+                            placeholder="Supporting Actress"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {step === 4 && (
+                    /* Section 4: File Upload & Rules */
+                    <div className="space-y-5 animate-fade-in">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-[10px] tracking-widest text-secondary font-semibold uppercase mb-1.5">
+                            Upload Movie File
+                          </label>
+                          <div className="relative group border border-dashed border-white/10 hover:border-secondary/40 transition-colors duration-300 rounded-sm bg-black/40 p-5 flex flex-col items-center justify-center text-center cursor-pointer h-32">
+                            <input
+                              type="file"
+                              accept="video/*"
+                              required
+                              onChange={handleFileChange}
+                              className="absolute inset-0 opacity-0 cursor-pointer"
+                            />
+                            <i className="fa-solid fa-file-video text-xl text-secondary/60 group-hover:text-secondary mb-2 transition-colors duration-300"></i>
+                            {selectedFile ? (
+                              <div className="space-y-1">
+                                <p className="text-[11px] text-white font-medium max-w-[180px] truncate mx-auto">{selectedFile.name}</p>
+                                <p className="text-[9px] text-accent-muted">
+                                  {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB
+                                </p>
+                              </div>
+                            ) : (
+                              <div className="space-y-1">
+                                <p className="text-[11px] text-white font-medium">Click to select video</p>
+                                <p className="text-[9px] text-accent-muted font-light">MP4, MOV, or MKV</p>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="block text-[10px] tracking-widest text-secondary font-semibold uppercase mb-1.5">
+                            Upload Poster (Optional)
+                          </label>
+                          <div className="relative group border border-dashed border-white/10 hover:border-secondary/40 transition-colors duration-300 rounded-sm bg-black/40 p-5 flex flex-col items-center justify-center text-center cursor-pointer h-32">
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={handlePosterChange}
+                              className="absolute inset-0 opacity-0 cursor-pointer"
+                            />
+                            <i className="fa-solid fa-image text-xl text-secondary/60 group-hover:text-secondary mb-2 transition-colors duration-300"></i>
+                            {posterFile ? (
+                              <div className="space-y-1">
+                                <p className="text-[11px] text-white font-medium max-w-[180px] truncate mx-auto">{posterFile.name}</p>
+                                <p className="text-[9px] text-accent-muted">
+                                  {(posterFile.size / (1024 * 1024)).toFixed(2)} MB
+                                </p>
+                              </div>
+                            ) : (
+                              <div className="space-y-1">
+                                <p className="text-[11px] text-white font-medium">Click to select poster</p>
+                                <p className="text-[9px] text-accent-muted font-light">JPG, PNG, or WEBP</p>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="space-y-3 pt-2">
+                        <label className="flex items-start gap-3 select-none cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={agreeRules}
+                            onChange={(e) => setAgreeRules(e.target.checked)}
+                            className="mt-0.5 h-4 w-4 rounded-sm border-white/10 bg-black/60 text-secondary focus:ring-0 cursor-pointer accent-secondary"
+                          />
+                          <span className="text-xs text-accent-muted font-light leading-relaxed hover:text-white transition-colors duration-200">
+                            I agree to the official Viora Short Film Festival 2026 rules, guidelines, and terms of regulation.
+                          </span>
+                        </label>
+
+                        <label className="flex items-start gap-3 select-none cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={allowMediaUse}
+                            onChange={(e) => setAllowMediaUse(e.target.checked)}
+                            className="mt-0.5 h-4 w-4 rounded-sm border-white/10 bg-black/60 text-secondary focus:ring-0 cursor-pointer accent-secondary"
+                          />
+                          <span className="text-xs text-accent-muted font-light leading-relaxed hover:text-white transition-colors duration-200">
+                            I authorize Viora Media to use the submitted movie's posters, cuts, trailers, and promotional imagery for exhibition and event programming.
+                          </span>
+                        </label>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Navigation Footer */}
+                  <div className="pt-6 border-t border-white/5 flex gap-4 mt-6">
+                    {step > 1 ? (
+                      <button
+                        type="button"
+                        onClick={prevStep}
+                        className="flex-1 py-3.5 border border-white/10 hover:border-white/25 text-white text-xs font-semibold tracking-widest uppercase transition-all duration-300 rounded-sm cursor-pointer text-center"
+                      >
+                        Back
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={resetForm}
+                        className="flex-1 py-3.5 border border-white/10 hover:border-white/25 text-white text-xs font-semibold tracking-widest uppercase transition-all duration-300 rounded-sm cursor-pointer text-center"
+                      >
+                        Cancel
+                      </button>
+                    )}
+
+                    {step < 4 ? (
+                      <button
+                        type="button"
+                        onClick={nextStep}
+                        className="flex-1 py-3.5 bg-secondary hover:bg-white text-black font-semibold text-xs tracking-widest uppercase transition-all duration-300 rounded-sm cursor-pointer text-center"
+                      >
+                        Next
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={handleProceedToPayment}
+                        disabled={!agreeRules || !allowMediaUse}
+                        className="flex-1 py-3.5 bg-secondary text-black font-semibold text-xs tracking-widest uppercase transition-all duration-300 rounded-sm text-center disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white hover:text-black cursor-pointer hover:shadow-[0_0_15px_rgba(197,160,89,0.2)]"
+                      >
+                        Proceed to Payment
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

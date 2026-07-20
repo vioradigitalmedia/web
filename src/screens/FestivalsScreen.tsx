@@ -59,11 +59,6 @@ export default function FestivalsScreen() {
             <div className="border border-white/5 bg-primary-light p-8 md:p-10 rounded-sm border-gold-glow relative overflow-hidden flex flex-col justify-between">
               <div className="absolute top-0 right-0 h-32 w-32 bg-secondary/5 rounded-full blur-2xl pointer-events-none"></div>
               <div>
-                <div className="flex items-center justify-between mb-4">
-                  <span className="px-3 py-1 bg-secondary/10 border border-secondary/20 text-secondary text-[10px] tracking-widest uppercase font-semibold rounded-sm">
-                    Coming Soon
-                  </span>
-                </div>
                 <h2 className="font-serif text-2xl md:text-3xl text-white tracking-wide mb-4">
                   Viora Short Film Festival 2026
                 </h2>
@@ -71,13 +66,12 @@ export default function FestivalsScreen() {
                   Showcase your creativity, connect with fellow filmmakers, and compete for recognition.
                 </p>
               </div>
-              <div className="pt-4 border-t border-white/5 flex items-center justify-between">
-                <span className="text-xs font-semibold text-secondary uppercase tracking-widest">More Details Soon</span>
+              <div className="pt-6 border-t border-white/5">
                 <Link
-                  to="/contact"
-                  className="text-xs text-white hover:text-secondary transition-colors duration-300 font-medium tracking-wider"
+                  to="/viorasfs"
+                  className="relative px-6 py-2.5 text-xs font-semibold tracking-widest uppercase border border-secondary bg-secondary text-black hover:bg-white hover:text-black hover:border-white transition-all duration-300 rounded-sm hover:shadow-[0_0_15px_rgba(255,255,255,0.4)] inline-block text-center w-full"
                 >
-                  Inquire &rarr;
+                  View
                 </Link>
               </div>
             </div>
