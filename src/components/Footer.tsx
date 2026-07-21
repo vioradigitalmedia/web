@@ -141,8 +141,7 @@ export default function Footer() {
                   <i className="fa-brands fa-youtube"></i>
                 </a>
                 <a href="#x" className="hover:text-secondary text-base transition-colors duration-200" aria-label="X (Twitter)">
-                  <i className="fa-brands fa-x-twitter"></i>
-                </a>
+                  <i className="fa-brands fa-x-twitter"></i>                </a>
                 <a href="#facebook" className="hover:text-secondary text-base transition-colors duration-200" aria-label="Facebook">
                   <i className="fa-brands fa-facebook-f"></i>
                 </a>
