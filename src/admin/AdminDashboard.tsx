@@ -117,6 +117,9 @@ export default function AdminDashboard() {
   const [idPresignedUrl, setIdPresignedUrl] = useState<string | null>(null);
   const [presignedLoading, setPresignedLoading] = useState(false);
 
+  // Admin data for Letterhead auto-fill
+  const [adminData, setAdminData] = useState<{ first_name: string; last_name: string; designation: string } | null>(null);
+
   useEffect(() => {
     const generateUrls = async () => {
       const selected = submissions.find(s => s.id === selectedSubmissionId);
@@ -207,7 +210,7 @@ export default function AdminDashboard() {
       if (fetchError) throw fetchError;
       const loadedMessages = data || [];
       setMessages(loadedMessages);
-      
+
       const filtered = loadedMessages.filter(msg => !isSubmissionMsg(msg.message));
       if (filtered.length > 0) {
         setSelectedMessageId(filtered[0].id);
@@ -260,14 +263,14 @@ export default function AdminDashboard() {
         });
 
       if (insertError) throw insertError;
-      
+
       // Reset form and close modal
       setNewTitle('');
       setNewAmount('');
       setNewType('income');
       setNewDate(new Date().toISOString().split('T')[0]);
       setIsCfoModalOpen(false);
-      
+
       // Refresh list
       await fetchCfoTransactions();
     } catch (err: any) {
@@ -278,11 +281,31 @@ export default function AdminDashboard() {
     }
   };
 
+  const fetchAdminData = async () => {
+    if (!session?.user?.id) return;
+    try {
+      const { data, error: fetchError } = await supabase
+        .from('admins')
+        .select('first_name, last_name, designation')
+        .eq('id', session.user.id)
+        .single();
+
+      if (fetchError) {
+        console.error('Error fetching admin data:', fetchError);
+        return;
+      }
+      setAdminData(data);
+    } catch (err) {
+      console.error('Error fetching admin data:', err);
+    }
+  };
+
   useEffect(() => {
     if (session) {
       fetchMessages();
       fetchCfoTransactions();
       fetchSubmissions();
+      fetchAdminData();
     }
   }, [session]);
 
@@ -320,9 +343,9 @@ export default function AdminDashboard() {
         .eq('id', id);
 
       if (updateError) throw updateError;
-      
+
       // Update local state
-      setMessages(prev => 
+      setMessages(prev =>
         prev.map(msg => msg.id === id ? { ...msg, status: newStatus } : msg)
       );
     } catch (err: any) {
@@ -484,7 +507,7 @@ export default function AdminDashboard() {
                 <span className="text-[10px] tracking-[0.25em] text-secondary font-semibold uppercase">Communication</span>
                 <h1 className="font-serif text-3xl text-white tracking-wide mt-1">Inquiry Queue</h1>
               </div>
-              <button 
+              <button
                 onClick={fetchMessages}
                 className="px-4 py-2 bg-primary-light border border-white/10 hover:border-secondary text-xs tracking-widest uppercase transition-all duration-300 rounded-sm text-center flex items-center gap-2 cursor-pointer self-start sm:self-auto"
               >
@@ -503,7 +526,7 @@ export default function AdminDashboard() {
                   <i className="fa-solid fa-circle-exclamation text-lg"></i>
                 </div>
                 <p className="text-red-400 text-sm font-light">{error}</p>
-                <button 
+                <button
                   onClick={fetchMessages}
                   className="px-4 py-2 border border-red-500/20 text-red-400 hover:bg-red-950/20 text-xs tracking-widest uppercase transition-all duration-300 rounded-sm"
                 >
@@ -519,7 +542,7 @@ export default function AdminDashboard() {
               </div>
             ) : (
               <div className="flex-grow flex flex-col md:flex-row gap-6 min-h-0">
-                
+
                 {/* Desktop View: Left column messages list */}
                 <div className="hidden md:flex flex-col w-1/3 min-w-[280px] max-w-[360px] border border-white/5 bg-primary-light rounded-sm overflow-hidden h-[calc(100vh-14rem)]">
                   <div className="p-4 border-b border-white/5 bg-black/20 flex items-center justify-between">
@@ -527,22 +550,21 @@ export default function AdminDashboard() {
                       Inboxes ({filteredMessages.length})
                     </span>
                   </div>
-                  
+
                   <div className="flex-1 overflow-y-auto divide-y divide-white/5">
                     {filteredMessages.map((msg) => {
                       const isSelected = msg.id === selectedMessageId;
-                      const snippet = msg.message.length > 80 
-                        ? msg.message.slice(0, 80) + '...' 
+                      const snippet = msg.message.length > 80
+                        ? msg.message.slice(0, 80) + '...'
                         : msg.message;
                       return (
                         <button
                           key={msg.id}
                           onClick={() => setSelectedMessageId(msg.id)}
-                          className={`w-full text-left p-4 transition-all duration-200 cursor-pointer block hover:bg-white/[0.02] ${
-                            isSelected 
-                              ? 'bg-secondary/5 border-l-2 border-secondary shadow-[inset_4px_0_12px_rgba(197,160,89,0.05)]' 
-                              : ''
-                          }`}
+                          className={`w-full text-left p-4 transition-all duration-200 cursor-pointer block hover:bg-white/[0.02] ${isSelected
+                            ? 'bg-secondary/5 border-l-2 border-secondary shadow-[inset_4px_0_12px_rgba(197,160,89,0.05)]'
+                            : ''
+                            }`}
                         >
                           <div className="flex justify-between items-start gap-2 mb-1.5">
                             <span className={`text-xs font-semibold truncate ${isSelected ? 'text-white' : 'text-white/80'}`}>
@@ -555,20 +577,19 @@ export default function AdminDashboard() {
                               })}
                             </span>
                           </div>
-                          
+
                           <p className="text-[11px] text-accent-muted line-clamp-2 leading-relaxed mb-2">
                             {snippet}
                           </p>
-                          
+
                           <div className="flex items-center justify-between">
                             <span className="text-[9px] text-secondary font-light truncate max-w-[120px]">
                               {msg.email}
                             </span>
-                            <span className={`inline-block px-1.5 py-0.5 text-[8px] tracking-widest uppercase font-bold rounded-sm border ${
-                              msg.status === 'pending'
-                                ? 'bg-amber-950/20 text-amber-400 border-amber-500/20'
-                                : 'bg-emerald-950/20 text-emerald-400 border-emerald-500/20'
-                            }`}>
+                            <span className={`inline-block px-1.5 py-0.5 text-[8px] tracking-widest uppercase font-bold rounded-sm border ${msg.status === 'pending'
+                              ? 'bg-amber-950/20 text-amber-400 border-amber-500/20'
+                              : 'bg-emerald-950/20 text-emerald-400 border-emerald-500/20'
+                              }`}>
                               {msg.status}
                             </span>
                           </div>
@@ -612,11 +633,10 @@ export default function AdminDashboard() {
                         </div>
 
                         <div className="flex items-center gap-3">
-                          <span className={`inline-block px-2.5 py-1 text-[9px] tracking-widest uppercase font-bold rounded-sm border ${
-                            selectedMessage.status === 'pending'
-                              ? 'bg-amber-950/20 text-amber-400 border-amber-500/20'
-                              : 'bg-emerald-950/20 text-emerald-400 border-emerald-500/20'
-                          }`}>
+                          <span className={`inline-block px-2.5 py-1 text-[9px] tracking-widest uppercase font-bold rounded-sm border ${selectedMessage.status === 'pending'
+                            ? 'bg-amber-950/20 text-amber-400 border-amber-500/20'
+                            : 'bg-emerald-950/20 text-emerald-400 border-emerald-500/20'
+                            }`}>
                             {selectedMessage.status}
                           </span>
                         </div>
@@ -637,11 +657,10 @@ export default function AdminDashboard() {
                         <button
                           disabled={updatingId === selectedMessage.id}
                           onClick={() => handleUpdateStatus(selectedMessage.id, selectedMessage.status)}
-                          className={`px-4 py-2 border rounded-sm text-xs tracking-widest uppercase font-semibold transition-all duration-300 cursor-pointer ${
-                            selectedMessage.status === 'pending'
-                              ? 'border-emerald-500/20 text-emerald-400 hover:bg-emerald-950/30'
-                              : 'border-amber-500/20 text-amber-400 hover:bg-amber-950/30'
-                          } disabled:opacity-50`}
+                          className={`px-4 py-2 border rounded-sm text-xs tracking-widest uppercase font-semibold transition-all duration-300 cursor-pointer ${selectedMessage.status === 'pending'
+                            ? 'border-emerald-500/20 text-emerald-400 hover:bg-emerald-950/30'
+                            : 'border-amber-500/20 text-amber-400 hover:bg-amber-950/30'
+                            } disabled:opacity-50`}
                         >
                           {selectedMessage.status === 'pending' ? 'Mark as Reviewed' : 'Mark as Pending'}
                         </button>
@@ -668,18 +687,17 @@ export default function AdminDashboard() {
                 <div className="block md:hidden space-y-4 w-full">
                   {filteredMessages.map((msg) => {
                     const isExpanded = msg.id === expandedMobileMessageId;
-                    const snippet = msg.message.length > 60 
-                      ? msg.message.slice(0, 60) + '...' 
+                    const snippet = msg.message.length > 60
+                      ? msg.message.slice(0, 60) + '...'
                       : msg.message;
-                    
+
                     return (
-                      <div 
-                        key={msg.id} 
-                        className={`border rounded-sm transition-all duration-300 overflow-hidden ${
-                          isExpanded 
-                            ? 'border-secondary/30 bg-[#0E0E0E]' 
-                            : 'border-white/5 bg-primary-light'
-                        }`}
+                      <div
+                        key={msg.id}
+                        className={`border rounded-sm transition-all duration-300 overflow-hidden ${isExpanded
+                          ? 'border-secondary/30 bg-[#0E0E0E]'
+                          : 'border-white/5 bg-primary-light'
+                          }`}
                       >
                         {/* Accordion Toggle Header */}
                         <button
@@ -711,16 +729,14 @@ export default function AdminDashboard() {
                               {msg.email}
                             </span>
                             <div className="flex items-center gap-2">
-                              <span className={`inline-block px-1.5 py-0.5 text-[8px] tracking-widest uppercase font-bold rounded-sm border ${
-                                msg.status === 'pending'
-                                  ? 'bg-amber-950/20 text-amber-400 border-amber-500/20'
-                                  : 'bg-emerald-950/20 text-emerald-400 border-emerald-500/20'
-                              }`}>
+                              <span className={`inline-block px-1.5 py-0.5 text-[8px] tracking-widest uppercase font-bold rounded-sm border ${msg.status === 'pending'
+                                ? 'bg-amber-950/20 text-amber-400 border-amber-500/20'
+                                : 'bg-emerald-950/20 text-emerald-400 border-emerald-500/20'
+                                }`}>
                                 {msg.status}
                               </span>
-                              <i className={`fa-solid fa-chevron-down text-[10px] text-accent-muted transition-transform duration-300 ${
-                                isExpanded ? 'rotate-180 text-secondary' : ''
-                              }`}></i>
+                              <i className={`fa-solid fa-chevron-down text-[10px] text-accent-muted transition-transform duration-300 ${isExpanded ? 'rotate-180 text-secondary' : ''
+                                }`}></i>
                             </div>
                           </div>
                         </button>
@@ -741,11 +757,10 @@ export default function AdminDashboard() {
                               <button
                                 disabled={updatingId === msg.id}
                                 onClick={() => handleUpdateStatus(msg.id, msg.status)}
-                                className={`flex-1 py-2 border rounded-sm text-[10px] tracking-widest uppercase font-bold transition-all duration-300 cursor-pointer text-center ${
-                                  msg.status === 'pending'
-                                    ? 'border-emerald-500/20 text-emerald-400 hover:bg-emerald-950/30'
-                                    : 'border-amber-500/20 text-amber-400 hover:bg-amber-950/30'
-                                } disabled:opacity-50`}
+                                className={`flex-1 py-2 border rounded-sm text-[10px] tracking-widest uppercase font-bold transition-all duration-300 cursor-pointer text-center ${msg.status === 'pending'
+                                  ? 'border-emerald-500/20 text-emerald-400 hover:bg-emerald-950/30'
+                                  : 'border-amber-500/20 text-amber-400 hover:bg-amber-950/30'
+                                  } disabled:opacity-50`}
                               >
                                 {msg.status === 'pending' ? 'Review' : 'Re-open'}
                               </button>
@@ -798,7 +813,7 @@ export default function AdminDashboard() {
                 <span className="text-[10px] tracking-[0.25em] text-secondary font-semibold uppercase">Showcase</span>
                 <h1 className="font-serif text-3xl text-white tracking-wide mt-1">Festival Submissions</h1>
               </div>
-              <button 
+              <button
                 onClick={fetchSubmissions}
                 className="px-4 py-2 bg-primary-light border border-white/10 hover:border-secondary text-xs tracking-widest uppercase transition-all duration-300 rounded-sm text-center flex items-center gap-2 cursor-pointer self-start sm:self-auto"
               >
@@ -817,7 +832,7 @@ export default function AdminDashboard() {
                   <i className="fa-solid fa-circle-exclamation text-lg"></i>
                 </div>
                 <p className="text-red-400 text-sm font-light">{submissionsError}</p>
-                <button 
+                <button
                   onClick={fetchSubmissions}
                   className="px-4 py-2 border border-red-500/20 text-red-400 hover:bg-red-950/20 text-xs tracking-widest uppercase transition-all duration-300 rounded-sm"
                 >
@@ -833,7 +848,7 @@ export default function AdminDashboard() {
               </div>
             ) : (
               <div className="flex-grow flex flex-col md:flex-row gap-6 min-h-0">
-                
+
                 {/* Desktop View: Left column submissions list */}
                 <div className="hidden md:flex flex-col w-1/3 min-w-[280px] max-w-[360px] border border-white/5 bg-primary-light rounded-sm overflow-hidden h-[calc(100vh-14rem)]">
                   <div className="p-4 border-b border-white/5 bg-black/20 flex items-center justify-between">
@@ -841,7 +856,7 @@ export default function AdminDashboard() {
                       Entries ({submissions.length})
                     </span>
                   </div>
-                  
+
                   <div className="flex-1 overflow-y-auto divide-y divide-white/5">
                     {submissions.map((sub) => {
                       const isSelected = sub.id === selectedSubmissionId;
@@ -849,11 +864,10 @@ export default function AdminDashboard() {
                         <button
                           key={sub.id}
                           onClick={() => setSelectedSubmissionId(sub.id)}
-                          className={`w-full text-left p-4 transition-all duration-200 cursor-pointer block hover:bg-white/[0.02] ${
-                            isSelected 
-                              ? 'bg-secondary/5 border-l-2 border-secondary shadow-[inset_4px_0_12px_rgba(197,160,89,0.05)]' 
-                              : ''
-                          }`}
+                          className={`w-full text-left p-4 transition-all duration-200 cursor-pointer block hover:bg-white/[0.02] ${isSelected
+                            ? 'bg-secondary/5 border-l-2 border-secondary shadow-[inset_4px_0_12px_rgba(197,160,89,0.05)]'
+                            : ''
+                            }`}
                         >
                           <div className="flex justify-between items-start gap-2 mb-1.5">
                             <span className={`text-xs font-semibold truncate ${isSelected ? 'text-white' : 'text-white/80'}`}>
@@ -866,7 +880,7 @@ export default function AdminDashboard() {
                               })}
                             </span>
                           </div>
-                          
+
                           <p className="text-[11px] text-accent-muted truncate leading-relaxed mb-2">
                             Dir: {sub.director} | {sub.genre}
                           </p>
@@ -986,10 +1000,10 @@ export default function AdminDashboard() {
                                   Generating secure watch link...
                                 </div>
                               ) : moviePresignedUrl ? (
-                                <a 
-                                  href={moviePresignedUrl} 
-                                  target="_blank" 
-                                  rel="noopener noreferrer" 
+                                <a
+                                  href={moviePresignedUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
                                   className="px-4 py-2.5 bg-secondary hover:bg-white text-black font-semibold text-xs tracking-widest uppercase transition-all duration-300 rounded-sm text-center flex items-center justify-center gap-2 cursor-pointer"
                                 >
                                   <i className="fa-solid fa-play"></i> Watch Movie File
@@ -1006,10 +1020,10 @@ export default function AdminDashboard() {
                                     Generating poster link...
                                   </div>
                                 ) : posterPresignedUrl ? (
-                                  <a 
-                                    href={posterPresignedUrl} 
-                                    target="_blank" 
-                                    rel="noopener noreferrer" 
+                                  <a
+                                    href={posterPresignedUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
                                     className="px-4 py-2.5 bg-transparent border border-white/20 text-white font-semibold text-xs tracking-widest uppercase hover:border-secondary hover:text-secondary transition-all duration-300 rounded-sm text-center flex items-center justify-center gap-2 cursor-pointer"
                                   >
                                     <i className="fa-solid fa-image"></i> View Poster Image
@@ -1032,10 +1046,10 @@ export default function AdminDashboard() {
                                       Generating College ID link...
                                     </div>
                                   ) : idPresignedUrl ? (
-                                    <a 
-                                      href={idPresignedUrl} 
-                                      target="_blank" 
-                                      rel="noopener noreferrer" 
+                                    <a
+                                      href={idPresignedUrl}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
                                       className="px-4 py-2.5 bg-transparent border border-white/20 text-white font-semibold text-xs tracking-widest uppercase hover:border-secondary hover:text-secondary transition-all duration-300 rounded-sm text-center flex items-center justify-center gap-2 cursor-pointer"
                                     >
                                       <i className="fa-solid fa-address-card"></i> View College ID
@@ -1094,14 +1108,13 @@ export default function AdminDashboard() {
                   {submissions.map((sub) => {
                     const isExpanded = sub.id === expandedMobileSubmissionId;
                     return (
-                      <div 
-                        key={sub.id} 
-                        className={`border rounded-sm bg-primary-light transition-all duration-300 ${
-                          isExpanded ? 'border-secondary/30' : 'border-white/5'
-                        }`}
+                      <div
+                        key={sub.id}
+                        className={`border rounded-sm bg-primary-light transition-all duration-300 ${isExpanded ? 'border-secondary/30' : 'border-white/5'
+                          }`}
                       >
                         {/* Summary Header */}
-                        <div 
+                        <div
                           onClick={() => {
                             setSelectedSubmissionId(sub.id);
                             setExpandedMobileSubmissionId(isExpanded ? null : sub.id);
@@ -1148,10 +1161,10 @@ export default function AdminDashboard() {
                                   Generating secure watch link...
                                 </div>
                               ) : moviePresignedUrl ? (
-                                <a 
-                                  href={moviePresignedUrl} 
-                                  target="_blank" 
-                                  rel="noopener noreferrer" 
+                                <a
+                                  href={moviePresignedUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
                                   className="w-full py-2 bg-secondary text-black font-semibold text-[10px] tracking-widest uppercase hover:bg-white transition-all rounded-sm text-center flex items-center justify-center gap-2 cursor-pointer"
                                 >
                                   <i className="fa-solid fa-play"></i> Watch Movie
@@ -1168,10 +1181,10 @@ export default function AdminDashboard() {
                                     Generating poster link...
                                   </div>
                                 ) : posterPresignedUrl ? (
-                                  <a 
-                                    href={posterPresignedUrl} 
-                                    target="_blank" 
-                                    rel="noopener noreferrer" 
+                                  <a
+                                    href={posterPresignedUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
                                     className="w-full py-2 border border-white/20 text-white font-semibold text-[10px] tracking-widest uppercase hover:border-secondary transition-all rounded-sm text-center flex items-center justify-center gap-2 cursor-pointer"
                                   >
                                     <i className="fa-solid fa-image"></i> View Poster
@@ -1190,10 +1203,10 @@ export default function AdminDashboard() {
                                       Generating ID link...
                                     </div>
                                   ) : idPresignedUrl ? (
-                                    <a 
-                                      href={idPresignedUrl} 
-                                      target="_blank" 
-                                      rel="noopener noreferrer" 
+                                    <a
+                                      href={idPresignedUrl}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
                                       className="w-full py-2 border border-white/20 text-white font-semibold text-[10px] tracking-widest uppercase hover:border-secondary transition-all rounded-sm text-center flex items-center justify-center gap-2 cursor-pointer"
                                     >
                                       <i className="fa-solid fa-address-card"></i> View College ID
@@ -1237,7 +1250,7 @@ export default function AdminDashboard() {
         const grossRevenue = cfoTransactions
           .filter(t => t.type === 'income')
           .reduce((sum, t) => sum + Number(t.amount), 0) + sfsRegistrationIncome;
-          
+
         const operatingCosts = cfoTransactions
           .filter(t => t.type === 'expense')
           .reduce((sum, t) => sum + Number(t.amount), 0);
@@ -1248,7 +1261,7 @@ export default function AdminDashboard() {
         // Group by month name (Jan - Dec) using transaction_date split to avoid timezone shifting
         const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
         const monthlyStats = monthNames.map(name => ({ name, income: 0, expense: 0 }));
-        
+
         const currentYear = new Date().getFullYear();
 
         cfoTransactions.forEach(t => {
@@ -1296,13 +1309,13 @@ export default function AdminDashboard() {
                 <h1 className="font-serif text-3xl text-white tracking-wide mt-1">CFO Console</h1>
               </div>
               <div className="flex gap-3 self-start sm:self-auto">
-                <button 
+                <button
                   onClick={() => setIsCfoModalOpen(true)}
                   className="px-4 py-2 bg-secondary text-black hover:bg-secondary/90 hover:shadow-[0_0_10px_rgba(197,160,89,0.2)] text-xs tracking-widest uppercase font-bold transition-all duration-300 rounded-sm text-center flex items-center gap-2 cursor-pointer"
                 >
                   <i className="fa-solid fa-plus"></i> New
                 </button>
-                <button 
+                <button
                   onClick={fetchCfoTransactions}
                   disabled={cfoLoading}
                   className="px-4 py-2 bg-primary-light border border-white/10 hover:border-secondary text-xs tracking-widest uppercase transition-all duration-300 rounded-sm text-center flex items-center gap-2 cursor-pointer disabled:opacity-55"
@@ -1323,7 +1336,7 @@ export default function AdminDashboard() {
                   <i className="fa-solid fa-circle-exclamation text-lg"></i>
                 </div>
                 <p className="text-red-400 text-sm font-light">{cfoError}</p>
-                <button 
+                <button
                   onClick={fetchCfoTransactions}
                   className="px-4 py-2 border border-red-500/20 text-red-400 hover:bg-red-950/20 text-xs tracking-widest uppercase transition-all duration-300 rounded-sm"
                 >
@@ -1334,7 +1347,7 @@ export default function AdminDashboard() {
               <>
                 {/* Financial Overview Cards Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                  
+
                   <div className="border border-white/5 bg-primary-light p-6 rounded-sm flex items-center justify-between border-gold-glow">
                     <div>
                       <span className="text-[10px] tracking-widest text-accent-muted uppercase font-semibold">Gross Revenue</span>
@@ -1399,7 +1412,7 @@ export default function AdminDashboard() {
 
                 {/* Bottom Split Layout: Chart Mockup and Ledger Logs */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                  
+
                   {/* Chart Mockup (2 Cols) */}
                   <div className="lg:col-span-2 border border-white/5 bg-primary-light p-6 rounded-sm border-gold-glow flex flex-col justify-between">
                     <div className="flex justify-between items-center mb-6">
@@ -1441,14 +1454,14 @@ export default function AdminDashboard() {
                             return (
                               <div key={d.name} className="flex-1 flex flex-col items-center justify-end h-full group cursor-pointer z-10 relative">
                                 <div className="w-full flex justify-center gap-1 h-full items-end">
-                                  <div 
-                                    className="w-2.5 bg-secondary/60 group-hover:bg-secondary transition-all rounded-t-sm" 
-                                    style={{ height: `${incHeight}%` }} 
+                                  <div
+                                    className="w-2.5 bg-secondary/60 group-hover:bg-secondary transition-all rounded-t-sm"
+                                    style={{ height: `${incHeight}%` }}
                                     title={`Earnings: ₹${d.income.toLocaleString()}`}
                                   ></div>
-                                  <div 
-                                    className="w-2.5 bg-white/10 group-hover:bg-white/20 transition-all rounded-t-sm" 
-                                    style={{ height: `${expHeight}%` }} 
+                                  <div
+                                    className="w-2.5 bg-white/10 group-hover:bg-white/20 transition-all rounded-t-sm"
+                                    style={{ height: `${expHeight}%` }}
                                     title={`Expenses: ₹${d.expense.toLocaleString()}`}
                                   ></div>
                                 </div>
@@ -1462,7 +1475,7 @@ export default function AdminDashboard() {
                       <div className="flex gap-4">
                         {/* Spacer to align with Y-axis */}
                         <div className="w-14 select-none pr-3"></div>
-                        
+
                         {/* Month names matching columns */}
                         <div className="flex-grow flex justify-between gap-2.5 text-center">
                           {displayData.map((d) => (
@@ -1546,18 +1559,16 @@ export default function AdminDashboard() {
                                   </span>
                                 </div>
                                 <div className="text-right flex-shrink-0">
-                                  <span className={`text-xs font-serif font-bold ${
-                                    t.type === 'income' ? 'text-secondary' : 'text-white'
-                                  }`}>
+                                  <span className={`text-xs font-serif font-bold ${t.type === 'income' ? 'text-secondary' : 'text-white'
+                                    }`}>
                                     {t.type === 'income' ? '+' : '-'}₹{t.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                   </span>
-                                  <span className={`text-[8px] border rounded-sm px-1.5 py-0.5 block mt-0.5 uppercase tracking-widest font-bold text-center ${
-                                    t.type === 'income' 
-                                      ? (t.source === 'sfs' 
-                                          ? 'bg-secondary/10 text-secondary border-secondary/20' 
-                                          : 'bg-emerald-950/20 text-emerald-400 border-emerald-500/20') 
-                                      : 'bg-amber-950/20 text-amber-400 border-amber-500/20'
-                                  }`}>
+                                  <span className={`text-[8px] border rounded-sm px-1.5 py-0.5 block mt-0.5 uppercase tracking-widest font-bold text-center ${t.type === 'income'
+                                    ? (t.source === 'sfs'
+                                      ? 'bg-secondary/10 text-secondary border-secondary/20'
+                                      : 'bg-emerald-950/20 text-emerald-400 border-emerald-500/20')
+                                    : 'bg-amber-950/20 text-amber-400 border-amber-500/20'
+                                    }`}>
                                     {t.source === 'sfs' ? 'Registration' : t.type}
                                   </span>
                                 </div>
@@ -1575,19 +1586,19 @@ export default function AdminDashboard() {
           </div>
         );
       case 'letterhead':
-        return <LetterheadScreen />;
+        return <LetterheadScreen adminData={adminData} />;
     }
   };
 
   return (
     <div className="min-h-screen bg-[#020202] text-white flex flex-col md:flex-row font-sans print:bg-white print:text-black print:block print:h-auto">
-      
+
       {/* Mobile Top Header bar */}
       <header className="md:hidden h-16 border-b border-white/5 bg-[#0A0A0A] flex items-center justify-between px-6 sticky top-0 z-30 flex-shrink-0 print:hidden">
         <div className="flex items-center gap-3">
-          <img 
-            src="/logo.jpg" 
-            alt="Viora Logo" 
+          <img
+            src="/logo.jpg"
+            alt="Viora Logo"
             className="h-8 w-8 object-contain rounded-md border border-secondary/20"
           />
           <div className="flex flex-col text-left">
@@ -1599,8 +1610,8 @@ export default function AdminDashboard() {
             </span>
           </div>
         </div>
-        
-        <button 
+
+        <button
           onClick={() => setSidebarOpen(true)}
           className="h-10 w-10 border border-white/5 hover:border-secondary/50 rounded-sm flex items-center justify-center text-white transition-all cursor-pointer"
           aria-label="Open navigation menu"
@@ -1624,21 +1635,20 @@ export default function AdminDashboard() {
       </div>
 
       {/* Right Content Area */}
-      <main className={`flex-grow h-[calc(100vh-4rem)] md:h-screen overflow-y-auto p-4 sm:p-6 md:p-10 print:h-auto print:p-0 print:block print:static ${
-        activeTab === 'letterhead' ? 'md:p-0 sm:p-0 p-0 overflow-y-hidden print:overflow-visible' : ''
-      }`}>
+      <main className={`flex-grow h-[calc(100vh-4rem)] md:h-screen overflow-y-auto p-4 sm:p-6 md:p-10 print:h-auto print:p-0 print:block print:static ${activeTab === 'letterhead' ? 'md:p-0 sm:p-0 p-0 overflow-y-hidden print:overflow-visible' : ''
+        }`}>
         {renderActiveView()}
       </main>
 
       {/* CFO Transaction Entry Modal */}
       {isCfoModalOpen && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-opacity duration-300">
-          <div 
-            className="fixed inset-0" 
+          <div
+            className="fixed inset-0"
             onClick={() => setIsCfoModalOpen(false)}
           />
           <div className="relative z-10 w-full max-w-md bg-[#0A0A0A] border border-white/10 p-6 md:p-8 rounded-sm border-gold-glow flex flex-col shadow-[0_0_50px_rgba(197,160,89,0.08)]">
-            <button 
+            <button
               onClick={() => setIsCfoModalOpen(false)}
               className="absolute top-4 right-4 text-accent-muted hover:text-white p-1 cursor-pointer transition-colors"
               aria-label="Close dialog"
@@ -1658,8 +1668,8 @@ export default function AdminDashboard() {
                 <label className="block text-[10px] tracking-widest text-secondary font-semibold uppercase mb-2">
                   Transaction Title
                 </label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   required
                   value={newTitle}
                   onChange={(e) => setNewTitle(e.target.value)}
@@ -1673,8 +1683,8 @@ export default function AdminDashboard() {
                   <label className="block text-[10px] tracking-widest text-secondary font-semibold uppercase mb-2">
                     Amount (₹)
                   </label>
-                  <input 
-                    type="number" 
+                  <input
+                    type="number"
                     required
                     step="0.01"
                     min="0.01"
@@ -1689,8 +1699,8 @@ export default function AdminDashboard() {
                   <label className="block text-[10px] tracking-widest text-secondary font-semibold uppercase mb-2">
                     Transaction Date
                   </label>
-                  <input 
-                    type="date" 
+                  <input
+                    type="date"
                     required
                     value={newDate}
                     onChange={(e) => setNewDate(e.target.value)}
@@ -1707,22 +1717,20 @@ export default function AdminDashboard() {
                   <button
                     type="button"
                     onClick={() => setNewType('income')}
-                    className={`py-3 text-xs uppercase tracking-wider font-semibold border rounded-sm transition-all duration-300 cursor-pointer text-center ${
-                      newType === 'income'
-                        ? 'border-secondary bg-secondary/10 text-secondary'
-                        : 'border-white/10 text-accent-muted hover:border-white/20'
-                    }`}
+                    className={`py-3 text-xs uppercase tracking-wider font-semibold border rounded-sm transition-all duration-300 cursor-pointer text-center ${newType === 'income'
+                      ? 'border-secondary bg-secondary/10 text-secondary'
+                      : 'border-white/10 text-accent-muted hover:border-white/20'
+                      }`}
                   >
                     Income
                   </button>
                   <button
                     type="button"
                     onClick={() => setNewType('expense')}
-                    className={`py-3 text-xs uppercase tracking-wider font-semibold border rounded-sm transition-all duration-300 cursor-pointer text-center ${
-                      newType === 'expense'
-                        ? 'border-red-500/50 bg-red-950/20 text-red-400'
-                        : 'border-white/10 text-accent-muted hover:border-white/20'
-                    }`}
+                    className={`py-3 text-xs uppercase tracking-wider font-semibold border rounded-sm transition-all duration-300 cursor-pointer text-center ${newType === 'expense'
+                      ? 'border-red-500/50 bg-red-950/20 text-red-400'
+                      : 'border-white/10 text-accent-muted hover:border-white/20'
+                      }`}
                   >
                     Expense
                   </button>

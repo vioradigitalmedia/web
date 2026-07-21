@@ -1,6 +1,16 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
-export default function LetterheadScreen() {
+interface AdminData {
+  first_name: string;
+  last_name: string;
+  designation: string;
+}
+
+interface LetterheadScreenProps {
+  adminData?: AdminData | null;
+}
+
+export default function LetterheadScreen({ adminData }: LetterheadScreenProps) {
 
   const [date, setDate] = useState(new Date().toLocaleDateString('en-US', {
     month: 'long',
@@ -11,14 +21,22 @@ export default function LetterheadScreen() {
   const [recipientTitle, setRecipientTitle] = useState('Creative Director');
   const [recipientCompany, setRecipientCompany] = useState('LUXE STUDIOS');
   const [salutation, setSalutation] = useState('Dear Mr. Alexander Reed,');
-  const [signerName, setSignerName] = useState('ISABELLA VANCE');
-  const [signerTitle, setSignerTitle] = useState('Founder, Viora Media');
+  const [signerName, setSignerName] = useState(adminData ? `${adminData.first_name} ${adminData.last_name}` : 'ISABELLA VANCE');
+  const [signerTitle, setSignerTitle] = useState(adminData?.designation || 'Founder, Viora Media');
   const [isPrintMode, setIsPrintMode] = useState(true);
   const [paragraphs, setParagraphs] = useState<string[]>([
     'We are pleased to extend this formal proposal for a strategic partnership between Luxe Studios and Viora Media. Following our recent discussion regarding the co-production of the upcoming cinematic showcases, we believe combining our resources will deliver unmatched experiences for our global audiences.',
     'Under this partnership, Viora Media will provide top-tier editing suites, distribution support, and custom marketing materials, while Luxe Studios will lead raw production and talent recruitment. Detailed terms and revenue projections are outlined in the attached brief.',
     'Please review these guidelines and sign the agreement to initiate the next phase of our collaboration. We look forward to creating exceptional cinema together.'
   ]);
+
+  // Update signer details when adminData changes
+  useEffect(() => {
+    if (adminData) {
+      setSignerName(`${adminData.first_name} ${adminData.last_name}`);
+      setSignerTitle(adminData.designation);
+    }
+  }, [adminData]);
 
   const handleParagraphChange = (index: number, val: string) => {
     setParagraphs(prev => {
@@ -79,7 +97,7 @@ export default function LetterheadScreen() {
       // Limit with signature details: Page 1 = 420px, Page 2+ = 580px
       const finalPageLimit = currentPageIdx === 0 ? 420 : 580;
       const isLastParagraph = i === flatParagraphs.length - 1;
-      
+
       let isFinalPage = false;
       if (isLastParagraph) {
         // If this is the last paragraph, the current page must be the final page.
@@ -92,8 +110,8 @@ export default function LetterheadScreen() {
       // Max height allocations:
       // If final page: Page 1 = 420px, Page 2+ = 580px (accounts for signature details space)
       // If NOT final page: Page 1 = 650px, Page 2+ = 780px (no signature block space needed)
-      const maxHeight = isFinalPage 
-        ? finalPageLimit 
+      const maxHeight = isFinalPage
+        ? finalPageLimit
         : (currentPageIdx === 0 ? 650 : 780);
 
       if (currentHeight + estHeight > maxHeight && pageList[currentPageIdx].length > 0) {
@@ -287,9 +305,14 @@ export default function LetterheadScreen() {
 
           <hr className="border-white/5" />
 
-          {/* Signer Details */}
+          {/* Signer Details - Auto-populated from admin profile */}
           <div className="space-y-3.5">
-            <span className="text-[10px] tracking-widest text-secondary font-semibold uppercase block">Signature Details</span>
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] tracking-widest text-secondary font-semibold uppercase block">Signature Details</span>
+              {adminData && (
+                <span className="text-[8px] text-accent-muted/60 uppercase">Auto-filled</span>
+              )}
+            </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div>
@@ -298,7 +321,11 @@ export default function LetterheadScreen() {
                   type="text"
                   value={signerName}
                   onChange={(e) => setSignerName(e.target.value)}
-                  className="w-full bg-black/40 border border-white/10 hover:border-white/20 focus:border-secondary transition-all rounded-sm px-3 py-2 text-xs text-white focus:outline-none"
+                  readOnly={!!adminData}
+                  className={`w-full bg-black/40 border transition-all rounded-sm px-3 py-2 text-xs focus:outline-none ${adminData
+                    ? 'border-secondary/30 text-secondary cursor-not-allowed'
+                    : 'border-white/10 hover:border-white/20 focus:border-secondary text-white'
+                    }`}
                 />
               </div>
               <div>
@@ -307,7 +334,11 @@ export default function LetterheadScreen() {
                   type="text"
                   value={signerTitle}
                   onChange={(e) => setSignerTitle(e.target.value)}
-                  className="w-full bg-black/40 border border-white/10 hover:border-white/20 focus:border-secondary transition-all rounded-sm px-3 py-2 text-xs text-white focus:outline-none"
+                  readOnly={!!adminData}
+                  className={`w-full bg-black/40 border transition-all rounded-sm px-3 py-2 text-xs focus:outline-none ${adminData
+                    ? 'border-secondary/30 text-secondary cursor-not-allowed'
+                    : 'border-white/10 hover:border-white/20 focus:border-secondary text-white'
+                    }`}
                 />
               </div>
             </div>
@@ -341,11 +372,10 @@ export default function LetterheadScreen() {
           return (
             <div
               key={pageIdx}
-              className={`print-page relative font-serif overflow-hidden transition-all duration-300 shadow-[0_12px_40px_rgba(0,0,0,0.4)] print:shadow-none ${
-                isPrintMode
-                  ? 'bg-[#F9F8F5] text-black border border-black/5'
-                  : 'bg-[#080808] text-white border border-white/5 print:bg-[#F9F8F5] print:text-black print:border-none'
-              }`}
+              className={`print-page relative font-serif overflow-hidden transition-all duration-300 shadow-[0_12px_40px_rgba(0,0,0,0.4)] print:shadow-none ${isPrintMode
+                ? 'bg-[#F9F8F5] text-black border border-black/5'
+                : 'bg-[#080808] text-white border border-white/5 print:bg-[#F9F8F5] print:text-black print:border-none'
+                }`}
               style={{
                 width: '210mm',
                 minWidth: '210mm',
@@ -366,9 +396,8 @@ export default function LetterheadScreen() {
                 <img
                   src="/file_no_bg.svg"
                   alt="Watermark"
-                  className={`w-3/5 h-auto object-contain transition-opacity duration-300 ${
-                    isPrintMode ? 'opacity-[0.12]' : 'opacity-[0.06] print:opacity-[0.12]'
-                  }`}
+                  className={`w-3/5 h-auto object-contain transition-opacity duration-300 ${isPrintMode ? 'opacity-[0.12]' : 'opacity-[0.06] print:opacity-[0.12]'
+                    }`}
                 />
               </div>
 
@@ -383,9 +412,8 @@ export default function LetterheadScreen() {
                       className="h-10 w-10 object-contain rounded-md border border-secondary/20 flex-shrink-0"
                     />
                     <div className="flex flex-col text-left">
-                      <span className={`font-serif tracking-[0.25em] text-lg font-bold uppercase ${
-                        isPrintMode ? 'text-black' : 'text-white print:text-black'
-                      }`}>
+                      <span className={`font-serif tracking-[0.25em] text-lg font-bold uppercase ${isPrintMode ? 'text-black' : 'text-white print:text-black'
+                        }`}>
                         VIORA
                       </span>
                       <span className="text-[8px] tracking-[0.4em] text-secondary font-semibold uppercase mt-0.5 block">
@@ -396,14 +424,12 @@ export default function LetterheadScreen() {
 
                   {/* Right Side: Header Contacts */}
                   <div className="flex flex-col text-right font-sans">
-                    <span className={`text-[9px] tracking-widest font-semibold uppercase ${
-                      isPrintMode ? 'text-black/70' : 'text-white/70 print:text-black/70'
-                    }`}>
+                    <span className={`text-[9px] tracking-widest font-semibold uppercase ${isPrintMode ? 'text-black/70' : 'text-white/70 print:text-black/70'
+                      }`}>
                       www.vioramedia.in
                     </span>
-                    <span className={`text-[8px] tracking-wider font-light mt-0.5 lowercase ${
-                      isPrintMode ? 'text-black/50' : 'text-white/50 print:text-black/50'
-                    }`}>
+                    <span className={`text-[8px] tracking-wider font-light mt-0.5 lowercase ${isPrintMode ? 'text-black/50' : 'text-white/50 print:text-black/50'
+                      }`}>
                       contact@vioramedia.in
                     </span>
                   </div>
@@ -424,35 +450,30 @@ export default function LetterheadScreen() {
                   {isFirstPage && (
                     <div className="space-y-6">
                       {/* Date String */}
-                      <p className={`font-semibold tracking-wide text-xs ${
-                        isPrintMode ? 'text-black/80' : 'text-white/80 print:text-black/80'
-                      }`}>
+                      <p className={`font-semibold tracking-wide text-xs ${isPrintMode ? 'text-black/80' : 'text-white/80 print:text-black/80'
+                        }`}>
                         {date}
                       </p>
 
                       {/* Recipient Details */}
                       <div className="space-y-1">
-                        <p className={`font-bold tracking-wide text-xs ${
-                          isPrintMode ? 'text-black/90' : 'text-white/90 print:text-black/90'
-                        }`}>
+                        <p className={`font-bold tracking-wide text-xs ${isPrintMode ? 'text-black/90' : 'text-white/90 print:text-black/90'
+                          }`}>
                           {recipientName}
                         </p>
-                        <p className={`text-xs ${
-                          isPrintMode ? 'text-black/60' : 'text-white/60 print:text-black/60'
-                        }`}>
+                        <p className={`text-xs ${isPrintMode ? 'text-black/60' : 'text-white/60 print:text-black/60'
+                          }`}>
                           {recipientTitle}
                         </p>
-                        <p className={`text-xs ${
-                          isPrintMode ? 'text-black/60' : 'text-white/60 print:text-black/60'
-                        }`}>
+                        <p className={`text-xs ${isPrintMode ? 'text-black/60' : 'text-white/60 print:text-black/60'
+                          }`}>
                           {recipientCompany}
                         </p>
                       </div>
 
                       {/* Salutation */}
-                      <p className={`mt-8 ${
-                        isPrintMode ? 'text-black/80' : 'text-white/80 print:text-black/80'
-                      }`}>
+                      <p className={`mt-8 ${isPrintMode ? 'text-black/80' : 'text-white/80 print:text-black/80'
+                        }`}>
                         {salutation}
                       </p>
                     </div>
@@ -463,9 +484,8 @@ export default function LetterheadScreen() {
                     {pageParas.map((p, idx) => (
                       <p
                         key={idx}
-                        className={`leading-relaxed text-justify indent-8 tracking-wide ${
-                          isPrintMode ? 'text-black/70' : 'text-white/70 print:text-black/70'
-                        }`}
+                        className={`leading-relaxed text-justify indent-8 tracking-wide ${isPrintMode ? 'text-black/70' : 'text-white/70 print:text-black/70'
+                          }`}
                       >
                         {p}
                       </p>
@@ -484,21 +504,18 @@ export default function LetterheadScreen() {
                     <img
                       src="/SignatureV.png"
                       alt="Signature"
-                      className={`h-28 w-auto object-contain select-none transition-all duration-300 transform -translate-x-6 translate-y-3 ${
-                        isPrintMode ? 'invert-0' : 'invert brightness-[2] print:invert-0'
-                      }`}
+                      className={`h-28 w-auto object-contain select-none transition-all duration-300 transform -translate-x-6 translate-y-3 ${isPrintMode ? 'invert-0' : 'invert brightness-[2] print:invert-0'
+                        }`}
                     />
                   </div>
 
                   <div className="space-y-1 relative z-10 pt-20">
-                    <p className={`font-bold tracking-wide text-xs ${
-                      isPrintMode ? 'text-black/90' : 'text-white/90 print:text-black/90'
-                    }`}>
+                    <p className={`font-bold tracking-wide text-xs ${isPrintMode ? 'text-black/90' : 'text-white/90 print:text-black/90'
+                      }`}>
                       {signerName}
                     </p>
-                    <p className={`text-[11px] ${
-                      isPrintMode ? 'text-black/50' : 'text-white/50 print:text-black/50'
-                    }`}>
+                    <p className={`text-[11px] ${isPrintMode ? 'text-black/50' : 'text-white/50 print:text-black/50'
+                      }`}>
                       {signerTitle}
                     </p>
                   </div>
@@ -510,9 +527,8 @@ export default function LetterheadScreen() {
                 <p className="text-[10px] font-bold text-secondary tracking-widest uppercase">
                   Viora Media
                 </p>
-                <p className={`text-[8px] tracking-[0.2em] font-light mt-1.5 uppercase ${
-                  isPrintMode ? 'text-black/45' : 'text-white/45 print:text-black/45'
-                }`}>
+                <p className={`text-[8px] tracking-[0.2em] font-light mt-1.5 uppercase ${isPrintMode ? 'text-black/45' : 'text-white/45 print:text-black/45'
+                  }`}>
                   www.vioramedia.in &nbsp;|&nbsp; contact@vioramedia.in &nbsp;|&nbsp; +91 9994595001
                 </p>
               </div>
