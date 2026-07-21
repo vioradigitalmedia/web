@@ -24,6 +24,20 @@ interface ContactMessage {
   created_at: string;
 }
 
+const isSubmissionMsg = (messageStr: string) => {
+  const content = (messageStr || '').toLowerCase();
+  return (
+    content.includes('film title:') ||
+    content.includes('logline:') ||
+    content.includes('director:') ||
+    content.includes('movie url:') ||
+    content.includes('genre:') ||
+    content.includes('submission:') ||
+    content.includes('payment id:') ||
+    content.includes('film submission')
+  );
+};
+
 interface CfoTransaction {
   id: string;
   created_at: string;
@@ -168,8 +182,10 @@ export default function AdminDashboard() {
       if (fetchError) throw fetchError;
       const loadedMessages = data || [];
       setMessages(loadedMessages);
-      if (loadedMessages.length > 0) {
-        setSelectedMessageId(loadedMessages[0].id);
+      
+      const filtered = loadedMessages.filter(msg => !isSubmissionMsg(msg.message));
+      if (filtered.length > 0) {
+        setSelectedMessageId(filtered[0].id);
       } else {
         setSelectedMessageId(null);
       }
@@ -343,9 +359,11 @@ export default function AdminDashboard() {
     }
   };
 
+  const filteredMessages = messages.filter(msg => !isSubmissionMsg(msg.message));
+
   // Metrics calculations
-  const totalInquiries = messages.length;
-  const pendingInquiries = messages.filter(m => m.status === 'pending').length;
+  const totalInquiries = filteredMessages.length;
+  const pendingInquiries = filteredMessages.filter(m => m.status === 'pending').length;
 
   const totalSubmissions = submissions.length;
   const totalRevenue = submissions.reduce((sum, s) => sum + Number(s.amount_paid || 999.00), 0);
@@ -424,7 +442,7 @@ export default function AdminDashboard() {
         );
 
       case 'messages':
-        const selectedMessage = messages.find(m => m.id === selectedMessageId);
+        const selectedMessage = filteredMessages.find(m => m.id === selectedMessageId);
 
         return (
           <div className="space-y-6 animate-fade-in text-left flex flex-col h-full">
@@ -459,7 +477,7 @@ export default function AdminDashboard() {
                   Retry Request
                 </button>
               </div>
-            ) : messages.length === 0 ? (
+            ) : filteredMessages.length === 0 ? (
               <div className="py-20 text-center text-accent-muted space-y-3">
                 <div className="h-12 w-12 rounded-full border border-white/10 flex items-center justify-center mx-auto text-white/40">
                   <i className="fa-solid fa-folder-open text-lg"></i>
@@ -473,12 +491,12 @@ export default function AdminDashboard() {
                 <div className="hidden md:flex flex-col w-1/3 min-w-[280px] max-w-[360px] border border-white/5 bg-primary-light rounded-sm overflow-hidden h-[calc(100vh-14rem)]">
                   <div className="p-4 border-b border-white/5 bg-black/20 flex items-center justify-between">
                     <span className="text-[10px] tracking-widest uppercase font-bold text-secondary">
-                      Inboxes ({messages.length})
+                      Inboxes ({filteredMessages.length})
                     </span>
                   </div>
                   
                   <div className="flex-1 overflow-y-auto divide-y divide-white/5">
-                    {messages.map((msg) => {
+                    {filteredMessages.map((msg) => {
                       const isSelected = msg.id === selectedMessageId;
                       const snippet = msg.message.length > 80 
                         ? msg.message.slice(0, 80) + '...' 
@@ -615,7 +633,7 @@ export default function AdminDashboard() {
 
                 {/* Mobile View: Accordion message cards */}
                 <div className="block md:hidden space-y-4 w-full">
-                  {messages.map((msg) => {
+                  {filteredMessages.map((msg) => {
                     const isExpanded = msg.id === expandedMobileMessageId;
                     const snippet = msg.message.length > 60 
                       ? msg.message.slice(0, 60) + '...' 
