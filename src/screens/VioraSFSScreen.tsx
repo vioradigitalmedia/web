@@ -66,23 +66,24 @@ export default function VioraSFSScreen() {
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [city, setCity] = useState('');
+  const [isCollegeStudent, setIsCollegeStudent] = useState(false);
+  const [collegeIdFile, setCollegeIdFile] = useState<File | null>(null);
 
   // Section 2: Film Details
   const [filmTitle, setFilmTitle] = useState('');
   const [genre, setGenre] = useState('');
   const [runtime, setRuntime] = useState('');
   const [logline, setLogline] = useState('');
+  const [lang, setLang] = useState('');
 
   // Section 3: Cast & Crew
   const [director, setDirector] = useState('');
-  const [writer, setWriter] = useState('');
   const [cinematographer, setCinematographer] = useState('');
   const [editor, setEditor] = useState('');
   const [music, setMusic] = useState('');
+  const [soundEngineer, setSoundEngineer] = useState('');
   const [mainActor, setMainActor] = useState('');
   const [mainActress, setMainActress] = useState('');
-  const [supportingActor, setSupportingActor] = useState('');
-  const [supportingActress, setSupportingActress] = useState('');
 
   // Section 4: Movie Upload, Poster & Agreements
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -173,8 +174,12 @@ export default function VioraSFSScreen() {
         setErrorMessage('All contact information fields are required.');
         return false;
       }
+      if (isCollegeStudent && !collegeIdFile) {
+        setErrorMessage('Please upload a scanned copy of your College ID Card.');
+        return false;
+      }
     } else if (step === 2) {
-      if (!filmTitle || !genre || !runtime || !logline) {
+      if (!filmTitle || !genre || !runtime || !logline || !lang) {
         setErrorMessage('All film metadata fields are required.');
         return false;
       }
@@ -312,7 +317,26 @@ export default function VioraSFSScreen() {
 
       const movieUrl = movieFileName; // Save S3/R2 storage key path directly
 
-      // 2. Upload Poster File directly to Cloudflare R2 if available
+      // 2. Upload College ID Card scanning file directly to Cloudflare R2 if student is selected
+      let idUrl = null;
+      if (isCollegeStudent && collegeIdFile) {
+        const idFileName = `id/${Date.now()}_${collegeIdFile.name}`;
+        const idPutCommand = new PutObjectCommand({
+          Bucket: 'viorasf',
+          Key: idFileName,
+          Body: collegeIdFile,
+          ContentType: collegeIdFile.type,
+        });
+
+        try {
+          await r2Client.send(idPutCommand);
+          idUrl = idFileName;
+        } catch (uploadErr: any) {
+          throw new Error(`College ID upload to R2 failed: ${uploadErr.message}`);
+        }
+      }
+
+      // 3. Upload Poster File directly to Cloudflare R2 if available
       let posterUrl = null;
       if (posterFile) {
         const posterFileName = `posters/${Date.now()}_${posterFile.name}`;
@@ -331,7 +355,7 @@ export default function VioraSFSScreen() {
         }
       }
 
-      // 3. Insert details into the festival_submissions table
+      // 4. Insert details into the festival_submissions table
       const { error: insertError } = await supabase
         .from('festival_submissions')
         .insert([
@@ -340,19 +364,23 @@ export default function VioraSFSScreen() {
             phone,
             email,
             city,
+            is_cs: isCollegeStudent,
+            id_url: idUrl,
             film_title: filmTitle,
             genre,
             runtime,
             logline,
+            lang,
             director,
-            writer: writer || null,
+            writer: null,
             cinematographer: cinematographer || null,
             editor: editor || null,
             music_composer: music || null,
+            sound_engineer: soundEngineer || null,
             main_actor: mainActor || null,
             main_actress: mainActress || null,
-            supporting_actor: supportingActor || null,
-            supporting_actress: supportingActress || null,
+            supporting_actor: null,
+            supporting_actress: null,
             movie_url: movieUrl,
             poster_url: posterUrl,
             payment_id: paymentId,
@@ -390,15 +418,14 @@ export default function VioraSFSScreen() {
     setGenre('');
     setRuntime('');
     setLogline('');
+    setLang('');
     setDirector('');
-    setWriter('');
     setCinematographer('');
     setEditor('');
     setMusic('');
+    setSoundEngineer('');
     setMainActor('');
     setMainActress('');
-    setSupportingActor('');
-    setSupportingActress('');
     setSelectedFile(null);
     setPosterFile(null);
     setAgreeRules(false);
@@ -656,6 +683,62 @@ export default function VioraSFSScreen() {
                           placeholder="City of residence"
                         />
                       </div>
+
+                      {/* College Student Tickbox */}
+                      <div className="flex items-center gap-3 py-1 mt-2">
+                        <input
+                          id="isCollegeStudent"
+                          type="checkbox"
+                          checked={isCollegeStudent}
+                          onChange={(e) => {
+                            setIsCollegeStudent(e.target.checked);
+                            if (!e.target.checked) setCollegeIdFile(null); // Reset file if unchecked
+                          }}
+                          className="h-4 w-4 bg-black/60 border border-white/10 rounded-sm accent-secondary focus:ring-0 focus:outline-none transition-colors"
+                        />
+                        <label
+                          htmlFor="isCollegeStudent"
+                          className="text-[11px] tracking-wide text-white/70 hover:text-white cursor-pointer select-none transition-colors"
+                        >
+                          I am a college student (Eligible for student category)
+                        </label>
+                      </div>
+
+                      {/* College ID Upload (Conditionally Revealed) */}
+                      {isCollegeStudent && (
+                        <div className="animate-fade-in space-y-2 mt-2">
+                          <label className="block text-[10px] tracking-widest text-secondary font-semibold uppercase mb-1">
+                            Upload College ID Card
+                          </label>
+                          <div className="relative group border border-dashed border-white/10 hover:border-secondary/40 transition-colors duration-300 rounded-sm bg-black/40 p-5 flex flex-col items-center justify-center text-center cursor-pointer h-28">
+                            <input
+                              type="file"
+                              accept="image/*,application/pdf"
+                              required
+                              onChange={(e) => {
+                                if (e.target.files && e.target.files[0]) {
+                                  setCollegeIdFile(e.target.files[0]);
+                                }
+                              }}
+                              className="absolute inset-0 opacity-0 cursor-pointer"
+                            />
+                            <i className="fa-solid fa-address-card text-lg text-secondary/60 group-hover:text-secondary mb-1.5 transition-colors duration-300"></i>
+                            {collegeIdFile ? (
+                              <div className="space-y-0.5">
+                                <p className="text-[11px] text-white font-medium max-w-[280px] truncate mx-auto">{collegeIdFile.name}</p>
+                                <p className="text-[9px] text-accent-muted">
+                                  {(collegeIdFile.size / (1024 * 1024)).toFixed(2)} MB
+                                </p>
+                              </div>
+                            ) : (
+                              <div className="space-y-0.5">
+                                <p className="text-[11px] text-white font-medium">Click to select ID scan</p>
+                                <p className="text-[9px] text-accent-muted font-light">JPEG, PNG, or PDF</p>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
 
@@ -705,18 +788,33 @@ export default function VioraSFSScreen() {
                         </div>
                       </div>
 
-                      <div>
-                        <label className="block text-[10px] tracking-widest text-secondary font-semibold uppercase mb-1.5">
-                          Logline
-                        </label>
-                        <textarea
-                          required
-                          rows={3}
-                          value={logline}
-                          onChange={(e) => setLogline(e.target.value)}
-                          className="w-full bg-black/60 border border-white/10 focus:border-secondary focus:outline-none px-4 py-3.5 text-xs text-white placeholder-white/20 transition-all rounded-sm focus:ring-1 focus:ring-secondary/30 resize-none"
-                          placeholder="A one-sentence summary of your film..."
-                        />
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-[10px] tracking-widest text-secondary font-semibold uppercase mb-1.5">
+                            Language
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            value={lang}
+                            onChange={(e) => setLang(e.target.value)}
+                            className="w-full bg-black/60 border border-white/10 focus:border-secondary focus:outline-none px-4 py-3.5 text-xs text-white placeholder-white/20 transition-all rounded-sm focus:ring-1 focus:ring-secondary/30"
+                            placeholder="e.g. English, Spanish"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] tracking-widest text-secondary font-semibold uppercase mb-1.5">
+                            Logline
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            value={logline}
+                            onChange={(e) => setLogline(e.target.value)}
+                            className="w-full bg-black/60 border border-white/10 focus:border-secondary focus:outline-none px-4 py-3.5 text-xs text-white placeholder-white/20 transition-all rounded-sm focus:ring-1 focus:ring-secondary/30"
+                            placeholder="A one-sentence summary of your film..."
+                          />
+                        </div>
                       </div>
                     </div>
                   )}
@@ -734,20 +832,20 @@ export default function VioraSFSScreen() {
                             required
                             value={director}
                             onChange={(e) => setDirector(e.target.value)}
-                            className="w-full bg-black/60 border border-white/10 focus:border-secondary focus:outline-none px-4 py-3.5 text-xs text-white placeholder-white/20 transition-all rounded-sm"
+                            className="w-full bg-black/60 border border-white/10 focus:border-secondary focus:outline-none px-4 py-3.5 text-xs text-white placeholder-white/20 transition-all rounded-sm focus:ring-1 focus:ring-secondary/30"
                             placeholder="Director"
                           />
                         </div>
                         <div>
                           <label className="block text-[10px] tracking-widest text-secondary font-semibold uppercase mb-1.5">
-                            Writer
+                            Sound Engineer
                           </label>
                           <input
                             type="text"
-                            value={writer}
-                            onChange={(e) => setWriter(e.target.value)}
-                            className="w-full bg-black/60 border border-white/10 focus:border-secondary focus:outline-none px-4 py-3.5 text-xs text-white placeholder-white/20 transition-all rounded-sm"
-                            placeholder="Writer"
+                            value={soundEngineer}
+                            onChange={(e) => setSoundEngineer(e.target.value)}
+                            className="w-full bg-black/60 border border-white/10 focus:border-secondary focus:outline-none px-4 py-3.5 text-xs text-white placeholder-white/20 transition-all rounded-sm focus:ring-1 focus:ring-secondary/30"
+                            placeholder="Sound Engineer"
                           />
                         </div>
                       </div>
@@ -761,7 +859,7 @@ export default function VioraSFSScreen() {
                             type="text"
                             value={cinematographer}
                             onChange={(e) => setCinematographer(e.target.value)}
-                            className="w-full bg-black/60 border border-white/10 focus:border-secondary focus:outline-none px-4 py-3.5 text-xs text-white placeholder-white/20 transition-all rounded-sm"
+                            className="w-full bg-black/60 border border-white/10 focus:border-secondary focus:outline-none px-4 py-3.5 text-xs text-white placeholder-white/20 transition-all rounded-sm focus:ring-1 focus:ring-secondary/30"
                             placeholder="DoP"
                           />
                         </div>
@@ -773,7 +871,7 @@ export default function VioraSFSScreen() {
                             type="text"
                             value={editor}
                             onChange={(e) => setEditor(e.target.value)}
-                            className="w-full bg-black/60 border border-white/10 focus:border-secondary focus:outline-none px-4 py-3.5 text-xs text-white placeholder-white/20 transition-all rounded-sm"
+                            className="w-full bg-black/60 border border-white/10 focus:border-secondary focus:outline-none px-4 py-3.5 text-xs text-white placeholder-white/20 transition-all rounded-sm focus:ring-1 focus:ring-secondary/30"
                             placeholder="Editor"
                           />
                         </div>
@@ -785,7 +883,7 @@ export default function VioraSFSScreen() {
                             type="text"
                             value={music}
                             onChange={(e) => setMusic(e.target.value)}
-                            className="w-full bg-black/60 border border-white/10 focus:border-secondary focus:outline-none px-4 py-3.5 text-xs text-white placeholder-white/20 transition-all rounded-sm"
+                            className="w-full bg-black/60 border border-white/10 focus:border-secondary focus:outline-none px-4 py-3.5 text-xs text-white placeholder-white/20 transition-all rounded-sm focus:ring-1 focus:ring-secondary/30"
                             placeholder="Composer"
                           />
                         </div>
@@ -800,7 +898,7 @@ export default function VioraSFSScreen() {
                             type="text"
                             value={mainActor}
                             onChange={(e) => setMainActor(e.target.value)}
-                            className="w-full bg-black/60 border border-white/10 focus:border-secondary focus:outline-none px-4 py-3.5 text-xs text-white placeholder-white/20 transition-all rounded-sm"
+                            className="w-full bg-black/60 border border-white/10 focus:border-secondary focus:outline-none px-4 py-3.5 text-xs text-white placeholder-white/20 transition-all rounded-sm focus:ring-1 focus:ring-secondary/30"
                             placeholder="Lead Actor"
                           />
                         </div>
@@ -812,35 +910,8 @@ export default function VioraSFSScreen() {
                             type="text"
                             value={mainActress}
                             onChange={(e) => setMainActress(e.target.value)}
-                            className="w-full bg-black/60 border border-white/10 focus:border-secondary focus:outline-none px-4 py-3.5 text-xs text-white placeholder-white/20 transition-all rounded-sm"
+                            className="w-full bg-black/60 border border-white/10 focus:border-secondary focus:outline-none px-4 py-3.5 text-xs text-white placeholder-white/20 transition-all rounded-sm focus:ring-1 focus:ring-secondary/30"
                             placeholder="Lead Actress"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-[10px] tracking-widest text-secondary font-semibold uppercase mb-1.5">
-                            Supporting Actor
-                          </label>
-                          <input
-                            type="text"
-                            value={supportingActor}
-                            onChange={(e) => setSupportingActor(e.target.value)}
-                            className="w-full bg-black/60 border border-white/10 focus:border-secondary focus:outline-none px-4 py-3.5 text-xs text-white placeholder-white/20 transition-all rounded-sm"
-                            placeholder="Supporting Actor"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-[10px] tracking-widest text-secondary font-semibold uppercase mb-1.5">
-                            Supporting Actress
-                          </label>
-                          <input
-                            type="text"
-                            value={supportingActress}
-                            onChange={(e) => setSupportingActress(e.target.value)}
-                            className="w-full bg-black/60 border border-white/10 focus:border-secondary focus:outline-none px-4 py-3.5 text-xs text-white placeholder-white/20 transition-all rounded-sm"
-                            placeholder="Supporting Actress"
                           />
                         </div>
                       </div>

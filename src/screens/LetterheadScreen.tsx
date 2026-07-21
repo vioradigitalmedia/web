@@ -47,16 +47,33 @@ export default function LetterheadScreen() {
     let currentPageIdx = 0;
     let currentHeight = 0;
 
-    paragraphs.forEach((p) => {
-      // Estimate height of this paragraph:
+    const estParaHeight = (p: string) => {
       // ~75 characters per line, 20px line height, 16px bottom margin
       const lines = Math.ceil(Math.max(p.length, 1) / 75);
-      const estHeight = (lines * 20) + 16;
+      return (lines * 20) + 16;
+    };
 
-      // Available height limits for paragraphs:
-      // Page 1 is shorter due to recipient header, date, and space reserves (~420px)
-      // Page 2+ is longer (~780px)
-      const maxHeight = currentPageIdx === 0 ? 420 : 780;
+    for (let i = 0; i < paragraphs.length; i++) {
+      const p = paragraphs[i];
+      const estHeight = estParaHeight(p);
+
+      // Look ahead: total height of all remaining paragraphs starting from the current index i
+      let remainingHeight = 0;
+      for (let j = i; j < paragraphs.length; j++) {
+        remainingHeight += estParaHeight(paragraphs[j]);
+      }
+
+      // Check if this page is the final one (remaining content + signature details fits here)
+      // Limit with signature details: Page 1 = 420px, Page 2+ = 580px
+      const finalPageLimit = currentPageIdx === 0 ? 420 : 580;
+      const isFinalPage = (currentHeight + remainingHeight) <= finalPageLimit;
+
+      // Max height allocations:
+      // If final page: Page 1 = 420px, Page 2+ = 580px (accounts for signature details space)
+      // If NOT final page: Page 1 = 650px, Page 2+ = 780px (no signature block space needed)
+      const maxHeight = isFinalPage 
+        ? finalPageLimit 
+        : (currentPageIdx === 0 ? 650 : 780);
 
       if (currentHeight + estHeight > maxHeight && pageList[currentPageIdx].length > 0) {
         // Create a new page
@@ -67,7 +84,7 @@ export default function LetterheadScreen() {
         pageList[currentPageIdx].push(p);
         currentHeight += estHeight;
       }
-    });
+    }
 
     return pageList;
   };

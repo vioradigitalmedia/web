@@ -59,17 +59,18 @@ interface FestivalSubmission {
   genre: string;
   runtime: string;
   logline: string;
+  lang: string | null;
   director: string;
-  writer: string | null;
   cinematographer: string | null;
   editor: string | null;
   music_composer: string | null;
+  sound_engineer: string | null;
   main_actor: string | null;
   main_actress: string | null;
-  supporting_actor: string | null;
-  supporting_actress: string | null;
   movie_url: string;
   poster_url: string | null;
+  is_cs: boolean;
+  id_url: string | null;
   payment_id: string;
   payment_status: string;
   amount_paid: number;
@@ -113,6 +114,7 @@ export default function AdminDashboard() {
   // Presigned URL States for Secure Private R2 Media
   const [moviePresignedUrl, setMoviePresignedUrl] = useState<string | null>(null);
   const [posterPresignedUrl, setPosterPresignedUrl] = useState<string | null>(null);
+  const [idPresignedUrl, setIdPresignedUrl] = useState<string | null>(null);
   const [presignedLoading, setPresignedLoading] = useState(false);
 
   useEffect(() => {
@@ -121,6 +123,7 @@ export default function AdminDashboard() {
       if (!selected) {
         setMoviePresignedUrl(null);
         setPosterPresignedUrl(null);
+        setIdPresignedUrl(null);
         return;
       }
 
@@ -145,10 +148,23 @@ export default function AdminDashboard() {
         } else {
           setPosterPresignedUrl(null);
         }
+
+        // Generate College ID presigned URL (1 hour expiry) if it exists
+        if (selected.id_url) {
+          const idCommand = new GetObjectCommand({
+            Bucket: 'viorasf',
+            Key: selected.id_url,
+          });
+          const idUrlStr = await getSignedUrl(r2Client, idCommand, { expiresIn: 3600 });
+          setIdPresignedUrl(idUrlStr);
+        } else {
+          setIdPresignedUrl(null);
+        }
       } catch (err) {
         console.error('Error generating presigned URLs:', err);
         setMoviePresignedUrl(null);
         setPosterPresignedUrl(null);
+        setIdPresignedUrl(null);
       } finally {
         setPresignedLoading(false);
       }
@@ -921,6 +937,7 @@ export default function AdminDashboard() {
                               <p><strong className="text-white">Email:</strong> <a href={`mailto:${selectedSubmission.email}`} className="text-secondary hover:text-white transition-colors duration-200">{selectedSubmission.email}</a></p>
                               <p><strong className="text-white">Phone:</strong> <a href={`tel:${selectedSubmission.phone}`} className="text-secondary hover:text-white transition-colors duration-200">{selectedSubmission.phone}</a></p>
                               <p><strong className="text-white">City:</strong> {selectedSubmission.city}</p>
+                              <p><strong className="text-white">College Student:</strong> {selectedSubmission.is_cs ? 'Yes' : 'No'}</p>
                             </div>
                           </div>
 
@@ -931,6 +948,7 @@ export default function AdminDashboard() {
                             </span>
                             <div className="text-xs space-y-2 font-light text-accent-muted">
                               <p><strong className="text-white">Genre:</strong> {selectedSubmission.genre}</p>
+                              <p><strong className="text-white">Language:</strong> {selectedSubmission.lang || 'N/A'}</p>
                               <p><strong className="text-white">Runtime:</strong> {selectedSubmission.runtime}</p>
                               <p><strong className="text-white">Logline:</strong></p>
                               <p className="italic bg-black/20 p-2.5 rounded-sm text-[11px] leading-relaxed border border-white/5">{selectedSubmission.logline}</p>
@@ -945,14 +963,12 @@ export default function AdminDashboard() {
                           </span>
                           <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-xs font-light text-accent-muted">
                             <p><strong className="text-white">Director:</strong> {selectedSubmission.director}</p>
-                            <p><strong className="text-white">Writer:</strong> {selectedSubmission.writer || 'N/A'}</p>
                             <p><strong className="text-white">Cinematographer:</strong> {selectedSubmission.cinematographer || 'N/A'}</p>
                             <p><strong className="text-white">Editor:</strong> {selectedSubmission.editor || 'N/A'}</p>
                             <p><strong className="text-white">Music Composer:</strong> {selectedSubmission.music_composer || 'N/A'}</p>
+                            <p><strong className="text-white">Sound Engineer:</strong> {selectedSubmission.sound_engineer || 'N/A'}</p>
                             <p><strong className="text-white">Lead Actor:</strong> {selectedSubmission.main_actor || 'N/A'}</p>
                             <p><strong className="text-white">Lead Actress:</strong> {selectedSubmission.main_actress || 'N/A'}</p>
-                            <p><strong className="text-white">Supporting Actor:</strong> {selectedSubmission.supporting_actor || 'N/A'}</p>
-                            <p><strong className="text-white">Supporting Actress:</strong> {selectedSubmission.supporting_actress || 'N/A'}</p>
                           </div>
                         </div>
 
@@ -1007,6 +1023,33 @@ export default function AdminDashboard() {
                                 <div className="px-4 py-2.5 border border-white/5 text-white/30 text-xs rounded-sm text-center">
                                   No Poster Uploaded
                                 </div>
+                              )}
+
+                              {selectedSubmission.is_cs && (
+                                selectedSubmission.id_url ? (
+                                  presignedLoading ? (
+                                    <div className="px-4 py-2.5 border border-white/5 text-accent-muted text-xs rounded-sm text-center">
+                                      Generating College ID link...
+                                    </div>
+                                  ) : idPresignedUrl ? (
+                                    <a 
+                                      href={idPresignedUrl} 
+                                      target="_blank" 
+                                      rel="noopener noreferrer" 
+                                      className="px-4 py-2.5 bg-transparent border border-white/20 text-white font-semibold text-xs tracking-widest uppercase hover:border-secondary hover:text-secondary transition-all duration-300 rounded-sm text-center flex items-center justify-center gap-2 cursor-pointer"
+                                    >
+                                      <i className="fa-solid fa-address-card"></i> View College ID
+                                    </a>
+                                  ) : (
+                                    <div className="px-4 py-2.5 border border-white/5 text-red-400 text-xs rounded-sm text-center">
+                                      Failed to sign College ID link
+                                    </div>
+                                  )
+                                ) : (
+                                  <div className="px-4 py-2.5 border border-white/5 text-red-400 text-xs rounded-sm text-center">
+                                    No ID URL Found
+                                  </div>
+                                )
                               )}
                             </div>
                           </div>
@@ -1085,13 +1128,15 @@ export default function AdminDashboard() {
                               <p><strong className="text-white">Email:</strong> {sub.email}</p>
                               <p><strong className="text-white">Phone:</strong> {sub.phone}</p>
                               <p><strong className="text-white">City:</strong> {sub.city}</p>
-                              <p><strong className="text-white">Runtime:</strong> {sub.runtime}</p>
+                              <p><strong className="text-white">College Student:</strong> {sub.is_cs ? 'Yes' : 'No'}</p>
+                              <p><strong className="text-white">Runtime:</strong> {sub.runtime} | <strong className="text-white">Language:</strong> {sub.lang || 'N/A'}</p>
                               <p><strong className="text-white">Logline:</strong> {sub.logline}</p>
                               <p className="border-t border-white/5 pt-2"><strong className="text-white">Creative Credits:</strong></p>
-                              <p className="pl-2">Writer: {sub.writer || 'N/A'}</p>
+                              <p className="pl-2">Director: {sub.director}</p>
                               <p className="pl-2">Cinematographer: {sub.cinematographer || 'N/A'}</p>
                               <p className="pl-2">Editor: {sub.editor || 'N/A'}</p>
                               <p className="pl-2">Composer: {sub.music_composer || 'N/A'}</p>
+                              <p className="pl-2">Sound Engineer: {sub.sound_engineer || 'N/A'}</p>
                               <p className="pl-2">Lead Cast: {sub.main_actor || 'N/A'} & {sub.main_actress || 'N/A'}</p>
                               <p className="border-t border-white/5 pt-2"><strong className="text-white">Razorpay Payment ID:</strong> {sub.payment_id}</p>
                             </div>
@@ -1134,6 +1179,33 @@ export default function AdminDashboard() {
                                 ) : (
                                   <div className="w-full py-2 border border-white/5 text-red-400 text-[10px] rounded-sm text-center">
                                     Failed to sign poster link
+                                  </div>
+                                )
+                              )}
+
+                              {sub.is_cs && (
+                                sub.id_url ? (
+                                  presignedLoading ? (
+                                    <div className="w-full py-2 border border-white/5 text-accent-muted text-[10px] rounded-sm text-center">
+                                      Generating ID link...
+                                    </div>
+                                  ) : idPresignedUrl ? (
+                                    <a 
+                                      href={idPresignedUrl} 
+                                      target="_blank" 
+                                      rel="noopener noreferrer" 
+                                      className="w-full py-2 border border-white/20 text-white font-semibold text-[10px] tracking-widest uppercase hover:border-secondary transition-all rounded-sm text-center flex items-center justify-center gap-2 cursor-pointer"
+                                    >
+                                      <i className="fa-solid fa-address-card"></i> View College ID
+                                    </a>
+                                  ) : (
+                                    <div className="w-full py-2 border border-white/5 text-red-400 text-[10px] rounded-sm text-center">
+                                      Failed to sign ID link
+                                    </div>
+                                  )
+                                ) : (
+                                  <div className="w-full py-2 border border-white/5 text-red-400 text-[10px] rounded-sm text-center">
+                                    No ID URL Found
                                   </div>
                                 )
                               )}

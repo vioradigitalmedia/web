@@ -12,11 +12,12 @@ export default function FestivalsScreen() {
     { title: 'Best Director', category: 'Individual Excellence', icon: 'fa-clapperboard' },
     { title: 'Best Actor', category: 'Performance Excellence', icon: 'fa-masks-theater' },
     { title: 'Best Actress', category: 'Performance Excellence', icon: 'fa-masks-theater' },
-    { title: 'Best Supporting Actor', category: 'Performance Excellence', icon: 'fa-star' },
-    { title: 'Best Supporting Actress', category: 'Performance Excellence', icon: 'fa-star' },
-    { title: 'Best Editor', category: 'Post-Production Excellence', icon: 'fa-scissors' },
-    { title: 'Best Cinematographer', category: 'Visual Excellence', icon: 'fa-video' },
+    { title: 'Best Editing', category: 'Post-Production Excellence', icon: 'fa-scissors' },
+    { title: 'Best Cinematography', category: 'Visual Excellence', icon: 'fa-video' },
     { title: 'Best Composer', category: 'Auditory Excellence', icon: 'fa-music' },
+    { title: 'Best Sound Design', category: 'Auditory Excellence', icon: 'fa-volume-high' },
+    { title: 'Special Jury Award', category: 'Honorary Excellence', icon: 'fa-award' },
+    { title: 'Audience Choice', category: 'Popular Choice', icon: 'fa-users' },
   ];
 
   const reelFrames = [
@@ -178,7 +179,7 @@ export default function FestivalsScreen() {
             </p>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             {awards.map((award, idx) => (
               <div
                 key={idx}
