@@ -96,8 +96,8 @@ export default function LetterheadScreen() {
               <button
                 onClick={() => setIsPrintMode(true)}
                 className={`py-2 px-3 text-xs uppercase font-semibold border transition-all rounded-sm cursor-pointer ${isPrintMode
-                    ? 'border-secondary text-secondary bg-secondary/5'
-                    : 'border-white/10 text-accent-muted hover:text-white'
+                  ? 'border-secondary text-secondary bg-secondary/5'
+                  : 'border-white/10 text-accent-muted hover:text-white'
                   }`}
               >
                 Light (Print-Ready)
@@ -105,8 +105,8 @@ export default function LetterheadScreen() {
               <button
                 onClick={() => setIsPrintMode(false)}
                 className={`py-2 px-3 text-xs uppercase font-semibold border transition-all rounded-sm cursor-pointer ${!isPrintMode
-                    ? 'border-secondary text-secondary bg-secondary/5'
-                    : 'border-white/10 text-accent-muted hover:text-white'
+                  ? 'border-secondary text-secondary bg-secondary/5'
+                  : 'border-white/10 text-accent-muted hover:text-white'
                   }`}
               >
                 Dark (Digital View)
@@ -252,14 +252,23 @@ export default function LetterheadScreen() {
         {/* Letter Sheet A4 container */}
         <div
           className={`print-sheet w-full max-w-[800px] aspect-[1/1.414] shadow-[0_12px_40px_rgba(0,0,0,0.4)] px-12 md:px-16 py-14 flex flex-col justify-between font-serif relative transition-all duration-300 ${isPrintMode
-              ? 'bg-[#F9F8F5] text-black border border-black/5'
-              : 'bg-[#080808] text-white border border-white/5'
+            ? 'bg-[#F9F8F5] text-black border border-black/5'
+            : 'bg-[#080808] text-white border border-white/5'
             }`}
           style={{ minHeight: '297mm' }}
         >
+          {/* Centered Watermark Logo */}
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none z-0">
+            <img
+              src="/file_no_bg.svg"
+              alt="Watermark"
+              className={`w-3/5 h-auto object-contain transition-opacity duration-300 ${isPrintMode ? 'opacity-[0.12]' : 'opacity-[0.06]'
+                }`}
+            />
+          </div>
 
           {/* Top Logo Header */}
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4 relative z-10">
             <div className="flex justify-between items-center w-full">
               {/* Left Side: Logo and Title */}
               <div className="flex items-center gap-3">
@@ -301,7 +310,7 @@ export default function LetterheadScreen() {
           </div>
 
           {/* Letter Body Container */}
-          <div className="flex-grow my-12 text-left font-sans text-[13px] md:text-sm font-light leading-relaxed flex flex-col justify-between">
+          <div className="flex-grow my-12 text-left font-sans text-[13px] md:text-sm font-light leading-relaxed flex flex-col justify-between relative z-10">
             <div className="space-y-6">
               {/* Date String */}
               <p className={`font-semibold tracking-wide text-xs ${isPrintMode ? 'text-black/80' : 'text-white/80'
@@ -359,13 +368,13 @@ export default function LetterheadScreen() {
           </div>
 
           {/* Letter Footer Details */}
-          <div className="border-t border-secondary/20 pt-5 text-center font-sans">
+          <div className="border-t border-secondary/20 pt-5 text-center font-sans relative z-10">
             <p className="text-[10px] font-bold text-secondary tracking-widest uppercase">
               Viora Media
             </p>
             <p className={`text-[8px] tracking-[0.2em] font-light mt-1.5 uppercase ${isPrintMode ? 'text-black/45' : 'text-white/45'
               }`}>
-              www.vioramedia.in &nbsp;|&nbsp; contact@vioramedia.in &nbsp;|&nbsp; +91 9994945001
+              www.vioramedia.in &nbsp;|&nbsp; contact@vioramedia.in &nbsp;|&nbsp; +91 9994595001
             </p>
           </div>
 
