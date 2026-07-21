@@ -373,7 +373,13 @@ export default function AdminDashboard() {
   const pendingInquiries = filteredMessages.filter(m => m.status === 'pending').length;
 
   const totalSubmissions = submissions.length;
-  const totalRevenue = submissions.reduce((sum, s) => sum + Number(s.amount_paid || 999.00), 0);
+  const totalRevenue = submissions.reduce((sum, s) => {
+    const rawAmount = Number(s.amount_paid || 999.00);
+    const gatewayFee = rawAmount * 0.02;
+    const gstOnFee = gatewayFee * 0.18;
+    const netAmount = rawAmount - gatewayFee - gstOnFee;
+    return sum + netAmount;
+  }, 0);
 
   if (authLoading) {
     return (
@@ -438,7 +444,9 @@ export default function AdminDashboard() {
               <div className="border border-white/5 bg-primary-light p-6 rounded-sm flex items-center justify-between border-gold-glow">
                 <div>
                   <span className="text-[10px] tracking-widest text-accent-muted uppercase font-semibold">Submission Revenue</span>
-                  <h2 className="text-3xl font-serif text-white mt-1">₹{totalRevenue.toLocaleString()}</h2>
+                  <h2 className="text-3xl font-serif text-white mt-1">
+                    ₹{totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </h2>
                 </div>
                 <div className="h-10 w-10 bg-secondary/5 rounded-full border border-secondary/20 flex items-center justify-center">
                   <i className="fa-solid fa-rupee-sign text-secondary text-sm"></i>
