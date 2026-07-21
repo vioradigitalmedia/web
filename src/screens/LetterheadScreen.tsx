@@ -85,15 +85,12 @@ export default function LetterheadScreen() {
           }
         }
       `}</style>
-      
+
       {/* LEFT COLUMN: EDITOR PANEL (hidden in print) */}
       <div className="w-full md:w-1/3 min-w-[320px] max-w-[450px] border-r border-white/5 bg-primary-light p-6 overflow-y-auto h-auto md:h-screen sticky top-0 print:hidden flex flex-col gap-6 select-none">
         <div>
           <span className="text-[10px] tracking-[0.25em] text-secondary font-semibold uppercase">Toolbox</span>
           <h2 className="font-serif text-2xl text-white tracking-wide mt-1">Letterhead Builder</h2>
-          <p className="text-[11px] text-accent-muted font-light leading-relaxed mt-2">
-            Enter details below to generate a premium letter. Click the print button at the bottom to save it as a high-quality PDF.
-          </p>
         </div>
 
         <div className="space-y-4">
@@ -101,23 +98,21 @@ export default function LetterheadScreen() {
           <div>
             <label className="text-[10px] tracking-wider text-accent-muted uppercase font-bold block mb-2">Paper Color Style</label>
             <div className="grid grid-cols-2 gap-3">
-              <button 
+              <button
                 onClick={() => setIsPrintMode(true)}
-                className={`py-2 px-3 text-xs uppercase font-semibold border transition-all rounded-sm cursor-pointer ${
-                  isPrintMode 
-                    ? 'border-secondary text-secondary bg-secondary/5' 
+                className={`py-2 px-3 text-xs uppercase font-semibold border transition-all rounded-sm cursor-pointer ${isPrintMode
+                    ? 'border-secondary text-secondary bg-secondary/5'
                     : 'border-white/10 text-accent-muted hover:text-white'
-                }`}
+                  }`}
               >
                 Light (Print-Ready)
               </button>
-              <button 
+              <button
                 onClick={() => setIsPrintMode(false)}
-                className={`py-2 px-3 text-xs uppercase font-semibold border transition-all rounded-sm cursor-pointer ${
-                  !isPrintMode 
-                    ? 'border-secondary text-secondary bg-secondary/5' 
+                className={`py-2 px-3 text-xs uppercase font-semibold border transition-all rounded-sm cursor-pointer ${!isPrintMode
+                    ? 'border-secondary text-secondary bg-secondary/5'
                     : 'border-white/10 text-accent-muted hover:text-white'
-                }`}
+                  }`}
               >
                 Dark (Digital View)
               </button>
@@ -129,12 +124,12 @@ export default function LetterheadScreen() {
           {/* Letter Meta Details */}
           <div className="space-y-3.5">
             <span className="text-[10px] tracking-widest text-secondary font-semibold uppercase block">Letter Details</span>
-            
+
             <div>
               <label className="text-[9px] tracking-wider text-accent-muted uppercase block mb-1">Date String</label>
-              <input 
-                type="text" 
-                value={date} 
+              <input
+                type="text"
+                value={date}
                 onChange={(e) => setDate(e.target.value)}
                 className="w-full bg-black/40 border border-white/10 hover:border-white/20 focus:border-secondary transition-all rounded-sm px-3 py-2 text-xs text-white focus:outline-none"
               />
@@ -142,9 +137,9 @@ export default function LetterheadScreen() {
 
             <div>
               <label className="text-[9px] tracking-wider text-accent-muted uppercase block mb-1">Recipient Name</label>
-              <input 
-                type="text" 
-                value={recipientName} 
+              <input
+                type="text"
+                value={recipientName}
                 onChange={(e) => setRecipientName(e.target.value)}
                 className="w-full bg-black/40 border border-white/10 hover:border-white/20 focus:border-secondary transition-all rounded-sm px-3 py-2 text-xs text-white focus:outline-none"
               />
@@ -153,18 +148,18 @@ export default function LetterheadScreen() {
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="text-[9px] tracking-wider text-accent-muted uppercase block mb-1">Title</label>
-                <input 
-                  type="text" 
-                  value={recipientTitle} 
+                <input
+                  type="text"
+                  value={recipientTitle}
                   onChange={(e) => setRecipientTitle(e.target.value)}
                   className="w-full bg-black/40 border border-white/10 hover:border-white/20 focus:border-secondary transition-all rounded-sm px-3 py-2 text-xs text-white focus:outline-none"
                 />
               </div>
               <div>
                 <label className="text-[9px] tracking-wider text-accent-muted uppercase block mb-1">Company</label>
-                <input 
-                  type="text" 
-                  value={recipientCompany} 
+                <input
+                  type="text"
+                  value={recipientCompany}
                   onChange={(e) => setRecipientCompany(e.target.value)}
                   className="w-full bg-black/40 border border-white/10 hover:border-white/20 focus:border-secondary transition-all rounded-sm px-3 py-2 text-xs text-white focus:outline-none"
                 />
@@ -173,9 +168,9 @@ export default function LetterheadScreen() {
 
             <div>
               <label className="text-[9px] tracking-wider text-accent-muted uppercase block mb-1">Salutation</label>
-              <input 
-                type="text" 
-                value={salutation} 
+              <input
+                type="text"
+                value={salutation}
                 onChange={(e) => setSalutation(e.target.value)}
                 className="w-full bg-black/40 border border-white/10 hover:border-white/20 focus:border-secondary transition-all rounded-sm px-3 py-2 text-xs text-white focus:outline-none"
               />
@@ -188,7 +183,7 @@ export default function LetterheadScreen() {
           <div className="space-y-3.5">
             <div className="flex justify-between items-center">
               <span className="text-[10px] tracking-widest text-secondary font-semibold uppercase">Letter Content</span>
-              <button 
+              <button
                 onClick={addParagraph}
                 className="text-[9px] tracking-widest text-secondary uppercase hover:text-white transition-colors cursor-pointer"
               >
@@ -199,14 +194,14 @@ export default function LetterheadScreen() {
             <div className="space-y-3">
               {paragraphs.map((p, idx) => (
                 <div key={idx} className="relative group">
-                  <textarea 
+                  <textarea
                     value={p}
                     onChange={(e) => handleParagraphChange(idx, e.target.value)}
                     className="w-full bg-black/40 border border-white/10 hover:border-white/20 focus:border-secondary transition-all rounded-sm px-3 py-2 text-xs text-white focus:outline-none min-h-[70px] resize-y pr-6"
                     placeholder={`Paragraph ${idx + 1}...`}
                   />
                   {paragraphs.length > 1 && (
-                    <button 
+                    <button
                       onClick={() => removeParagraph(idx)}
                       className="absolute top-2 right-2 text-accent-muted hover:text-red-400 p-0.5 transition-colors cursor-pointer opacity-0 group-hover:opacity-100"
                       title="Remove paragraph"
@@ -224,22 +219,22 @@ export default function LetterheadScreen() {
           {/* Signer Details */}
           <div className="space-y-3.5">
             <span className="text-[10px] tracking-widest text-secondary font-semibold uppercase block">Signature Details</span>
-            
+
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="text-[9px] tracking-wider text-accent-muted uppercase block mb-1">Signer Name</label>
-                <input 
-                  type="text" 
-                  value={signerName} 
+                <input
+                  type="text"
+                  value={signerName}
                   onChange={(e) => setSignerName(e.target.value)}
                   className="w-full bg-black/40 border border-white/10 hover:border-white/20 focus:border-secondary transition-all rounded-sm px-3 py-2 text-xs text-white focus:outline-none"
                 />
               </div>
               <div>
                 <label className="text-[9px] tracking-wider text-accent-muted uppercase block mb-1">Title / Designation</label>
-                <input 
-                  type="text" 
-                  value={signerTitle} 
+                <input
+                  type="text"
+                  value={signerTitle}
                   onChange={(e) => setSignerTitle(e.target.value)}
                   className="w-full bg-black/40 border border-white/10 hover:border-white/20 focus:border-secondary transition-all rounded-sm px-3 py-2 text-xs text-white focus:outline-none"
                 />
@@ -248,7 +243,7 @@ export default function LetterheadScreen() {
           </div>
         </div>
 
-        <button 
+        <button
           onClick={handlePrint}
           className="mt-auto w-full py-3 bg-secondary hover:bg-white text-black font-bold text-xs tracking-widest uppercase transition-all duration-300 rounded-sm text-center flex items-center justify-center gap-2 cursor-pointer shadow-[0_4px_20px_rgba(197,160,89,0.15)]"
         >
@@ -258,29 +253,27 @@ export default function LetterheadScreen() {
 
       {/* RIGHT COLUMN: PREVIEW PANEL */}
       <div className="flex-1 bg-black/50 p-6 md:p-12 overflow-y-auto h-screen print:h-auto print:p-0 flex items-start justify-center min-w-0">
-        
+
         {/* Letter Sheet A4 container */}
-        <div 
-          className={`print-sheet w-full max-w-[800px] aspect-[1/1.414] shadow-[0_12px_40px_rgba(0,0,0,0.4)] px-12 md:px-16 py-14 flex flex-col justify-between font-serif relative transition-all duration-300 ${
-            isPrintMode 
-              ? 'bg-[#F9F8F5] text-black border border-black/5' 
+        <div
+          className={`print-sheet w-full max-w-[800px] aspect-[1/1.414] shadow-[0_12px_40px_rgba(0,0,0,0.4)] px-12 md:px-16 py-14 flex flex-col justify-between font-serif relative transition-all duration-300 ${isPrintMode
+              ? 'bg-[#F9F8F5] text-black border border-black/5'
               : 'bg-[#080808] text-white border border-white/5'
-          }`}
+            }`}
           style={{ minHeight: '297mm' }}
         >
-          
+
           {/* Top Logo Header */}
           <div className="flex flex-col gap-4">
             <div className="flex items-center gap-3">
-              <img 
-                src="/logo.jpg" 
-                alt="Viora Media Logo" 
+              <img
+                src="/logo.jpg"
+                alt="Viora Media Logo"
                 className="h-10 w-10 object-contain rounded-md border border-secondary/20 flex-shrink-0"
               />
               <div className="flex flex-col text-left">
-                <span className={`font-serif tracking-[0.25em] text-lg font-bold uppercase ${
-                  isPrintMode ? 'text-black' : 'text-white'
-                }`}>
+                <span className={`font-serif tracking-[0.25em] text-lg font-bold uppercase ${isPrintMode ? 'text-black' : 'text-white'
+                  }`}>
                   VIORA
                 </span>
                 <span className="text-[8px] tracking-[0.4em] text-secondary font-semibold uppercase mt-0.5 block">
@@ -288,7 +281,7 @@ export default function LetterheadScreen() {
                 </span>
               </div>
             </div>
-            
+
             {/* Divider Line with Clapboard in Center */}
             <div className="relative flex items-center justify-center py-1 w-full">
               <div className={`flex-grow h-[0.5px] ${isPrintMode ? 'bg-black/10' : 'bg-white/10'}`} />
@@ -301,17 +294,15 @@ export default function LetterheadScreen() {
           <div className="flex-grow my-12 text-left font-sans text-[13px] md:text-sm font-light leading-relaxed flex flex-col justify-between">
             <div className="space-y-6">
               {/* Date String */}
-              <p className={`font-semibold tracking-wide text-xs ${
-                isPrintMode ? 'text-black/80' : 'text-white/80'
-              }`}>
+              <p className={`font-semibold tracking-wide text-xs ${isPrintMode ? 'text-black/80' : 'text-white/80'
+                }`}>
                 {date}
               </p>
 
               {/* Recipient Details */}
               <div className="space-y-1">
-                <p className={`font-bold tracking-wide text-xs ${
-                  isPrintMode ? 'text-black/90' : 'text-white/90'
-                }`}>
+                <p className={`font-bold tracking-wide text-xs ${isPrintMode ? 'text-black/90' : 'text-white/90'
+                  }`}>
                   {recipientName}
                 </p>
                 <p className={`text-xs ${isPrintMode ? 'text-black/60' : 'text-white/60'}`}>
@@ -330,11 +321,10 @@ export default function LetterheadScreen() {
               {/* Paragraphs */}
               <div className="space-y-4">
                 {paragraphs.map((p, idx) => (
-                  <p 
-                    key={idx} 
-                    className={`leading-relaxed text-justify indent-8 tracking-wide ${
-                      isPrintMode ? 'text-black/70' : 'text-white/70'
-                    }`}
+                  <p
+                    key={idx}
+                    className={`leading-relaxed text-justify indent-8 tracking-wide ${isPrintMode ? 'text-black/70' : 'text-white/70'
+                      }`}
                   >
                     {p}
                   </p>
@@ -345,11 +335,10 @@ export default function LetterheadScreen() {
             {/* Sign-off & Signature Block */}
             <div className="space-y-12 mt-12">
               <p className={isPrintMode ? 'text-black/70' : 'text-white/70'}>Sincerely,</p>
-              
+
               <div className="space-y-1">
-                <p className={`font-bold tracking-wide text-xs ${
-                  isPrintMode ? 'text-black/90' : 'text-white/90'
-                }`}>
+                <p className={`font-bold tracking-wide text-xs ${isPrintMode ? 'text-black/90' : 'text-white/90'
+                  }`}>
                   {signerName}
                 </p>
                 <p className={`text-[11px] ${isPrintMode ? 'text-black/50' : 'text-white/50'}`}>
@@ -364,9 +353,8 @@ export default function LetterheadScreen() {
             <p className="text-[10px] font-bold text-secondary tracking-widest uppercase">
               Viora Media
             </p>
-            <p className={`text-[8px] tracking-[0.2em] font-light mt-1.5 uppercase ${
-              isPrintMode ? 'text-black/45' : 'text-white/45'
-            }`}>
+            <p className={`text-[8px] tracking-[0.2em] font-light mt-1.5 uppercase ${isPrintMode ? 'text-black/45' : 'text-white/45'
+              }`}>
               www.vioramedia.in &nbsp;|&nbsp; contact@vioramedia.in &nbsp;|&nbsp; +91 9994945001
             </p>
           </div>
