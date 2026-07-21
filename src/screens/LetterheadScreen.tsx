@@ -435,7 +435,7 @@ export default function LetterheadScreen() {
 
               {/* Sign-off & Signature Block only on the last page (Anchored to bottom of the A4 sheet) */}
               {isLastPage && (
-                <div className="absolute bottom-[35mm] left-[20mm] right-[20mm] no-break select-none">
+                <div className="absolute bottom-[35mm] left-[20mm] right-[20mm] no-break select-none font-sans">
                   <p className={isPrintMode ? 'text-black/70' : 'text-white/70 print:text-black/70'}>Sincerely,</p>
 
                   {/* Signature Image */}
