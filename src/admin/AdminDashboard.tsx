@@ -2,6 +2,18 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../supabaseClient';
 import AdminLogin from './AdminLogin';
 import AdminSidebar from './AdminSidebar';
+import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+
+const r2Client = new S3Client({
+  region: 'auto',
+  endpoint: `https://${import.meta.env.VITE_R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+  credentials: {
+    accessKeyId: import.meta.env.VITE_R2_ACCESS_KEY_ID || '',
+    secretAccessKey: import.meta.env.VITE_R2_SECRET_ACCESS_KEY || '',
+  },
+  requestChecksumCalculation: 'WHEN_REQUIRED',
+});
 
 interface ContactMessage {
   id: string;
@@ -19,6 +31,33 @@ interface CfoTransaction {
   title: string;
   type: 'income' | 'expense';
   amount: number;
+}
+
+interface FestivalSubmission {
+  id: string;
+  name: string;
+  phone: string;
+  email: string;
+  city: string;
+  film_title: string;
+  genre: string;
+  runtime: string;
+  logline: string;
+  director: string;
+  writer: string | null;
+  cinematographer: string | null;
+  editor: string | null;
+  music_composer: string | null;
+  main_actor: string | null;
+  main_actress: string | null;
+  supporting_actor: string | null;
+  supporting_actress: string | null;
+  movie_url: string;
+  poster_url: string | null;
+  payment_id: string;
+  payment_status: string;
+  amount_paid: number;
+  created_at: string;
 }
 
 export default function AdminDashboard() {
@@ -46,6 +85,60 @@ export default function AdminDashboard() {
   const [newDate, setNewDate] = useState(new Date().toISOString().split('T')[0]);
   const [cfoSubmitting, setCfoSubmitting] = useState(false);
   const [cfoSubmitError, setCfoSubmitError] = useState<string | null>(null);
+
+  // Submissions States
+  const [submissions, setSubmissions] = useState<FestivalSubmission[]>([]);
+  const [submissionsLoading, setSubmissionsLoading] = useState(true);
+  const [submissionsError, setSubmissionsError] = useState<string | null>(null);
+  const [selectedSubmissionId, setSelectedSubmissionId] = useState<string | null>(null);
+  const [expandedMobileSubmissionId, setExpandedMobileSubmissionId] = useState<string | null>(null);
+
+  // Presigned URL States for Secure Private R2 Media
+  const [moviePresignedUrl, setMoviePresignedUrl] = useState<string | null>(null);
+  const [posterPresignedUrl, setPosterPresignedUrl] = useState<string | null>(null);
+  const [presignedLoading, setPresignedLoading] = useState(false);
+
+  useEffect(() => {
+    const generateUrls = async () => {
+      const selected = submissions.find(s => s.id === selectedSubmissionId);
+      if (!selected) {
+        setMoviePresignedUrl(null);
+        setPosterPresignedUrl(null);
+        return;
+      }
+
+      setPresignedLoading(true);
+      try {
+        // Generate movie presigned URL (1 hour expiry)
+        const movieCommand = new GetObjectCommand({
+          Bucket: 'viorasf',
+          Key: selected.movie_url,
+        });
+        const movieUrl = await getSignedUrl(r2Client, movieCommand, { expiresIn: 3600 });
+        setMoviePresignedUrl(movieUrl);
+
+        // Generate poster presigned URL (1 hour expiry) if it exists
+        if (selected.poster_url) {
+          const posterCommand = new GetObjectCommand({
+            Bucket: 'viorasf',
+            Key: selected.poster_url,
+          });
+          const posterUrl = await getSignedUrl(r2Client, posterCommand, { expiresIn: 3600 });
+          setPosterPresignedUrl(posterUrl);
+        } else {
+          setPosterPresignedUrl(null);
+        }
+      } catch (err) {
+        console.error('Error generating presigned URLs:', err);
+        setMoviePresignedUrl(null);
+        setPosterPresignedUrl(null);
+      } finally {
+        setPresignedLoading(false);
+      }
+    };
+
+    generateUrls();
+  }, [selectedSubmissionId, submissions]);
 
   useEffect(() => {
     // 1. Fetch current session
@@ -148,8 +241,33 @@ export default function AdminDashboard() {
     if (session) {
       fetchMessages();
       fetchCfoTransactions();
+      fetchSubmissions();
     }
   }, [session]);
+
+  const fetchSubmissions = async () => {
+    setSubmissionsLoading(true);
+    setSubmissionsError(null);
+    try {
+      const { data, error: fetchError } = await supabase
+        .from('festival_submissions')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (fetchError) throw fetchError;
+      setSubmissions(data || []);
+      if (data && data.length > 0) {
+        setSelectedSubmissionId(data[0].id);
+      } else {
+        setSelectedSubmissionId(null);
+      }
+    } catch (err: any) {
+      console.error('Error fetching submissions:', err);
+      setSubmissionsError(err.message || 'Failed to fetch festival submissions.');
+    } finally {
+      setSubmissionsLoading(false);
+    }
+  };
 
   const handleUpdateStatus = async (id: string, currentStatus: string) => {
     setUpdatingId(id);
@@ -199,10 +317,38 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleDeleteSubmission = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this submission?')) return;
+    setUpdatingId(id);
+    try {
+      const { error: deleteError } = await supabase
+        .from('festival_submissions')
+        .delete()
+        .eq('id', id);
+
+      if (deleteError) throw deleteError;
+
+      // Remove from state and handle selection shifts
+      setSubmissions(prev => {
+        const remaining = prev.filter(sub => sub.id !== id);
+        if (selectedSubmissionId === id) {
+          setSelectedSubmissionId(remaining.length > 0 ? remaining[0].id : null);
+        }
+        return remaining;
+      });
+    } catch (err: any) {
+      alert('Error deleting submission: ' + err.message);
+    } finally {
+      setUpdatingId(null);
+    }
+  };
+
   // Metrics calculations
   const totalInquiries = messages.length;
   const pendingInquiries = messages.filter(m => m.status === 'pending').length;
-  const reviewedInquiries = messages.filter(m => m.status === 'reviewed').length;
+
+  const totalSubmissions = submissions.length;
+  const totalRevenue = submissions.reduce((sum, s) => sum + Number(s.amount_paid || 999.00), 0);
 
   if (authLoading) {
     return (
@@ -233,10 +379,10 @@ export default function AdminDashboard() {
             </div>
 
             {/* Metrics Row */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               <div className="border border-white/5 bg-primary-light p-6 rounded-sm flex items-center justify-between border-gold-glow">
                 <div>
-                  <span className="text-[10px] tracking-widest text-accent-muted uppercase font-semibold">Total Submissions</span>
+                  <span className="text-[10px] tracking-widest text-accent-muted uppercase font-semibold">Total Inquiries</span>
                   <h2 className="text-3xl font-serif text-white mt-1">{totalInquiries}</h2>
                 </div>
                 <div className="h-10 w-10 bg-secondary/5 rounded-full border border-secondary/20 flex items-center justify-center">
@@ -246,7 +392,7 @@ export default function AdminDashboard() {
 
               <div className="border border-white/5 bg-primary-light p-6 rounded-sm flex items-center justify-between border-gold-glow">
                 <div>
-                  <span className="text-[10px] tracking-widest text-accent-muted uppercase font-semibold">Pending Action</span>
+                  <span className="text-[10px] tracking-widest text-accent-muted uppercase font-semibold">Pending Inquiries</span>
                   <h2 className="text-3xl font-serif text-secondary mt-1">{pendingInquiries}</h2>
                 </div>
                 <div className="h-10 w-10 bg-secondary/5 rounded-full border border-secondary/20 flex items-center justify-center">
@@ -256,11 +402,21 @@ export default function AdminDashboard() {
 
               <div className="border border-white/5 bg-primary-light p-6 rounded-sm flex items-center justify-between border-gold-glow">
                 <div>
-                  <span className="text-[10px] tracking-widest text-accent-muted uppercase font-semibold">Reviewed / Resolved</span>
-                  <h2 className="text-3xl font-serif text-white mt-1">{reviewedInquiries}</h2>
+                  <span className="text-[10px] tracking-widest text-accent-muted uppercase font-semibold">Film Festival Entries</span>
+                  <h2 className="text-3xl font-serif text-white mt-1">{totalSubmissions}</h2>
                 </div>
                 <div className="h-10 w-10 bg-secondary/5 rounded-full border border-secondary/20 flex items-center justify-center">
-                  <i className="fa-solid fa-circle-check text-secondary text-sm"></i>
+                  <i className="fa-solid fa-clapperboard text-secondary text-sm"></i>
+                </div>
+              </div>
+
+              <div className="border border-white/5 bg-primary-light p-6 rounded-sm flex items-center justify-between border-gold-glow">
+                <div>
+                  <span className="text-[10px] tracking-widest text-accent-muted uppercase font-semibold">Submission Revenue</span>
+                  <h2 className="text-3xl font-serif text-white mt-1">₹{totalRevenue.toLocaleString()}</h2>
+                </div>
+                <div className="h-10 w-10 bg-secondary/5 rounded-full border border-secondary/20 flex items-center justify-center">
+                  <i className="fa-solid fa-rupee-sign text-secondary text-sm"></i>
                 </div>
               </div>
             </div>
@@ -582,21 +738,387 @@ export default function AdminDashboard() {
         );
 
       case 'submissions':
+        const selectedSubmission = submissions.find(s => s.id === selectedSubmissionId);
+
         return (
-          <div className="space-y-6 animate-fade-in text-left">
-            <div>
-              <span className="text-[10px] tracking-[0.25em] text-secondary font-semibold uppercase">Showcase</span>
-              <h1 className="font-serif text-3xl text-white tracking-wide mt-1">Submissions</h1>
-            </div>
-            <div className="border border-white/5 bg-[#0A0A0A] p-12 rounded-sm text-center max-w-md mx-auto space-y-4 mt-12 border-gold-glow">
-              <div className="h-14 w-14 rounded-full border border-secondary/20 bg-secondary/5 flex items-center justify-center mx-auto text-secondary text-lg">
-                <i className="fa-solid fa-clapperboard"></i>
+          <div className="space-y-6 animate-fade-in text-left flex flex-col h-full">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/5 pb-6">
+              <div>
+                <span className="text-[10px] tracking-[0.25em] text-secondary font-semibold uppercase">Showcase</span>
+                <h1 className="font-serif text-3xl text-white tracking-wide mt-1">Festival Submissions</h1>
               </div>
-              <h3 className="font-serif text-lg text-white">Submissions Manager Coming Soon</h3>
-              <p className="text-xs text-accent-muted font-light leading-relaxed">
-                The submission tracking platform is under construction. Once enabled, all submissions entered via short film festival forms will show up in this queue for grading.
-              </p>
+              <button 
+                onClick={fetchSubmissions}
+                className="px-4 py-2 bg-primary-light border border-white/10 hover:border-secondary text-xs tracking-widest uppercase transition-all duration-300 rounded-sm text-center flex items-center gap-2 cursor-pointer self-start sm:self-auto"
+              >
+                <i className="fa-solid fa-arrows-rotate"></i> Refresh
+              </button>
             </div>
+
+            {submissionsLoading ? (
+              <div className="py-20 flex flex-col items-center justify-center gap-4">
+                <div className="h-8 w-8 rounded-full border-2 border-secondary/20 border-t-secondary animate-spin" />
+                <span className="text-xs text-accent-muted tracking-widest uppercase font-light">Loading Database Records...</span>
+              </div>
+            ) : submissionsError ? (
+              <div className="py-12 text-center max-w-md mx-auto space-y-4">
+                <div className="h-12 w-12 rounded-full border border-red-500/20 bg-red-950/20 flex items-center justify-center mx-auto text-red-500">
+                  <i className="fa-solid fa-circle-exclamation text-lg"></i>
+                </div>
+                <p className="text-red-400 text-sm font-light">{submissionsError}</p>
+                <button 
+                  onClick={fetchSubmissions}
+                  className="px-4 py-2 border border-red-500/20 text-red-400 hover:bg-red-950/20 text-xs tracking-widest uppercase transition-all duration-300 rounded-sm"
+                >
+                  Retry Request
+                </button>
+              </div>
+            ) : submissions.length === 0 ? (
+              <div className="py-20 text-center text-accent-muted space-y-3">
+                <div className="h-12 w-12 rounded-full border border-white/10 flex items-center justify-center mx-auto text-white/40">
+                  <i className="fa-solid fa-folder-open text-lg"></i>
+                </div>
+                <p className="text-sm font-light">No submissions found in the database.</p>
+              </div>
+            ) : (
+              <div className="flex-grow flex flex-col md:flex-row gap-6 min-h-0">
+                
+                {/* Desktop View: Left column submissions list */}
+                <div className="hidden md:flex flex-col w-1/3 min-w-[280px] max-w-[360px] border border-white/5 bg-primary-light rounded-sm overflow-hidden h-[calc(100vh-14rem)]">
+                  <div className="p-4 border-b border-white/5 bg-black/20 flex items-center justify-between">
+                    <span className="text-[10px] tracking-widest uppercase font-bold text-secondary">
+                      Entries ({submissions.length})
+                    </span>
+                  </div>
+                  
+                  <div className="flex-1 overflow-y-auto divide-y divide-white/5">
+                    {submissions.map((sub) => {
+                      const isSelected = sub.id === selectedSubmissionId;
+                      return (
+                        <button
+                          key={sub.id}
+                          onClick={() => setSelectedSubmissionId(sub.id)}
+                          className={`w-full text-left p-4 transition-all duration-200 cursor-pointer block hover:bg-white/[0.02] ${
+                            isSelected 
+                              ? 'bg-secondary/5 border-l-2 border-secondary shadow-[inset_4px_0_12px_rgba(197,160,89,0.05)]' 
+                              : ''
+                          }`}
+                        >
+                          <div className="flex justify-between items-start gap-2 mb-1.5">
+                            <span className={`text-xs font-semibold truncate ${isSelected ? 'text-white' : 'text-white/80'}`}>
+                              {sub.film_title}
+                            </span>
+                            <span className="text-[9px] text-accent-muted/80 whitespace-nowrap">
+                              {new Date(sub.created_at).toLocaleDateString(undefined, {
+                                month: 'short',
+                                day: 'numeric'
+                              })}
+                            </span>
+                          </div>
+                          
+                          <p className="text-[11px] text-accent-muted truncate leading-relaxed mb-2">
+                            Dir: {sub.director} | {sub.genre}
+                          </p>
+
+                          <div className="flex items-center justify-between">
+                            <span className="text-[9px] text-secondary font-light truncate max-w-[120px]">
+                              {sub.name}
+                            </span>
+                            <span className="inline-block px-1.5 py-0.5 text-[8px] tracking-widest uppercase font-bold rounded-sm border bg-emerald-950/20 text-emerald-400 border-emerald-500/20">
+                              Paid
+                            </span>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Desktop View: Right column reading pane */}
+                <div className="hidden md:flex flex-col flex-grow border border-white/5 bg-primary-light rounded-sm overflow-hidden h-[calc(100vh-14rem)]">
+                  {selectedSubmission ? (
+                    <div className="flex flex-col h-full">
+                      {/* Reader header */}
+                      <div className="p-6 border-b border-white/5 bg-black/20 flex justify-between items-start">
+                        <div>
+                          <h2 className="text-xl font-serif text-white tracking-wide mb-1">
+                            {selectedSubmission.film_title}
+                          </h2>
+                          <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-4 text-xs font-light">
+                            <div>
+                              <span className="text-accent-muted">Submitter: </span>
+                              <span className="text-secondary">{selectedSubmission.name}</span>
+                            </div>
+                            <span className="hidden sm:inline text-white/10">|</span>
+                            <div className="text-accent-muted">
+                              <span>Submitted: </span>
+                              <span>
+                                {new Date(selectedSubmission.created_at).toLocaleString(undefined, {
+                                  month: 'short',
+                                  day: 'numeric',
+                                  year: 'numeric',
+                                  hour: '2-digit',
+                                  minute: '2-digit'
+                                })}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-3">
+                          <span className="inline-block px-2.5 py-1 text-[9px] tracking-widest uppercase font-bold rounded-sm border bg-emerald-950/20 text-emerald-400 border-emerald-500/20">
+                            Payment: {selectedSubmission.payment_status.toUpperCase()}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Reader body */}
+                      <div className="flex-1 p-6 space-y-6 bg-black/10 overflow-y-auto">
+                        {/* Submitter & Film Details Grid */}
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                          {/* Submitter Info */}
+                          <div className="border border-white/5 bg-black/40 p-5 rounded-sm space-y-3">
+                            <span className="text-[10px] tracking-widest text-secondary font-semibold uppercase block border-b border-white/5 pb-2">
+                              Submitter Details
+                            </span>
+                            <div className="text-xs space-y-2 font-light text-accent-muted">
+                              <p><strong className="text-white">Name:</strong> {selectedSubmission.name}</p>
+                              <p><strong className="text-white">Email:</strong> <a href={`mailto:${selectedSubmission.email}`} className="text-secondary hover:text-white transition-colors duration-200">{selectedSubmission.email}</a></p>
+                              <p><strong className="text-white">Phone:</strong> <a href={`tel:${selectedSubmission.phone}`} className="text-secondary hover:text-white transition-colors duration-200">{selectedSubmission.phone}</a></p>
+                              <p><strong className="text-white">City:</strong> {selectedSubmission.city}</p>
+                            </div>
+                          </div>
+
+                          {/* Film Details */}
+                          <div className="border border-white/5 bg-black/40 p-5 rounded-sm space-y-3">
+                            <span className="text-[10px] tracking-widest text-secondary font-semibold uppercase block border-b border-white/5 pb-2">
+                              Film Metadata
+                            </span>
+                            <div className="text-xs space-y-2 font-light text-accent-muted">
+                              <p><strong className="text-white">Genre:</strong> {selectedSubmission.genre}</p>
+                              <p><strong className="text-white">Runtime:</strong> {selectedSubmission.runtime}</p>
+                              <p><strong className="text-white">Logline:</strong></p>
+                              <p className="italic bg-black/20 p-2.5 rounded-sm text-[11px] leading-relaxed border border-white/5">{selectedSubmission.logline}</p>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Creative Credits */}
+                        <div className="border border-white/5 bg-black/40 p-5 rounded-sm space-y-3">
+                          <span className="text-[10px] tracking-widest text-secondary font-semibold uppercase block border-b border-white/5 pb-2">
+                            Creative Credits
+                          </span>
+                          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-xs font-light text-accent-muted">
+                            <p><strong className="text-white">Director:</strong> {selectedSubmission.director}</p>
+                            <p><strong className="text-white">Writer:</strong> {selectedSubmission.writer || 'N/A'}</p>
+                            <p><strong className="text-white">Cinematographer:</strong> {selectedSubmission.cinematographer || 'N/A'}</p>
+                            <p><strong className="text-white">Editor:</strong> {selectedSubmission.editor || 'N/A'}</p>
+                            <p><strong className="text-white">Music Composer:</strong> {selectedSubmission.music_composer || 'N/A'}</p>
+                            <p><strong className="text-white">Lead Actor:</strong> {selectedSubmission.main_actor || 'N/A'}</p>
+                            <p><strong className="text-white">Lead Actress:</strong> {selectedSubmission.main_actress || 'N/A'}</p>
+                            <p><strong className="text-white">Supporting Actor:</strong> {selectedSubmission.supporting_actor || 'N/A'}</p>
+                            <p><strong className="text-white">Supporting Actress:</strong> {selectedSubmission.supporting_actress || 'N/A'}</p>
+                          </div>
+                        </div>
+
+                        {/* Media Links & Payment */}
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                          {/* Media Assets */}
+                          <div className="border border-white/5 bg-black/40 p-5 rounded-sm space-y-4">
+                            <span className="text-[10px] tracking-widest text-secondary font-semibold uppercase block border-b border-white/5 pb-2">
+                              Cinematic Media Assets
+                            </span>
+                            <div className="flex flex-col gap-3">
+                              {presignedLoading ? (
+                                <div className="px-4 py-2.5 border border-white/5 text-secondary text-xs rounded-sm text-center flex items-center justify-center gap-2">
+                                  <div className="h-3.5 w-3.5 rounded-full border-2 border-secondary/20 border-t-secondary animate-spin"></div>
+                                  Generating secure watch link...
+                                </div>
+                              ) : moviePresignedUrl ? (
+                                <a 
+                                  href={moviePresignedUrl} 
+                                  target="_blank" 
+                                  rel="noopener noreferrer" 
+                                  className="px-4 py-2.5 bg-secondary hover:bg-white text-black font-semibold text-xs tracking-widest uppercase transition-all duration-300 rounded-sm text-center flex items-center justify-center gap-2 cursor-pointer"
+                                >
+                                  <i className="fa-solid fa-play"></i> Watch Movie File
+                                </a>
+                              ) : (
+                                <div className="px-4 py-2.5 border border-white/5 text-red-400 text-xs rounded-sm text-center">
+                                  Failed to sign media link
+                                </div>
+                              )}
+
+                              {selectedSubmission.poster_url ? (
+                                presignedLoading ? (
+                                  <div className="px-4 py-2.5 border border-white/5 text-accent-muted text-xs rounded-sm text-center">
+                                    Generating poster link...
+                                  </div>
+                                ) : posterPresignedUrl ? (
+                                  <a 
+                                    href={posterPresignedUrl} 
+                                    target="_blank" 
+                                    rel="noopener noreferrer" 
+                                    className="px-4 py-2.5 bg-transparent border border-white/20 text-white font-semibold text-xs tracking-widest uppercase hover:border-secondary hover:text-secondary transition-all duration-300 rounded-sm text-center flex items-center justify-center gap-2 cursor-pointer"
+                                  >
+                                    <i className="fa-solid fa-image"></i> View Poster Image
+                                  </a>
+                                ) : (
+                                  <div className="px-4 py-2.5 border border-white/5 text-red-400 text-xs rounded-sm text-center">
+                                    Failed to sign poster link
+                                  </div>
+                                )
+                              ) : (
+                                <div className="px-4 py-2.5 border border-white/5 text-white/30 text-xs rounded-sm text-center">
+                                  No Poster Uploaded
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Payment Records */}
+                          <div className="border border-white/5 bg-black/40 p-5 rounded-sm space-y-3">
+                            <span className="text-[10px] tracking-widest text-secondary font-semibold uppercase block border-b border-white/5 pb-2">
+                              Payment Transaction
+                            </span>
+                            <div className="text-xs space-y-2 font-light text-accent-muted">
+                              <p><strong className="text-white">Razorpay ID:</strong> <span className="font-mono text-secondary">{selectedSubmission.payment_id}</span></p>
+                              <p><strong className="text-white">Amount Paid:</strong> ₹{Number(selectedSubmission.amount_paid).toFixed(2)}</p>
+                              <p><strong className="text-white">Status:</strong> <span className="text-emerald-400 font-semibold">{selectedSubmission.payment_status.toUpperCase()}</span></p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Reader actions */}
+                      <div className="p-4 border-t border-white/5 bg-black/25 flex justify-end gap-3">
+                        <button
+                          disabled={updatingId === selectedSubmission.id}
+                          onClick={() => handleDeleteSubmission(selectedSubmission.id)}
+                          className="px-4 py-2 border border-red-500/20 text-red-400 hover:bg-red-950/30 rounded-sm text-xs tracking-widest uppercase font-semibold transition-all duration-300 cursor-pointer disabled:opacity-50"
+                        >
+                          Delete Entry
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex-grow flex flex-col items-center justify-center text-accent-muted p-10">
+                      <div className="h-12 w-12 rounded-full border border-white/10 flex items-center justify-center mb-4 text-white/30">
+                        <i className="fa-solid fa-video text-lg"></i>
+                      </div>
+                      <p className="text-sm font-light">Select a submission from the list to view its information.</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Mobile View: Accordion submission cards */}
+                <div className="block md:hidden space-y-4 w-full">
+                  {submissions.map((sub) => {
+                    const isExpanded = sub.id === expandedMobileSubmissionId;
+                    return (
+                      <div 
+                        key={sub.id} 
+                        className={`border rounded-sm bg-primary-light transition-all duration-300 ${
+                          isExpanded ? 'border-secondary/30' : 'border-white/5'
+                        }`}
+                      >
+                        {/* Summary Header */}
+                        <div 
+                          onClick={() => {
+                            setSelectedSubmissionId(sub.id);
+                            setExpandedMobileSubmissionId(isExpanded ? null : sub.id);
+                          }}
+                          className="p-4 flex items-center justify-between cursor-pointer"
+                        >
+                          <div className="space-y-1 text-left">
+                            <h4 className="text-xs font-semibold text-white truncate max-w-[200px]">{sub.film_title}</h4>
+                            <p className="text-[10px] text-accent-muted">Dir: {sub.director} | {sub.genre}</p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-[8px] tracking-widest font-bold uppercase text-emerald-400 bg-emerald-950/20 border border-emerald-500/20 px-1 py-0.5 rounded-sm">
+                              Paid
+                            </span>
+                            <i className={`fa-solid fa-chevron-down text-accent-muted text-xs transition-transform duration-300 ${isExpanded ? 'rotate-180 text-secondary' : ''}`}></i>
+                          </div>
+                        </div>
+
+                        {/* Collapsible Details */}
+                        {isExpanded && (
+                          <div className="p-4 border-t border-white/5 bg-black/20 space-y-4 text-left">
+                            <div className="text-[11px] space-y-2 text-accent-muted">
+                              <p><strong className="text-white">Submitter:</strong> {sub.name}</p>
+                              <p><strong className="text-white">Email:</strong> {sub.email}</p>
+                              <p><strong className="text-white">Phone:</strong> {sub.phone}</p>
+                              <p><strong className="text-white">City:</strong> {sub.city}</p>
+                              <p><strong className="text-white">Runtime:</strong> {sub.runtime}</p>
+                              <p><strong className="text-white">Logline:</strong> {sub.logline}</p>
+                              <p className="border-t border-white/5 pt-2"><strong className="text-white">Creative Credits:</strong></p>
+                              <p className="pl-2">Writer: {sub.writer || 'N/A'}</p>
+                              <p className="pl-2">Cinematographer: {sub.cinematographer || 'N/A'}</p>
+                              <p className="pl-2">Editor: {sub.editor || 'N/A'}</p>
+                              <p className="pl-2">Composer: {sub.music_composer || 'N/A'}</p>
+                              <p className="pl-2">Lead Cast: {sub.main_actor || 'N/A'} & {sub.main_actress || 'N/A'}</p>
+                              <p className="border-t border-white/5 pt-2"><strong className="text-white">Razorpay Payment ID:</strong> {sub.payment_id}</p>
+                            </div>
+
+                            <div className="flex flex-col gap-2 pt-2 border-t border-white/5">
+                              {presignedLoading ? (
+                                <div className="w-full py-2 border border-white/5 text-secondary text-[10px] rounded-sm text-center flex items-center justify-center gap-2">
+                                  <div className="h-3 w-3 rounded-full border border-secondary/20 border-t-secondary animate-spin"></div>
+                                  Generating secure watch link...
+                                </div>
+                              ) : moviePresignedUrl ? (
+                                <a 
+                                  href={moviePresignedUrl} 
+                                  target="_blank" 
+                                  rel="noopener noreferrer" 
+                                  className="w-full py-2 bg-secondary text-black font-semibold text-[10px] tracking-widest uppercase hover:bg-white transition-all rounded-sm text-center flex items-center justify-center gap-2 cursor-pointer"
+                                >
+                                  <i className="fa-solid fa-play"></i> Watch Movie
+                                </a>
+                              ) : (
+                                <div className="w-full py-2 border border-white/5 text-red-400 text-[10px] rounded-sm text-center">
+                                  Failed to sign media link
+                                </div>
+                              )}
+
+                              {sub.poster_url && (
+                                presignedLoading ? (
+                                  <div className="w-full py-2 border border-white/5 text-accent-muted text-[10px] rounded-sm text-center">
+                                    Generating poster link...
+                                  </div>
+                                ) : posterPresignedUrl ? (
+                                  <a 
+                                    href={posterPresignedUrl} 
+                                    target="_blank" 
+                                    rel="noopener noreferrer" 
+                                    className="w-full py-2 border border-white/20 text-white font-semibold text-[10px] tracking-widest uppercase hover:border-secondary transition-all rounded-sm text-center flex items-center justify-center gap-2 cursor-pointer"
+                                  >
+                                    <i className="fa-solid fa-image"></i> View Poster
+                                  </a>
+                                ) : (
+                                  <div className="w-full py-2 border border-white/5 text-red-400 text-[10px] rounded-sm text-center">
+                                    Failed to sign poster link
+                                  </div>
+                                )
+                              )}
+
+                              <button
+                                disabled={updatingId === sub.id}
+                                onClick={() => handleDeleteSubmission(sub.id)}
+                                className="w-full py-2 border border-red-500/20 text-red-400 hover:bg-red-950/30 rounded-sm text-[10px] tracking-widest uppercase font-semibold transition-all disabled:opacity-50 cursor-pointer"
+                              >
+                                Delete Entry
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
         );
 

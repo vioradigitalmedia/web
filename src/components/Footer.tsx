@@ -158,7 +158,7 @@ export default function Footer() {
           </p>
           <div className="flex flex-wrap justify-center gap-6">
             <Link to="/privacy-policy" className="hover:text-secondary transition-colors duration-200">Privacy Policy</Link>
-            <a href="#terms" className="hover:text-secondary transition-colors duration-200">Terms & Conditions</a>
+            <Link to="/terms-conditions" className="hover:text-secondary transition-colors duration-200">Terms & Conditions</Link>
             <a href="#cookies" className="hover:text-secondary transition-colors duration-200">Cookie Policy</a>
           </div>
         </div>

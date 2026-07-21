@@ -5,6 +5,7 @@ import HomeScreen from './screens/HomeScreen';
 import AboutScreen from './screens/AboutScreen';
 import ContactScreen from './screens/ContactScreen';
 import PrivacyPolicyScreen from './screens/PrivacyPolicyScreen';
+import TermsConditionsScreen from './screens/TermsConditionsScreen';
 import FestivalsScreen from './screens/FestivalsScreen';
 import VioraSFSScreen from './screens/VioraSFSScreen';
 import NotFoundScreen from './screens/NotFoundScreen';
@@ -47,6 +48,7 @@ function App() {
             <Route path="/festivals" element={<FestivalsScreen />} />
             <Route path="/viorasfs" element={<VioraSFSScreen />} />
             <Route path="/privacy-policy" element={<PrivacyPolicyScreen />} />
+            <Route path="/terms-conditions" element={<TermsConditionsScreen />} />
             <Route path="*" element={<NotFoundScreen />} />
           </Routes>
         </main>

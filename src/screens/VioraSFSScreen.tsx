@@ -1,6 +1,17 @@
 import { useState } from 'react';
 import { useSeo } from '../hooks/useSeo';
 import { supabase } from '../supabaseClient';
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+
+const r2Client = new S3Client({
+  region: 'auto',
+  endpoint: `https://${import.meta.env.VITE_R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+  credentials: {
+    accessKeyId: import.meta.env.VITE_R2_ACCESS_KEY_ID || '',
+    secretAccessKey: import.meta.env.VITE_R2_SECRET_ACCESS_KEY || '',
+  },
+  requestChecksumCalculation: 'WHEN_REQUIRED',
+});
 
 interface RazorpayOptions {
   key: string;
@@ -279,54 +290,79 @@ export default function VioraSFSScreen() {
     }, 150);
 
     try {
-      const messageBody = `
-[FESTIVAL SUBMISSION DETAILS]
+      if (!selectedFile) {
+        throw new Error('No movie file selected.');
+      }
 
---- SUBMITTER & CONTACT INFO ---
-Name: ${name}
-Email: ${email}
-Phone: ${phone}
-City: ${city}
+      // 1. Upload Movie File directly to Cloudflare R2
+      const movieFileName = `movies/${Date.now()}_${selectedFile.name}`;
+      const moviePutCommand = new PutObjectCommand({
+        Bucket: 'viorasf',
+        Key: movieFileName,
+        Body: selectedFile,
+        ContentType: selectedFile.type,
+      });
 
---- FILM DETAILS ---
-Film Title: ${filmTitle}
-Genre: ${genre}
-Runtime: ${runtime}
-Logline: ${logline}
+      try {
+        await r2Client.send(moviePutCommand);
+      } catch (uploadErr: any) {
+        throw new Error(`Movie upload to R2 failed: ${uploadErr.message}`);
+      }
 
---- CREATIVE CREDITS ---
-Director: ${director}
-Writer: ${writer || 'N/A'}
-Cinematographer: ${cinematographer || 'N/A'}
-Editor: ${editor || 'N/A'}
-Music Composer: ${music || 'N/A'}
-Main Actor: ${mainActor || 'N/A'}
-Main Actress: ${mainActress || 'N/A'}
-Supporting Actor: ${supportingActor || 'N/A'}
-Supporting Actress: ${supportingActress || 'N/A'}
+      const movieUrl = movieFileName; // Save S3/R2 storage key path directly
 
---- SUBMISSION FILES & CONSENTS ---
-File Uploaded: ${selectedFile?.name} (${((selectedFile?.size || 0) / (1024 * 1024)).toFixed(2)} MB)
-Poster Uploaded: ${posterFile ? `${posterFile.name} (${((posterFile.size || 0) / (1024 * 1024)).toFixed(2)} MB)` : 'None'}
-Agreed to Festival Rules: ${agreeRules ? 'Yes' : 'No'}
-Allowed Viora to use Poster & Cuts: ${allowMediaUse ? 'Yes' : 'No'}
-Payment Status: Completed (₹999.00 via Razorpay)
-Razorpay Payment ID: ${paymentId}
-`;
+      // 2. Upload Poster File directly to Cloudflare R2 if available
+      let posterUrl = null;
+      if (posterFile) {
+        const posterFileName = `posters/${Date.now()}_${posterFile.name}`;
+        const posterPutCommand = new PutObjectCommand({
+          Bucket: 'viorasf',
+          Key: posterFileName,
+          Body: posterFile,
+          ContentType: posterFile.type,
+        });
 
+        try {
+          await r2Client.send(posterPutCommand);
+          posterUrl = posterFileName; // Save S3/R2 storage key path directly
+        } catch (uploadErr: any) {
+          throw new Error(`Poster upload to R2 failed: ${uploadErr.message}`);
+        }
+      }
+
+      // 3. Insert details into the festival_submissions table
       const { error: insertError } = await supabase
-        .from('contact_messages')
+        .from('festival_submissions')
         .insert([
           {
             name,
+            phone,
             email,
-            message: messageBody,
-            status: 'pending',
-            created_at: new Date().toISOString()
+            city,
+            film_title: filmTitle,
+            genre,
+            runtime,
+            logline,
+            director,
+            writer: writer || null,
+            cinematographer: cinematographer || null,
+            editor: editor || null,
+            music_composer: music || null,
+            main_actor: mainActor || null,
+            main_actress: mainActress || null,
+            supporting_actor: supportingActor || null,
+            supporting_actress: supportingActress || null,
+            movie_url: movieUrl,
+            poster_url: posterUrl,
+            payment_id: paymentId,
+            payment_status: 'completed',
+            amount_paid: 999.00
           }
         ]);
 
-      if (insertError) throw insertError;
+      if (insertError) {
+        throw new Error(`Database insert failed: ${insertError.message}`);
+      }
 
       clearInterval(interval);
       setProgress(100);
