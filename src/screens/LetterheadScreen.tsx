@@ -1,11 +1,6 @@
 import { useState } from 'react';
-import { useSeo } from '../hooks/useSeo';
 
 export default function LetterheadScreen() {
-  useSeo({
-    title: 'Letterhead Builder | Viora Media Console',
-    description: 'Draft and print official corporate letters on the premium Viora Media letterhead with print-ready margins.'
-  });
 
   const [date, setDate] = useState(new Date().toLocaleDateString('en-US', {
     month: 'long',
@@ -265,19 +260,34 @@ export default function LetterheadScreen() {
 
           {/* Top Logo Header */}
           <div className="flex flex-col gap-4">
-            <div className="flex items-center gap-3">
-              <img
-                src="/logo.jpg"
-                alt="Viora Media Logo"
-                className="h-10 w-10 object-contain rounded-md border border-secondary/20 flex-shrink-0"
-              />
-              <div className="flex flex-col text-left">
-                <span className={`font-serif tracking-[0.25em] text-lg font-bold uppercase ${isPrintMode ? 'text-black' : 'text-white'
+            <div className="flex justify-between items-center w-full">
+              {/* Left Side: Logo and Title */}
+              <div className="flex items-center gap-3">
+                <img
+                  src="/logo.jpg"
+                  alt="Viora Media Logo"
+                  className="h-10 w-10 object-contain rounded-md border border-secondary/20 flex-shrink-0"
+                />
+                <div className="flex flex-col text-left">
+                  <span className={`font-serif tracking-[0.25em] text-lg font-bold uppercase ${isPrintMode ? 'text-black' : 'text-white'
+                    }`}>
+                    VIORA
+                  </span>
+                  <span className="text-[8px] tracking-[0.4em] text-secondary font-semibold uppercase mt-0.5 block">
+                    MEDIA
+                  </span>
+                </div>
+              </div>
+
+              {/* Right Side: Header Contacts */}
+              <div className="flex flex-col text-right font-sans">
+                <span className={`text-[9px] tracking-widest font-semibold uppercase ${isPrintMode ? 'text-black/70' : 'text-white/70'
                   }`}>
-                  VIORA
+                  www.vioramedia.in
                 </span>
-                <span className="text-[8px] tracking-[0.4em] text-secondary font-semibold uppercase mt-0.5 block">
-                  MEDIA
+                <span className={`text-[8px] tracking-wider font-light mt-0.5 lowercase ${isPrintMode ? 'text-black/50' : 'text-white/50'
+                  }`}>
+                  contact@vioramedia.in
                 </span>
               </div>
             </div>
