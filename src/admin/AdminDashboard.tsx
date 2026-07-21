@@ -13,6 +13,7 @@ const r2Client = new S3Client({
     secretAccessKey: import.meta.env.VITE_R2_SECRET_ACCESS_KEY || '',
   },
   requestChecksumCalculation: 'WHEN_REQUIRED',
+  forcePathStyle: true,
 });
 
 interface ContactMessage {
