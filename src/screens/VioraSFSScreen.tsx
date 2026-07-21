@@ -45,7 +45,7 @@ interface RazorpayInstance {
 }
 
 interface RazorpayConstructor {
-  new (options: RazorpayOptions): RazorpayInstance;
+  new(options: RazorpayOptions): RazorpayInstance;
 }
 
 interface RazorpayWindow {
@@ -537,7 +537,7 @@ export default function VioraSFSScreen() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md overflow-y-auto">
           {/* Modal Container */}
           <div className="relative w-full max-w-2xl bg-primary-light border border-white/10 rounded-sm shadow-[0_0_55px_rgba(197,160,89,0.25)] overflow-hidden my-8 animate-fade-in">
-            
+
             {/* Header */}
             <div className="flex items-center justify-between p-6 border-b border-white/5 bg-black/20">
               <div className="space-y-1">
@@ -566,7 +566,7 @@ export default function VioraSFSScreen() {
 
             {/* Content area */}
             <div className="p-6 md:p-8 max-h-[70vh] overflow-y-auto">
-              
+
               {errorMessage && (
                 <div className="mb-5 p-3.5 bg-red-950/40 border border-red-500/20 text-red-200 text-xs rounded-sm">
                   {errorMessage}
@@ -804,7 +804,7 @@ export default function VioraSFSScreen() {
                         </div>
                         <div>
                           <label className="block text-[10px] tracking-widest text-secondary font-semibold uppercase mb-1.5">
-                            Logline
+                            Oneline
                           </label>
                           <input
                             type="text"
@@ -838,14 +838,14 @@ export default function VioraSFSScreen() {
                         </div>
                         <div>
                           <label className="block text-[10px] tracking-widest text-secondary font-semibold uppercase mb-1.5">
-                            Sound Engineer
+                            Music Composer
                           </label>
                           <input
                             type="text"
-                            value={soundEngineer}
-                            onChange={(e) => setSoundEngineer(e.target.value)}
+                            value={music}
+                            onChange={(e) => setMusic(e.target.value)}
                             className="w-full bg-black/60 border border-white/10 focus:border-secondary focus:outline-none px-4 py-3.5 text-xs text-white placeholder-white/20 transition-all rounded-sm focus:ring-1 focus:ring-secondary/30"
-                            placeholder="Sound Engineer"
+                            placeholder="Composer"
                           />
                         </div>
                       </div>
@@ -877,14 +877,14 @@ export default function VioraSFSScreen() {
                         </div>
                         <div>
                           <label className="block text-[10px] tracking-widest text-secondary font-semibold uppercase mb-1.5">
-                            Music Composer
+                            Sound Engineer
                           </label>
                           <input
                             type="text"
-                            value={music}
-                            onChange={(e) => setMusic(e.target.value)}
+                            value={soundEngineer}
+                            onChange={(e) => setSoundEngineer(e.target.value)}
                             className="w-full bg-black/60 border border-white/10 focus:border-secondary focus:outline-none px-4 py-3.5 text-xs text-white placeholder-white/20 transition-all rounded-sm focus:ring-1 focus:ring-secondary/30"
-                            placeholder="Composer"
+                            placeholder="Sound Engineer"
                           />
                         </div>
                       </div>

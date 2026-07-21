@@ -43,30 +43,51 @@ export default function LetterheadScreen() {
 
   // Heuristic-based paragraph paginator for rendering separate A4 screen blocks
   const paginateParagraphs = () => {
+    // Pre-process paragraphs: split by newlines to handle multi-line inputs in a single textarea
+    const flatParagraphs: string[] = [];
+    paragraphs.forEach(p => {
+      if (!p.trim()) return;
+      const parts = p.split(/\n+/).map(part => part.trim()).filter(Boolean);
+      flatParagraphs.push(...parts);
+    });
+
+    if (flatParagraphs.length === 0) {
+      flatParagraphs.push('');
+    }
+
     const pageList: string[][] = [[]];
     let currentPageIdx = 0;
     let currentHeight = 0;
 
     const estParaHeight = (p: string) => {
-      // ~75 characters per line, 20px line height, 16px bottom margin
-      const lines = Math.ceil(Math.max(p.length, 1) / 75);
+      // ~85 characters per line for 12px font size, 20px line height, 16px bottom margin
+      const lines = Math.ceil(Math.max(p.length, 1) / 85);
       return (lines * 20) + 16;
     };
 
-    for (let i = 0; i < paragraphs.length; i++) {
-      const p = paragraphs[i];
+    for (let i = 0; i < flatParagraphs.length; i++) {
+      const p = flatParagraphs[i];
       const estHeight = estParaHeight(p);
 
       // Look ahead: total height of all remaining paragraphs starting from the current index i
       let remainingHeight = 0;
-      for (let j = i; j < paragraphs.length; j++) {
-        remainingHeight += estParaHeight(paragraphs[j]);
+      for (let j = i; j < flatParagraphs.length; j++) {
+        remainingHeight += estParaHeight(flatParagraphs[j]);
       }
 
       // Check if this page is the final one (remaining content + signature details fits here)
       // Limit with signature details: Page 1 = 420px, Page 2+ = 580px
       const finalPageLimit = currentPageIdx === 0 ? 420 : 580;
-      const isFinalPage = (currentHeight + remainingHeight) <= finalPageLimit;
+      const isLastParagraph = i === flatParagraphs.length - 1;
+      
+      let isFinalPage = false;
+      if (isLastParagraph) {
+        // If this is the last paragraph, the current page must be the final page.
+        isFinalPage = true;
+      } else {
+        // Can all remaining paragraphs (from current to end) fit on this page?
+        isFinalPage = (currentHeight + remainingHeight) <= finalPageLimit;
+      }
 
       // Max height allocations:
       // If final page: Page 1 = 420px, Page 2+ = 580px (accounts for signature details space)
@@ -117,9 +138,9 @@ export default function LetterheadScreen() {
           }
           .print-page {
             width: 210mm !important;
-            height: 296mm !important; /* Slightly shorter than 297mm to prevent subpixel rounding rendering a trailing blank page */
-            min-height: 296mm !important;
-            max-height: 296mm !important;
+            height: 297mm !important;
+            min-height: 297mm !important;
+            max-height: 297mm !important;
             margin: 0 !important;
             padding: 40mm 20mm 30mm 20mm !important;
             box-sizing: border-box !important;
@@ -320,15 +341,18 @@ export default function LetterheadScreen() {
           return (
             <div
               key={pageIdx}
-              className={`print-page w-full max-w-[210mm] relative font-serif overflow-hidden transition-all duration-300 shadow-[0_12px_40px_rgba(0,0,0,0.4)] print:shadow-none ${
+              className={`print-page relative font-serif overflow-hidden transition-all duration-300 shadow-[0_12px_40px_rgba(0,0,0,0.4)] print:shadow-none ${
                 isPrintMode
                   ? 'bg-[#F9F8F5] text-black border border-black/5'
                   : 'bg-[#080808] text-white border border-white/5 print:bg-[#F9F8F5] print:text-black print:border-none'
               }`}
               style={{
-                height: '296mm',
-                minHeight: '296mm',
-                maxHeight: '296mm',
+                width: '210mm',
+                minWidth: '210mm',
+                maxWidth: '210mm',
+                height: '297mm',
+                minHeight: '297mm',
+                maxHeight: '297mm',
                 paddingTop: '40mm',
                 paddingBottom: '30mm',
                 paddingLeft: '20mm',
@@ -394,7 +418,7 @@ export default function LetterheadScreen() {
               </div>
 
               {/* Letter Body Container */}
-              <div className="relative z-10 text-left font-sans text-xs md:text-sm font-light leading-relaxed">
+              <div className="relative z-10 text-left font-sans text-xs font-light leading-relaxed">
                 <div className="space-y-6">
                   {/* Date, Recipient, Salutation only on first page */}
                   {isFirstPage && (
