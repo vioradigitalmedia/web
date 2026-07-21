@@ -140,9 +140,6 @@ export default function Footer() {
                 <a href="#youtube" className="hover:text-secondary text-base transition-colors duration-200" aria-label="YouTube">
                   <i className="fa-brands fa-youtube"></i>
                 </a>
-                <a href="#linkedin" className="hover:text-secondary text-base transition-colors duration-200" aria-label="LinkedIn">
-                  <i className="fa-brands fa-linkedin-in"></i>
-                </a>
                 <a href="#x" className="hover:text-secondary text-base transition-colors duration-200" aria-label="X (Twitter)">
                   <i className="fa-brands fa-x-twitter"></i>
                 </a>
