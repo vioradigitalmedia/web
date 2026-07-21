@@ -18,7 +18,8 @@ export default function LetterheadScreen({ adminData }: LetterheadScreenProps) {
     day: 'numeric',
     year: 'numeric'
   }));
-  const [recipientName, setRecipientName] = useState('MR. ALEXANDER REED');
+  const [honorific, setHonorific] = useState('Mr.');
+  const [recipientName, setRecipientName] = useState('ALEXANDER REED');
   const [recipientTitle, setRecipientTitle] = useState('Creative Director');
   const [recipientCompany, setRecipientCompany] = useState('LUXE STUDIOS');
   const [salutation, setSalutation] = useState('Dear Mr. Alexander Reed,');
@@ -38,6 +39,17 @@ export default function LetterheadScreen({ adminData }: LetterheadScreenProps) {
       setSignerTitle(adminData.designation);
     }
   }, [adminData]);
+
+  // Auto-populate salutation when recipient name or honorific changes
+  useEffect(() => {
+    // Convert to title case (first letters uppercase)
+    const titleCaseName = recipientName
+      .toLowerCase()
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+    setSalutation(`Dear ${honorific} ${titleCaseName},`);
+  }, [recipientName, honorific]);
 
   const handleParagraphChange = (index: number, val: string) => {
     setParagraphs(prev => {
@@ -225,6 +237,22 @@ export default function LetterheadScreen({ adminData }: LetterheadScreenProps) {
               />
             </div>
 
+            {/* Honorifics Selector */}
+            <div>
+              <label className="text-[9px] tracking-wider text-accent-muted uppercase block mb-1">Honorifics</label>
+              <select
+                value={honorific}
+                onChange={(e) => setHonorific(e.target.value)}
+                className="w-full bg-black/40 border border-white/10 hover:border-white/20 focus:border-secondary transition-all rounded-sm px-3 py-2 text-xs text-white focus:outline-none cursor-pointer"
+              >
+                <option value="Mr." className="bg-primary">Mr.</option>
+                <option value="Ms." className="bg-primary">Ms.</option>
+                <option value="Mrs." className="bg-primary">Mrs.</option>
+                <option value="Dr." className="bg-primary">Dr.</option>
+                <option value="Prof." className="bg-primary">Prof.</option>
+              </select>
+            </div>
+
             <div>
               <label className="text-[9px] tracking-wider text-accent-muted uppercase block mb-1">Recipient Name</label>
               <input
@@ -254,16 +282,6 @@ export default function LetterheadScreen({ adminData }: LetterheadScreenProps) {
                   className="w-full bg-black/40 border border-white/10 hover:border-white/20 focus:border-secondary transition-all rounded-sm px-3 py-2 text-xs text-white focus:outline-none"
                 />
               </div>
-            </div>
-
-            <div>
-              <label className="text-[9px] tracking-wider text-accent-muted uppercase block mb-1">Salutation</label>
-              <input
-                type="text"
-                value={salutation}
-                onChange={(e) => setSalutation(e.target.value)}
-                className="w-full bg-black/40 border border-white/10 hover:border-white/20 focus:border-secondary transition-all rounded-sm px-3 py-2 text-xs text-white focus:outline-none"
-              />
             </div>
           </div>
 
@@ -411,19 +429,19 @@ export default function LetterheadScreen({ adminData }: LetterheadScreenProps) {
                         {date}
                       </p>
 
-                      {/* Recipient Details */}
+                      {/* Recipient Details - Always uppercase with honorific */}
                       <div className="space-y-1">
                         <p className={`font-bold tracking-wide text-xs ${isPrintMode ? 'text-black/90' : 'text-white/90 print:text-black/90'
                           }`}>
-                          {recipientName}
+                          {`${honorific} ${recipientName.toUpperCase()}`}
                         </p>
                         <p className={`text-xs ${isPrintMode ? 'text-black/60' : 'text-white/60 print:text-black/60'
                           }`}>
-                          {recipientTitle}
+                          {recipientTitle.toUpperCase()}
                         </p>
                         <p className={`text-xs ${isPrintMode ? 'text-black/60' : 'text-white/60 print:text-black/60'
                           }`}>
-                          {recipientCompany}
+                          {recipientCompany.toUpperCase()}
                         </p>
                       </div>
 
