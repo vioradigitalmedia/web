@@ -1230,9 +1230,13 @@ export default function AdminDashboard() {
         );
 
       case 'cfo':
+        const sfsRegistrationIncome = submissions
+          .filter(sub => sub.payment_status === 'completed' || sub.payment_status === 'paid' || sub.payment_status === 'captured')
+          .reduce((sum, sub) => sum + Number(sub.amount_paid || 0) * 0.9764, 0);
+
         const grossRevenue = cfoTransactions
           .filter(t => t.type === 'income')
-          .reduce((sum, t) => sum + Number(t.amount), 0);
+          .reduce((sum, t) => sum + Number(t.amount), 0) + sfsRegistrationIncome;
           
         const operatingCosts = cfoTransactions
           .filter(t => t.type === 'expense')
@@ -1261,6 +1265,18 @@ export default function AdminDashboard() {
                   monthlyStats[monthIdx].expense += Number(t.amount);
                 }
               }
+            }
+          }
+        });
+
+        // Add SFS registration income to monthlyStats (deducting 2% fee + 18% GST on the fee)
+        submissions.forEach(sub => {
+          if ((sub.payment_status === 'completed' || sub.payment_status === 'paid' || sub.payment_status === 'captured') && sub.created_at) {
+            const dateObj = new Date(sub.created_at);
+            const year = dateObj.getFullYear();
+            const monthIdx = dateObj.getMonth();
+            if (year === currentYear && monthIdx >= 0 && monthIdx < 12) {
+              monthlyStats[monthIdx].income += Number(sub.amount_paid || 0) * 0.9764;
             }
           }
         });
@@ -1477,44 +1493,80 @@ export default function AdminDashboard() {
                       <h3 className="font-serif text-lg text-white">Recent Transactions</h3>
                     </div>
 
-                    <div className="flex-1 divide-y divide-white/5 space-y-4 overflow-y-auto max-h-[290px] pr-1">
-                      {cfoTransactions.length === 0 ? (
-                        <div className="py-20 text-center text-accent-muted">
-                          <p className="text-xs font-light">No ledger records found.</p>
+                    {(() => {
+                      interface LedgerItem {
+                        id: string;
+                        title: string;
+                        date: string;
+                        amount: number;
+                        type: 'income' | 'expense';
+                        source: 'ledger' | 'sfs';
+                      }
+
+                      const ledgerItems: LedgerItem[] = [
+                        ...cfoTransactions.map(t => ({
+                          id: t.id,
+                          title: t.title,
+                          date: t.transaction_date,
+                          amount: Number(t.amount),
+                          type: t.type as 'income' | 'expense',
+                          source: 'ledger' as const
+                        })),
+                        ...submissions
+                          .filter(sub => (sub.payment_status === 'completed' || sub.payment_status === 'paid' || sub.payment_status === 'captured') && sub.created_at)
+                          .map(sub => ({
+                            id: sub.id,
+                            title: `SFS Reg: ${sub.film_title}`,
+                            date: sub.created_at.split('T')[0],
+                            amount: Number(sub.amount_paid || 0) * 0.9764,
+                            type: 'income' as const,
+                            source: 'sfs' as const
+                          }))
+                      ].sort((a, b) => b.date.localeCompare(a.date));
+
+                      return (
+                        <div className="flex-1 divide-y divide-white/5 space-y-4 overflow-y-auto max-h-[290px] pr-1">
+                          {ledgerItems.length === 0 ? (
+                            <div className="py-20 text-center text-accent-muted">
+                              <p className="text-xs font-light">No ledger records found.</p>
+                            </div>
+                          ) : (
+                            ledgerItems.map((t) => (
+                              <div key={t.id} className="flex items-center justify-between pt-3">
+                                <div className="text-left overflow-hidden mr-2">
+                                  <h4 className="text-xs font-semibold text-white truncate max-w-[155px]" title={t.title}>
+                                    {t.title}
+                                  </h4>
+                                  <span className="text-[9px] text-accent-muted block">
+                                    {new Date(t.date).toLocaleDateString(undefined, {
+                                      month: 'short',
+                                      day: 'numeric',
+                                      year: 'numeric'
+                                    })}
+                                  </span>
+                                </div>
+                                <div className="text-right flex-shrink-0">
+                                  <span className={`text-xs font-serif font-bold ${
+                                    t.type === 'income' ? 'text-secondary' : 'text-white'
+                                  }`}>
+                                    {t.type === 'income' ? '+' : '-'}₹{t.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                  </span>
+                                  <span className={`text-[8px] border rounded-sm px-1.5 py-0.5 block mt-0.5 uppercase tracking-widest font-bold text-center ${
+                                    t.type === 'income' 
+                                      ? (t.source === 'sfs' 
+                                          ? 'bg-secondary/10 text-secondary border-secondary/20' 
+                                          : 'bg-emerald-950/20 text-emerald-400 border-emerald-500/20') 
+                                      : 'bg-amber-950/20 text-amber-400 border-amber-500/20'
+                                  }`}>
+                                    {t.source === 'sfs' ? 'Registration' : t.type}
+                                  </span>
+                                </div>
+                              </div>
+                            ))
+                          )}
                         </div>
-                      ) : (
-                        cfoTransactions.map((t) => (
-                          <div key={t.id} className="flex items-center justify-between pt-3">
-                            <div className="text-left overflow-hidden mr-2">
-                              <h4 className="text-xs font-semibold text-white truncate max-w-[155px]" title={t.title}>
-                                {t.title}
-                              </h4>
-                              <span className="text-[9px] text-accent-muted block">
-                                {new Date(t.transaction_date).toLocaleDateString(undefined, {
-                                  month: 'short',
-                                  day: 'numeric',
-                                  year: 'numeric'
-                                })}
-                              </span>
-                            </div>
-                            <div className="text-right flex-shrink-0">
-                              <span className={`text-xs font-serif font-bold ${
-                                t.type === 'income' ? 'text-secondary' : 'text-white'
-                              }`}>
-                                {t.type === 'income' ? '+' : '-'}₹{Number(t.amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                              </span>
-                              <span className={`text-[8px] border rounded-sm px-1.5 py-0.5 block mt-0.5 uppercase tracking-widest font-bold text-center ${
-                                t.type === 'income' 
-                                  ? 'bg-emerald-950/20 text-emerald-400 border-emerald-500/20' 
-                                  : 'bg-amber-950/20 text-amber-400 border-amber-500/20'
-                              }`}>
-                                {t.type}
-                              </span>
-                            </div>
-                          </div>
-                        ))
-                      )}
-                    </div>
+                      );
+                    })()}
                   </div>
 
                 </div>
