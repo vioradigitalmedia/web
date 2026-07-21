@@ -156,6 +156,12 @@ export default function AdminDashboard() {
   }, [selectedSubmissionId, submissions]);
 
   useEffect(() => {
+    console.log('Admin Console Initialized. R2 credentials check:', {
+      accountIdLoaded: !!import.meta.env.VITE_R2_ACCOUNT_ID,
+      accessKeyLoaded: !!import.meta.env.VITE_R2_ACCESS_KEY_ID,
+      secretKeyLoaded: !!import.meta.env.VITE_R2_SECRET_ACCESS_KEY,
+    });
+
     // 1. Fetch current session
     supabase.auth.getSession().then(({ data: { session: activeSession } }) => {
       setSession(activeSession);
