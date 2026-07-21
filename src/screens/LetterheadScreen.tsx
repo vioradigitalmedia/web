@@ -352,10 +352,21 @@ export default function LetterheadScreen() {
             </div>
 
             {/* Sign-off & Signature Block */}
-            <div className="space-y-12 mt-12">
+            <div className="mt-12 relative select-none">
               <p className={isPrintMode ? 'text-black/70' : 'text-white/70'}>Sincerely,</p>
 
-              <div className="space-y-1">
+              {/* Signature Image */}
+              <div className="absolute top-[3px] left-0 h-28 pointer-events-none z-0">
+                <img 
+                  src="/SignatureV.png" 
+                  alt="Signature" 
+                  className={`h-28 w-auto object-contain select-none transition-all duration-300 transform -translate-x-6 translate-y-3 ${
+                    isPrintMode ? 'invert-0' : 'invert brightness-[2]'
+                  }`}
+                />
+              </div>
+
+              <div className="space-y-1 relative z-10 pt-20">
                 <p className={`font-bold tracking-wide text-xs ${isPrintMode ? 'text-black/90' : 'text-white/90'
                   }`}>
                   {signerName}
