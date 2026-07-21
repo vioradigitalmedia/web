@@ -4,6 +4,7 @@ import AdminLogin from './AdminLogin';
 import AdminSidebar from './AdminSidebar';
 import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import LetterheadScreen from '../screens/LetterheadScreen';
 
 const r2Client = new S3Client({
   region: 'auto',
@@ -82,8 +83,9 @@ export default function AdminDashboard() {
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [session, setSession] = useState<any>(null);
   const [authLoading, setAuthLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'messages' | 'media' | 'submissions' | 'cfo'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'messages' | 'media' | 'submissions' | 'cfo' | 'letterhead'>('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [selectedMessageId, setSelectedMessageId] = useState<string | null>(null);
   const [expandedMobileMessageId, setExpandedMobileMessageId] = useState<string | null>(null);
 
@@ -1448,14 +1450,16 @@ export default function AdminDashboard() {
             )}
           </div>
         );
+      case 'letterhead':
+        return <LetterheadScreen />;
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#020202] text-white flex flex-col md:flex-row font-sans">
+    <div className="min-h-screen bg-[#020202] text-white flex flex-col md:flex-row font-sans print:bg-white print:text-black">
       
       {/* Mobile Top Header bar */}
-      <header className="md:hidden h-16 border-b border-white/5 bg-[#0A0A0A] flex items-center justify-between px-6 sticky top-0 z-30 flex-shrink-0">
+      <header className="md:hidden h-16 border-b border-white/5 bg-[#0A0A0A] flex items-center justify-between px-6 sticky top-0 z-30 flex-shrink-0 print:hidden">
         <div className="flex items-center gap-3">
           <img 
             src="/logo.jpg" 
@@ -1482,17 +1486,23 @@ export default function AdminDashboard() {
       </header>
 
       {/* Left Sidebar */}
-      <AdminSidebar
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        userEmail={session.user?.email || 'admin@vioramedia.in'}
-        onLogout={() => supabase.auth.signOut()}
-        isOpen={sidebarOpen}
-        onClose={() => setSidebarOpen(false)}
-      />
+      <div className="print:hidden">
+        <AdminSidebar
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          userEmail={session.user?.email || 'admin@vioramedia.in'}
+          onLogout={() => supabase.auth.signOut()}
+          isOpen={sidebarOpen}
+          onClose={() => setSidebarOpen(false)}
+          isCollapsed={isSidebarCollapsed}
+          onToggleCollapse={() => setIsSidebarCollapsed(prev => !prev)}
+        />
+      </div>
 
       {/* Right Content Area */}
-      <main className="flex-grow h-[calc(100vh-4rem)] md:h-screen overflow-y-auto p-4 sm:p-6 md:p-10">
+      <main className={`flex-grow h-[calc(100vh-4rem)] md:h-screen overflow-y-auto p-4 sm:p-6 md:p-10 print:h-auto print:p-0 ${
+        activeTab === 'letterhead' ? 'md:p-0 sm:p-0 p-0 overflow-y-hidden print:overflow-visible' : ''
+      }`}>
         {renderActiveView()}
       </main>
 
