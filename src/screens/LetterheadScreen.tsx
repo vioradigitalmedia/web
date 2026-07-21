@@ -4,6 +4,7 @@ interface AdminData {
   first_name: string;
   last_name: string;
   designation: string;
+  signature?: string | null;
 }
 
 interface LetterheadScreenProps {
@@ -303,46 +304,6 @@ export default function LetterheadScreen({ adminData }: LetterheadScreenProps) {
             </div>
           </div>
 
-          <hr className="border-white/5" />
-
-          {/* Signer Details - Auto-populated from admin profile */}
-          <div className="space-y-3.5">
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] tracking-widest text-secondary font-semibold uppercase block">Signature Details</span>
-              {adminData && (
-                <span className="text-[8px] text-accent-muted/60 uppercase">Auto-filled</span>
-              )}
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="text-[9px] tracking-wider text-accent-muted uppercase block mb-1">Signer Name</label>
-                <input
-                  type="text"
-                  value={signerName}
-                  onChange={(e) => setSignerName(e.target.value)}
-                  readOnly={!!adminData}
-                  className={`w-full bg-black/40 border transition-all rounded-sm px-3 py-2 text-xs focus:outline-none ${adminData
-                    ? 'border-secondary/30 text-secondary cursor-not-allowed'
-                    : 'border-white/10 hover:border-white/20 focus:border-secondary text-white'
-                    }`}
-                />
-              </div>
-              <div>
-                <label className="text-[9px] tracking-wider text-accent-muted uppercase block mb-1">Title / Designation</label>
-                <input
-                  type="text"
-                  value={signerTitle}
-                  onChange={(e) => setSignerTitle(e.target.value)}
-                  readOnly={!!adminData}
-                  className={`w-full bg-black/40 border transition-all rounded-sm px-3 py-2 text-xs focus:outline-none ${adminData
-                    ? 'border-secondary/30 text-secondary cursor-not-allowed'
-                    : 'border-white/10 hover:border-white/20 focus:border-secondary text-white'
-                    }`}
-                />
-              </div>
-            </div>
-          </div>
         </div>
 
         <div className="flex flex-col gap-2 mt-auto">
@@ -352,12 +313,7 @@ export default function LetterheadScreen({ adminData }: LetterheadScreenProps) {
           >
             <i className="fa-solid fa-print text-sm"></i> Print / Export PDF
           </button>
-          <div className="bg-white/5 border border-white/10 rounded-sm p-3 flex gap-2.5 items-start">
-            <i className="fa-solid fa-circle-info text-secondary text-xs mt-0.5"></i>
-            <p className="text-[10px] text-white/50 leading-relaxed font-sans">
-              <strong>Tip:</strong> In the browser print settings, uncheck <strong>"Headers and footers"</strong> (under More Settings) to hide dates, titles, and local urls.
-            </p>
-          </div>
+          <br />
         </div>
       </div>
 
@@ -499,15 +455,32 @@ export default function LetterheadScreen({ adminData }: LetterheadScreenProps) {
                 <div className="absolute bottom-[35mm] left-[20mm] right-[20mm] no-break select-none font-sans">
                   <p className={isPrintMode ? 'text-black/70' : 'text-white/70 print:text-black/70'}>Sincerely,</p>
 
-                  {/* Signature Image */}
-                  <div className="absolute top-[3px] left-0 h-28 pointer-events-none z-0">
-                    <img
-                      src="/SignatureV.png"
-                      alt="Signature"
-                      className={`h-28 w-auto object-contain select-none transition-all duration-300 transform -translate-x-6 translate-y-3 ${isPrintMode ? 'invert-0' : 'invert brightness-[2] print:invert-0'
-                        }`}
-                    />
-                  </div>
+                  {/* Signature Image - Dynamic from admin data or default */}
+                  {adminData?.signature && (
+                    <div className={`absolute h-28 pointer-events-none z-0 ${adminData.signature === '1.png' ? 'top-[3px]' : 'top-[-7px]'
+                      }`}>
+                      <img
+                        src={`/signatures/${adminData.signature}`}
+                        alt="Signature"
+                        className={`h-28 w-auto object-contain select-none transition-all duration-300 transform -translate-x-6 translate-y-3 ${isPrintMode ? 'invert-0' : 'invert brightness-[2] print:invert-0'
+                          }`}
+                        onError={(e) => {
+                          // Fallback to default signature if custom one fails to load
+                          e.currentTarget.src = '/SignatureV.png';
+                        }}
+                      />
+                    </div>
+                  )}
+                  {!adminData?.signature && (
+                    <div className="absolute top-[3px] left-0 h-28 pointer-events-none z-0">
+                      <img
+                        src="/SignatureV.png"
+                        alt="Signature"
+                        className={`h-28 w-auto object-contain select-none transition-all duration-300 transform -translate-x-6 translate-y-3 ${isPrintMode ? 'invert-0' : 'invert brightness-[2] print:invert-0'
+                          }`}
+                      />
+                    </div>
+                  )}
 
                   <div className="space-y-1 relative z-10 pt-20">
                     <p className={`font-bold tracking-wide text-xs ${isPrintMode ? 'text-black/90' : 'text-white/90 print:text-black/90'

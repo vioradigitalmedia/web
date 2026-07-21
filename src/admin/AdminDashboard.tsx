@@ -118,7 +118,7 @@ export default function AdminDashboard() {
   const [presignedLoading, setPresignedLoading] = useState(false);
 
   // Admin data for Letterhead auto-fill
-  const [adminData, setAdminData] = useState<{ first_name: string; last_name: string; designation: string } | null>(null);
+  const [adminData, setAdminData] = useState<{ first_name: string; last_name: string; designation: string; signature?: string | null } | null>(null);
 
   useEffect(() => {
     const generateUrls = async () => {
@@ -286,7 +286,7 @@ export default function AdminDashboard() {
     try {
       const { data, error: fetchError } = await supabase
         .from('admins')
-        .select('first_name, last_name, designation')
+        .select('first_name, last_name, designation, signature')
         .eq('id', session.user.id)
         .single();
 
