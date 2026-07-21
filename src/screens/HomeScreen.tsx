@@ -80,12 +80,12 @@ export default function HomeScreen() {
               Viora is a premium cinema ecosystem that brings together creators, audiences, industry professionals, and aspiring talent through media, festivals, education, networking, awards, and original storytelling. We exist to connect every corner of cinema under one vision.            </p>
 
             <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-              <button
-                disabled
-                className="px-8 py-3.5 bg-transparent border border-secondary/20 text-secondary/40 font-semibold text-xs tracking-widest uppercase rounded-sm cursor-not-allowed text-center"
+              <Link
+                to="/viorasfs"
+                className="px-8 py-3.5 bg-secondary text-black hover:bg-white hover:text-black transition-all duration-300 font-semibold text-xs tracking-widest uppercase rounded-sm text-center inline-block"
               >
-                Submit Film (Coming Soon)
-              </button>
+                Submit Film
+              </Link>
               <Link
                 to="/aboutus"
                 className="px-8 py-3.5 border border-white/20 text-white hover:text-secondary hover:border-secondary transition-all duration-300 text-xs tracking-widest uppercase rounded-sm text-center inline-block"
@@ -275,8 +275,8 @@ export default function HomeScreen() {
           {/* Right Showcase Box */}
           <div className="lg:col-span-6 flex justify-end">
             <div className="w-full max-w-lg border border-secondary/30 bg-black p-8 rounded-sm text-left border-gold-glow flex flex-col gap-6 relative">
-              <span className="absolute -top-3 -right-3 px-4 py-1.5 bg-zinc-900 border border-secondary/35 text-secondary font-semibold text-[8px] tracking-widest uppercase rounded-sm">
-                Coming Soon
+              <span className="absolute -top-3 -right-3 px-4 py-1.5 bg-secondary text-black font-semibold text-[8px] tracking-widest uppercase rounded-sm">
+                Submissions Open
               </span>
 
               <div>
@@ -286,12 +286,12 @@ export default function HomeScreen() {
                 </p>
               </div>
 
-              <button
-                disabled
-                className="w-full py-3.5 bg-transparent border border-secondary/20 text-secondary/40 font-semibold text-xs tracking-widest uppercase rounded-sm cursor-not-allowed text-center"
+              <Link
+                to="/viorasfs"
+                className="w-full py-3.5 bg-secondary text-black hover:bg-white hover:text-black transition-all duration-300 font-semibold text-xs tracking-widest uppercase rounded-sm text-center inline-block"
               >
-                Coming Soon
-              </button>
+                Submit Your Entry
+              </Link>
             </div>
           </div>
 

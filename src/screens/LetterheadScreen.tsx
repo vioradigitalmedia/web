@@ -13,8 +13,7 @@ export default function LetterheadScreen() {
   const [salutation, setSalutation] = useState('Dear Mr. Alexander Reed,');
   const [signerName, setSignerName] = useState('ISABELLA VANCE');
   const [signerTitle, setSignerTitle] = useState('Founder, Viora Media');
-  const [isPrintMode, setIsPrintMode] = useState(true); // default to light/print mode
-
+  const [isPrintMode, setIsPrintMode] = useState(true);
   const [paragraphs, setParagraphs] = useState<string[]>([
     'We are pleased to extend this formal proposal for a strategic partnership between Luxe Studios and Viora Media. Following our recent discussion regarding the co-production of the upcoming cinematic showcases, we believe combining our resources will deliver unmatched experiences for our global audiences.',
     'Under this partnership, Viora Media will provide top-tier editing suites, distribution support, and custom marketing materials, while Luxe Studios will lead raw production and talent recruitment. Detailed terms and revenue projections are outlined in the attached brief.',
@@ -42,14 +41,51 @@ export default function LetterheadScreen() {
     window.print();
   };
 
+  // Heuristic-based paragraph paginator for rendering separate A4 screen blocks
+  const paginateParagraphs = () => {
+    const pageList: string[][] = [[]];
+    let currentPageIdx = 0;
+    let currentHeight = 0;
+
+    paragraphs.forEach((p) => {
+      // Estimate height of this paragraph:
+      // ~75 characters per line, 20px line height, 16px bottom margin
+      const lines = Math.ceil(Math.max(p.length, 1) / 75);
+      const estHeight = (lines * 20) + 16;
+
+      // Available height limits for paragraphs:
+      // Page 1 is shorter due to recipient header, date, and space reserves (~420px)
+      // Page 2+ is longer (~780px)
+      const maxHeight = currentPageIdx === 0 ? 420 : 780;
+
+      if (currentHeight + estHeight > maxHeight && pageList[currentPageIdx].length > 0) {
+        // Create a new page
+        currentPageIdx++;
+        pageList.push([p]);
+        currentHeight = estHeight;
+      } else {
+        pageList[currentPageIdx].push(p);
+        currentHeight += estHeight;
+      }
+    });
+
+    return pageList;
+  };
+
   const paperBgColor = isPrintMode ? '#F9F8F5' : '#080808';
   const paperTextColor = isPrintMode ? '#000000' : '#ffffff';
 
   return (
-    <div className="w-full bg-[#030303] min-h-screen text-white flex flex-col md:flex-row min-w-0 font-sans print:bg-white print:text-black">
+    <div className="w-full bg-[#030303] min-h-screen text-white flex flex-col md:flex-row min-w-0 font-sans print:bg-white print:text-black print:block print:h-auto">
       <style>{`
         @media print {
-          body, html {
+          /* Force overflow visible and heights on all layout wrappers to enable pagination */
+          html, body, #root, .min-h-screen, main, .flex-1 {
+            height: auto !important;
+            min-height: 0 !important;
+            overflow: visible !important;
+            overflow-y: visible !important;
+            display: block !important;
             background-color: ${paperBgColor} !important;
             color: ${paperTextColor} !important;
             -webkit-print-color-adjust: exact !important;
@@ -57,26 +93,59 @@ export default function LetterheadScreen() {
           }
           @page {
             size: A4;
-            margin: 0;
+            margin: 40mm 20mm 30mm 20mm !important;
           }
           .print-sheet {
-            width: 210mm !important;
-            height: 297mm !important;
-            min-height: 297mm !important;
-            margin: 0 !important;
-            box-shadow: none !important;
-            border: none !important;
+            display: none !important;
+          }
+          
+          /* Fixed header and footer for every page */
+          .letter-header {
+            position: fixed !important;
+            top: -30mm !important;
+            left: 0 !important;
+            right: 0 !important;
+            height: 120px !important;
+            z-index: 50 !important;
             background-color: ${paperBgColor} !important;
-            color: ${paperTextColor} !important;
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
-            padding: 20mm 20mm 20mm 20mm !important;
-            box-sizing: border-box !important;
-            display: flex !important;
-            flex-direction: column !important;
-            justify-content: space-between !important;
-            page-break-after: avoid;
-            page-break-inside: avoid;
+          }
+          .letter-footer {
+            position: fixed !important;
+            bottom: -20mm !important;
+            left: 0 !important;
+            right: 0 !important;
+            height: 60px !important;
+            z-index: 50 !important;
+            background-color: ${paperBgColor} !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+          .letter-watermark {
+            position: fixed !important;
+            top: 50% !important;
+            left: 50% !important;
+            width: 120mm !important;
+            height: auto !important;
+            transform: translate(-50%, -50%) !important;
+            z-index: 0 !important;
+            pointer-events: none !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+          
+          .print-body-content {
+            display: block !important;
+            position: relative !important;
+            z-index: 10 !important;
+            page-break-inside: auto !important;
+          }
+          .print-body-content p {
+            page-break-inside: avoid !important;
+          }
+          .no-break {
+            page-break-inside: avoid !important;
           }
         }
       `}</style>
@@ -247,28 +316,166 @@ export default function LetterheadScreen() {
       </div>
 
       {/* RIGHT COLUMN: PREVIEW PANEL */}
-      <div className="flex-1 bg-black/50 p-6 md:p-12 overflow-y-auto h-screen print:h-auto print:p-0 flex items-start justify-center min-w-0">
+      <div className="flex-1 bg-black/50 p-6 md:p-12 overflow-y-auto h-screen print:h-auto print:p-0 flex flex-col items-center gap-8 min-w-0 print:block print:static">
 
-        {/* Letter Sheet A4 container */}
-        <div
-          className={`print-sheet w-full max-w-[800px] aspect-[1/1.414] shadow-[0_12px_40px_rgba(0,0,0,0.4)] px-12 md:px-16 py-14 flex flex-col justify-between font-serif relative transition-all duration-300 ${isPrintMode
-            ? 'bg-[#F9F8F5] text-black border border-black/5'
-            : 'bg-[#080808] text-white border border-white/5'
-            }`}
-          style={{ minHeight: '297mm' }}
-        >
-          {/* Centered Watermark Logo */}
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none z-0">
-            <img
-              src="/file_no_bg.svg"
-              alt="Watermark"
-              className={`w-3/5 h-auto object-contain transition-opacity duration-300 ${isPrintMode ? 'opacity-[0.12]' : 'opacity-[0.06]'
+        {/* Loop through paginated screen pages */}
+        {paginateParagraphs().map((pageParas, pageIdx, allPages) => {
+          const isFirstPage = pageIdx === 0;
+          const isLastPage = pageIdx === allPages.length - 1;
+
+          return (
+            <div
+              key={pageIdx}
+              className={`print-sheet w-full max-w-[800px] aspect-[1/1.414] shadow-[0_12px_40px_rgba(0,0,0,0.4)] px-12 md:px-16 py-14 flex flex-col justify-between font-serif relative transition-all duration-300 print:hidden ${isPrintMode
+                ? 'bg-[#F9F8F5] text-black border border-black/5'
+                : 'bg-[#080808] text-white border border-white/5'
                 }`}
-            />
-          </div>
+              style={{ minHeight: '297mm' }}
+            >
+              {/* Centered Watermark Logo */}
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none z-0">
+                <img
+                  src="/file_no_bg.svg"
+                  alt="Watermark"
+                  className={`w-3/5 h-auto object-contain transition-opacity duration-300 ${isPrintMode ? 'opacity-[0.12]' : 'opacity-[0.06]'
+                    }`}
+                />
+              </div>
 
-          {/* Top Logo Header */}
-          <div className="flex flex-col gap-4 relative z-10">
+              {/* Top Logo Header */}
+              <div className="flex flex-col gap-4 relative z-10">
+                <div className="flex justify-between items-center w-full">
+                  {/* Left Side: Logo and Title */}
+                  <div className="flex items-center gap-3">
+                    <img
+                      src="/logo.jpg"
+                      alt="Viora Media Logo"
+                      className="h-10 w-10 object-contain rounded-md border border-secondary/20 flex-shrink-0"
+                    />
+                    <div className="flex flex-col text-left">
+                      <span className={`font-serif tracking-[0.25em] text-lg font-bold uppercase ${isPrintMode ? 'text-black' : 'text-white'}`}>
+                        VIORA
+                      </span>
+                      <span className="text-[8px] tracking-[0.4em] text-secondary font-semibold uppercase mt-0.5 block">
+                        MEDIA
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Right Side: Header Contacts */}
+                  <div className="flex flex-col text-right font-sans">
+                    <span className={`text-[9px] tracking-widest font-semibold uppercase ${isPrintMode ? 'text-black/70' : 'text-white/70'}`}>
+                      www.vioramedia.in
+                    </span>
+                    <span className={`text-[8px] tracking-wider font-light mt-0.5 lowercase ${isPrintMode ? 'text-black/50' : 'text-white/50'}`}>
+                      contact@vioramedia.in
+                    </span>
+                  </div>
+                </div>
+
+                {/* Divider Line with Clapboard in Center */}
+                <div className="relative flex items-center justify-center py-1 w-full">
+                  <div className={`flex-grow h-[0.5px] ${isPrintMode ? 'bg-black/10' : 'bg-white/10'}`} />
+                  <i className="fa-solid fa-clapperboard text-secondary text-[11px] mx-4"></i>
+                  <div className={`flex-grow h-[0.5px] ${isPrintMode ? 'bg-black/10' : 'bg-white/10'}`} />
+                </div>
+              </div>
+
+              {/* Letter Body Container */}
+              <div className="flex-grow my-12 text-left font-sans text-[13px] md:text-sm font-light leading-relaxed flex flex-col justify-between relative z-10">
+                <div className="space-y-6">
+                  {/* Date, Recipient, Salutation only on first page */}
+                  {isFirstPage && (
+                    <>
+                      {/* Date String */}
+                      <p className={`font-semibold tracking-wide text-xs ${isPrintMode ? 'text-black/80' : 'text-white/80'}`}>
+                        {date}
+                      </p>
+
+                      {/* Recipient Details */}
+                      <div className="space-y-1">
+                        <p className={`font-bold tracking-wide text-xs ${isPrintMode ? 'text-black/90' : 'text-white/90'}`}>
+                          {recipientName}
+                        </p>
+                        <p className={`text-xs ${isPrintMode ? 'text-black/60' : 'text-white/60'}`}>
+                          {recipientTitle}
+                        </p>
+                        <p className={`text-xs ${isPrintMode ? 'text-black/60' : 'text-white/60'}`}>
+                          {recipientCompany}
+                        </p>
+                      </div>
+
+                      {/* Salutation */}
+                      <p className={`mt-8 ${isPrintMode ? 'text-black/80' : 'text-white/80'}`}>
+                        {salutation}
+                      </p>
+                    </>
+                  )}
+
+                  {/* Paragraphs allocated to this page */}
+                  <div className="space-y-4">
+                    {pageParas.map((p, idx) => (
+                      <p
+                        key={idx}
+                        className={`leading-relaxed text-justify indent-8 tracking-wide ${isPrintMode ? 'text-black/70' : 'text-white/70'}`}
+                      >
+                        {p}
+                      </p>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Sign-off & Signature Block only on the last page */}
+                {isLastPage && (
+                  <div className="mt-12 relative select-none">
+                    <p className={isPrintMode ? 'text-black/70' : 'text-white/70'}>Sincerely,</p>
+
+                    {/* Signature Image */}
+                    <div className="absolute top-[3px] left-0 h-28 pointer-events-none z-0">
+                      <img
+                        src="/SignatureV.png"
+                        alt="Signature"
+                        className={`h-28 w-auto object-contain select-none transition-all duration-300 transform -translate-x-6 translate-y-3 ${isPrintMode ? 'invert-0' : 'invert brightness-[2]'
+                          }`}
+                      />
+                    </div>
+
+                    <div className="space-y-1 relative z-10 pt-20">
+                      <p className={`font-bold tracking-wide text-xs ${isPrintMode ? 'text-black/90' : 'text-white/90'}`}>
+                        {signerName}
+                      </p>
+                      <p className={`text-[11px] ${isPrintMode ? 'text-black/50' : 'text-white/50'}`}>
+                        {signerTitle}
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Letter Footer Details */}
+              <div className="border-t border-secondary/20 pt-5 text-center font-sans relative z-10">
+                <p className="text-[10px] font-bold text-secondary tracking-widest uppercase">
+                  Viora Media
+                </p>
+                <p className={`text-[8px] tracking-[0.2em] font-light mt-1.5 uppercase ${isPrintMode ? 'text-black/45' : 'text-white/45'}`}>
+                  www.vioramedia.in &nbsp;|&nbsp; contact@vioramedia.in &nbsp;|&nbsp; +91 9994595001
+                </p>
+              </div>
+            </div>
+          );
+        })}
+
+        {/* Print-Only Page Wrapper (Clean semantic block flow, hidden on screen, visible during print) */}
+        <div className="hidden print:block w-full text-black font-serif bg-transparent">
+          {/* Centered Watermark Logo (Print View - Fixed on every page) */}
+          <img
+            src="/file_no_bg.svg"
+            alt="Watermark"
+            className="letter-watermark opacity-[0.12]"
+          />
+
+          {/* Top Logo Header (Print: position fixed on every page) */}
+          <div className="letter-header flex flex-col gap-4">
             <div className="flex justify-between items-center w-full">
               {/* Left Side: Logo and Title */}
               <div className="flex items-center gap-3">
@@ -278,8 +485,7 @@ export default function LetterheadScreen() {
                   className="h-10 w-10 object-contain rounded-md border border-secondary/20 flex-shrink-0"
                 />
                 <div className="flex flex-col text-left">
-                  <span className={`font-serif tracking-[0.25em] text-lg font-bold uppercase ${isPrintMode ? 'text-black' : 'text-white'
-                    }`}>
+                  <span className="font-serif tracking-[0.25em] text-lg font-bold uppercase text-black">
                     VIORA
                   </span>
                   <span className="text-[8px] tracking-[0.4em] text-secondary font-semibold uppercase mt-0.5 block">
@@ -290,12 +496,10 @@ export default function LetterheadScreen() {
 
               {/* Right Side: Header Contacts */}
               <div className="flex flex-col text-right font-sans">
-                <span className={`text-[9px] tracking-widest font-semibold uppercase ${isPrintMode ? 'text-black/70' : 'text-white/70'
-                  }`}>
+                <span className="text-[9px] tracking-widest font-semibold uppercase text-black/70">
                   www.vioramedia.in
                 </span>
-                <span className={`text-[8px] tracking-wider font-light mt-0.5 lowercase ${isPrintMode ? 'text-black/50' : 'text-white/50'
-                  }`}>
+                <span className="text-[8px] tracking-wider font-light mt-0.5 lowercase text-black/50">
                   contact@vioramedia.in
                 </span>
               </div>
@@ -303,37 +507,35 @@ export default function LetterheadScreen() {
 
             {/* Divider Line with Clapboard in Center */}
             <div className="relative flex items-center justify-center py-1 w-full">
-              <div className={`flex-grow h-[0.5px] ${isPrintMode ? 'bg-black/10' : 'bg-white/10'}`} />
+              <div className="flex-grow h-[0.5px] bg-black/10" />
               <i className="fa-solid fa-clapperboard text-secondary text-[11px] mx-4"></i>
-              <div className={`flex-grow h-[0.5px] ${isPrintMode ? 'bg-black/10' : 'bg-white/10'}`} />
+              <div className="flex-grow h-[0.5px] bg-black/10" />
             </div>
           </div>
 
           {/* Letter Body Container */}
-          <div className="flex-grow my-12 text-left font-sans text-[13px] md:text-sm font-light leading-relaxed flex flex-col justify-between relative z-10">
+          <div className="print-body-content text-left font-sans text-sm font-light leading-relaxed">
             <div className="space-y-6">
               {/* Date String */}
-              <p className={`font-semibold tracking-wide text-xs ${isPrintMode ? 'text-black/80' : 'text-white/80'
-                }`}>
+              <p className="font-semibold tracking-wide text-xs text-black/80">
                 {date}
               </p>
 
               {/* Recipient Details */}
               <div className="space-y-1">
-                <p className={`font-bold tracking-wide text-xs ${isPrintMode ? 'text-black/90' : 'text-white/90'
-                  }`}>
+                <p className="font-bold tracking-wide text-xs text-black/90">
                   {recipientName}
                 </p>
-                <p className={`text-xs ${isPrintMode ? 'text-black/60' : 'text-white/60'}`}>
+                <p className="text-xs text-black/60">
                   {recipientTitle}
                 </p>
-                <p className={`text-xs ${isPrintMode ? 'text-black/60' : 'text-white/60'}`}>
+                <p className="text-xs text-black/60">
                   {recipientCompany}
                 </p>
               </div>
 
               {/* Salutation */}
-              <p className={`mt-8 ${isPrintMode ? 'text-black/80' : 'text-white/80'}`}>
+              <p className="mt-8 text-black/80">
                 {salutation}
               </p>
 
@@ -342,8 +544,7 @@ export default function LetterheadScreen() {
                 {paragraphs.map((p, idx) => (
                   <p
                     key={idx}
-                    className={`leading-relaxed text-justify indent-8 tracking-wide ${isPrintMode ? 'text-black/70' : 'text-white/70'
-                      }`}
+                    className="leading-relaxed text-justify indent-8 tracking-wide text-black/70"
                   >
                     {p}
                   </p>
@@ -352,44 +553,40 @@ export default function LetterheadScreen() {
             </div>
 
             {/* Sign-off & Signature Block */}
-            <div className="mt-12 relative select-none">
-              <p className={isPrintMode ? 'text-black/70' : 'text-white/70'}>Sincerely,</p>
+            <div className="no-break mt-12 relative select-none">
+              <p className="text-black/70">Sincerely,</p>
 
               {/* Signature Image */}
               <div className="absolute top-[3px] left-0 h-28 pointer-events-none z-0">
-                <img 
-                  src="/SignatureV.png" 
-                  alt="Signature" 
-                  className={`h-28 w-auto object-contain select-none transition-all duration-300 transform -translate-x-6 translate-y-3 ${
-                    isPrintMode ? 'invert-0' : 'invert brightness-[2]'
-                  }`}
+                <img
+                  src="/SignatureV.png"
+                  alt="Signature"
+                  className="h-28 w-auto object-contain select-none transform -translate-x-6 translate-y-3 invert-0"
                 />
               </div>
 
               <div className="space-y-1 relative z-10 pt-20">
-                <p className={`font-bold tracking-wide text-xs ${isPrintMode ? 'text-black/90' : 'text-white/90'
-                  }`}>
+                <p className="font-bold tracking-wide text-xs text-black/90">
                   {signerName}
                 </p>
-                <p className={`text-[11px] ${isPrintMode ? 'text-black/50' : 'text-white/50'}`}>
+                <p className="text-[11px] text-black/50">
                   {signerTitle}
                 </p>
               </div>
             </div>
           </div>
 
-          {/* Letter Footer Details */}
-          <div className="border-t border-secondary/20 pt-5 text-center font-sans relative z-10">
+          {/* Letter Footer Details (Print: position fixed on every page) */}
+          <div className="letter-footer border-t border-secondary/20 pt-5 text-center font-sans">
             <p className="text-[10px] font-bold text-secondary tracking-widest uppercase">
               Viora Media
             </p>
-            <p className={`text-[8px] tracking-[0.2em] font-light mt-1.5 uppercase ${isPrintMode ? 'text-black/45' : 'text-white/45'
-              }`}>
+            <p className="text-[8px] tracking-[0.2em] font-light mt-1.5 uppercase text-black/45">
               www.vioramedia.in &nbsp;|&nbsp; contact@vioramedia.in &nbsp;|&nbsp; +91 9994595001
             </p>
           </div>
-
         </div>
+
       </div>
     </div>
   );

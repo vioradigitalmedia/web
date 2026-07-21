@@ -1456,7 +1456,7 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-[#020202] text-white flex flex-col md:flex-row font-sans print:bg-white print:text-black">
+    <div className="min-h-screen bg-[#020202] text-white flex flex-col md:flex-row font-sans print:bg-white print:text-black print:block print:h-auto">
       
       {/* Mobile Top Header bar */}
       <header className="md:hidden h-16 border-b border-white/5 bg-[#0A0A0A] flex items-center justify-between px-6 sticky top-0 z-30 flex-shrink-0 print:hidden">
@@ -1500,7 +1500,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Right Content Area */}
-      <main className={`flex-grow h-[calc(100vh-4rem)] md:h-screen overflow-y-auto p-4 sm:p-6 md:p-10 print:h-auto print:p-0 ${
+      <main className={`flex-grow h-[calc(100vh-4rem)] md:h-screen overflow-y-auto p-4 sm:p-6 md:p-10 print:h-auto print:p-0 print:block print:static ${
         activeTab === 'letterhead' ? 'md:p-0 sm:p-0 p-0 overflow-y-hidden print:overflow-visible' : ''
       }`}>
         {renderActiveView()}
