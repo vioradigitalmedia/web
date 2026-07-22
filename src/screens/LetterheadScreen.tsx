@@ -1,5 +1,18 @@
 import { useState, useEffect } from 'react';
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+// @ts-expect-error
+import html2pdf from 'html2pdf.js';
 
+const r2Client = new S3Client({
+  region: 'auto',
+  endpoint: `https://${import.meta.env.VITE_R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+  credentials: {
+    accessKeyId: import.meta.env.VITE_R2_ACCESS_KEY_ID || '',
+    secretAccessKey: import.meta.env.VITE_R2_SECRET_ACCESS_KEY || '',
+  },
+  requestChecksumCalculation: 'WHEN_REQUIRED',
+  forcePathStyle: true,
+});
 interface AdminData {
   first_name: string;
   last_name: string;
@@ -68,8 +81,55 @@ export default function LetterheadScreen({ adminData }: LetterheadScreenProps) {
     setParagraphs(prev => prev.filter((_, i) => i !== index));
   };
 
+  const [isSaving, setIsSaving] = useState(false);
+
   const handlePrint = () => {
     window.print();
+  };
+
+  const handleSaveToBucket = async () => {
+    setIsSaving(true);
+    try {
+      const element = document.getElementById('letterhead-preview-container');
+      if (!element) throw new Error('Preview container not found');
+      
+      const originalIsPrintMode = isPrintMode;
+      if (!isPrintMode) {
+        setIsPrintMode(true);
+        await new Promise(resolve => setTimeout(resolve, 150));
+      }
+
+      const opt = {
+        margin:       0,
+        filename:     `letterhead_${Date.now()}.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true },
+        jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+      };
+
+      const pdfBlob = await html2pdf().set(opt).from(element).outputPdf('blob');
+      
+      const key = `docs/letterhead_${Date.now()}.pdf`;
+      const uploadCommand = new PutObjectCommand({
+        Bucket: 'viorasf',
+        Key: key,
+        Body: pdfBlob,
+        ContentType: 'application/pdf',
+      });
+      
+      await r2Client.send(uploadCommand);
+      
+      alert('Letterhead securely saved to the document bucket!');
+      
+      if (!originalIsPrintMode) {
+        setIsPrintMode(false);
+      }
+    } catch (err) {
+      console.error('Error saving letterhead:', err);
+      alert('Failed to save letterhead to bucket. Please check console.');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   // Heuristic-based paragraph paginator for rendering separate A4 screen blocks
@@ -190,11 +250,22 @@ export default function LetterheadScreen({ adminData }: LetterheadScreenProps) {
 
       {/* LEFT COLUMN: EDITOR PANEL (hidden in print) */}
       <div className="w-full md:w-1/3 min-w-[320px] max-w-[450px] border-r border-white/5 bg-primary-light p-6 overflow-y-auto h-auto md:h-screen sticky top-0 print:hidden flex flex-col gap-6 select-none">
-        <div>
-          <span className="text-[10px] tracking-[0.25em] text-secondary font-semibold uppercase">Toolbox</span>
-          <h2 className="font-serif text-2xl text-white tracking-wide mt-1">Letterhead Builder</h2>
+        <div className="flex items-center gap-3 w-full border-b border-white/5 pb-6">
+          <button
+            onClick={handlePrint}
+            className="flex-1 py-3 px-2 bg-secondary text-black font-semibold text-[10px] sm:text-xs tracking-widest uppercase transition-all duration-300 hover:bg-white flex items-center justify-center gap-2 rounded-sm cursor-pointer shadow-[0_4px_20px_rgba(197,160,89,0.15)]"
+          >
+            <i className="fa-solid fa-print text-sm"></i> Print
+          </button>
+          <button
+            onClick={handleSaveToBucket}
+            disabled={isSaving}
+            className="flex-1 py-3 px-2 bg-[#0A0A0A] border border-white/10 hover:border-secondary text-white font-semibold text-[10px] sm:text-xs tracking-widest uppercase transition-all duration-300 flex items-center justify-center gap-2 rounded-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isSaving ? <div className="h-4 w-4 rounded-full border-2 border-white/20 border-t-white animate-spin"></div> : <i className="fa-solid fa-floppy-disk text-sm"></i>}
+            {isSaving ? 'Saving...' : 'Save'}
+          </button>
         </div>
-
         <div className="space-y-4">
           {/* Style Mode Selector */}
           <div>
@@ -324,21 +395,14 @@ export default function LetterheadScreen({ adminData }: LetterheadScreenProps) {
 
         </div>
 
-        <div className="flex flex-col gap-2 mt-auto">
-          <button
-            onClick={handlePrint}
-            className="w-full py-3 bg-secondary hover:bg-white text-black font-bold text-xs tracking-widest uppercase transition-all duration-300 rounded-sm text-center flex items-center justify-center gap-2 cursor-pointer shadow-[0_4px_20px_rgba(197,160,89,0.15)]"
-          >
-            <i className="fa-solid fa-print text-sm"></i> Print / Export PDF
-          </button>
-          <br />
-        </div>
+
       </div>
 
       {/* RIGHT COLUMN: PREVIEW PANEL */}
       <div className="flex-1 bg-black/50 p-6 md:p-12 overflow-y-auto h-screen print:h-auto print:p-0 flex flex-col items-center gap-8 min-w-0 print:block print:static">
 
         {/* Mapped A4 Pages (Rendered identically for both screen and print) */}
+        <div id="letterhead-preview-container" className="flex flex-col gap-8 print:gap-0 w-full items-center">
         {paginateParagraphs().map((pageParas, pageIdx, allPages) => {
           const isFirstPage = pageIdx === 0;
           const isLastPage = pageIdx === allPages.length - 1;
@@ -526,7 +590,7 @@ export default function LetterheadScreen({ adminData }: LetterheadScreenProps) {
             </div>
           );
         })}
-
+        </div>
       </div>
     </div>
   );
