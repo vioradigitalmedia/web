@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useSeo } from '../hooks/useSeo';
 import { supabase } from '../supabaseClient';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
