@@ -94,22 +94,29 @@ export default function Footer() {
             <h4 className="text-white font-serif tracking-widest text-xs uppercase mb-4 border-b border-secondary/20 pb-2">
               Community
             </h4>
-            <ul className="flex flex-col gap-2 text-xs font-light text-accent-muted/40 cursor-not-allowed">
-              <li className="flex items-center justify-between">
-                <span>Become a Volunteer</span>
-                <span className="text-[7px] bg-zinc-900 border border-secondary/20 text-secondary px-1 py-0.5 rounded-sm">Soon</span>
+            <ul className="flex flex-col gap-2 text-xs font-light">
+              <li className="relative group">
+                <span className="text-accent-muted/40 cursor-not-allowed flex items-center justify-between">
+                  <span>Become a Volunteer</span>
+                  <span className="text-[7px] bg-zinc-900 border border-secondary/20 text-secondary px-1 py-0.5 rounded-sm">Soon</span>
+                </span>
               </li>
-              <li className="flex items-center justify-between">
-                <span>Partner With Us</span>
-                <span className="text-[7px] bg-zinc-900 border border-secondary/20 text-secondary px-1 py-0.5 rounded-sm">Soon</span>
+              <li>
+                <Link to="/partner-with-us" className="hover:text-secondary transition-colors duration-200">
+                  Partner With Us
+                </Link>
               </li>
-              <li className="flex items-center justify-between">
-                <span>Sponsor a Festival</span>
-                <span className="text-[7px] bg-zinc-900 border border-secondary/20 text-secondary px-1 py-0.5 rounded-sm">Soon</span>
+              <li className="relative group">
+                <span className="text-accent-muted/40 cursor-not-allowed flex items-center justify-between">
+                  <span>Sponsor a Festival</span>
+                  <span className="text-[7px] bg-zinc-900 border border-secondary/20 text-secondary px-1 py-0.5 rounded-sm">Soon</span>
+                </span>
               </li>
-              <li className="flex items-center justify-between">
-                <span>FAQs</span>
-                <span className="text-[7px] bg-zinc-900 border border-secondary/20 text-secondary px-1 py-0.5 rounded-sm">Soon</span>
+              <li className="relative group">
+                <span className="text-accent-muted/40 cursor-not-allowed flex items-center justify-between">
+                  <span>FAQs</span>
+                  <span className="text-[7px] bg-zinc-900 border border-secondary/20 text-secondary px-1 py-0.5 rounded-sm">Soon</span>
+                </span>
               </li>
             </ul>
           </div>

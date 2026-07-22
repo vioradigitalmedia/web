@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSeo } from '../hooks/useSeo';
 import { supabase } from '../supabaseClient';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
@@ -103,39 +103,6 @@ export default function VioraSFSScreen() {
       title: 'Narrative Short',
       description: 'Original fictional stories showcasing narrative depth, character development, and cinematic vision.',
       duration: 'Under 30 mins'
-    },
-    {
-      title: 'Documentary Short',
-      description: 'Non-fiction films offering unique insights, leading real-life stories, and creative exploration of reality.',
-      duration: 'Under 40 mins'
-    },
-    {
-      title: 'Animation Short',
-      description: 'Vibrant and innovative animated projects utilizing traditional, 2D, 3D, or stop-motion techniques.',
-      duration: 'Under 20 mins'
-    },
-    {
-      title: 'Experimental & Music Video',
-      description: 'Avant-garde cinema, visual poetry, and musical films that push the boundaries of traditional narrative formats.',
-      duration: 'Under 15 mins'
-    }
-  ];
-
-  const highlights = [
-    {
-      title: 'Global Exposure',
-      description: 'Screen your film before a diverse audience of cinema lovers, industry veterans, and emerging artists.',
-      icon: <i className="fa-solid fa-earth-americas text-secondary text-2xl mb-4"></i>
-    },
-    {
-      title: 'Professional Jury',
-      description: 'Receive evaluation and valuable feedback from active directors, screenwriters, and cinematographers.',
-      icon: <i className="fa-solid fa-gavel text-secondary text-2xl mb-4"></i>
-    },
-    {
-      title: 'Premium Trophies',
-      description: 'Compete for custom handcrafted physical awards, certification, and official digital laurels.',
-      icon: <i className="fa-solid fa-trophy text-secondary text-2xl mb-4"></i>
     }
   ];
 
@@ -241,7 +208,7 @@ export default function VioraSFSScreen() {
 
     const options: RazorpayOptions = {
       key: razorpayKey,
-      amount: 99900, // ₹999 in paise (999 * 100)
+      amount: 69900, // ₹999 in paise (999 * 100)
       currency: 'INR',
       name: 'Viora Media',
       description: `Short Film Fest 2026 Entry: ${filmTitle}`,
@@ -435,7 +402,7 @@ export default function VioraSFSScreen() {
   };
 
   return (
-    <div className="w-full bg-black min-h-screen pb-24">
+    <div className="w-full bg-black min-h-screen pb-24 relative">
       {/* Hero Section */}
       <section className="max-w-7xl mx-auto px-6 py-16 md:py-24 relative overflow-hidden text-center">
         {/* Glow effect */}
@@ -444,7 +411,6 @@ export default function VioraSFSScreen() {
         </div>
 
         <div className="relative z-10 space-y-6">
-          <span className="text-xs tracking-[0.4em] text-secondary font-semibold uppercase">Official Selection</span>
           <h1 className="font-serif text-4xl md:text-7xl text-white tracking-wide leading-tight max-w-4xl mx-auto">
             Viora Short Film <br />
             <span className="text-gold-gradient font-italic font-normal">Festival 2026</span>
@@ -461,22 +427,6 @@ export default function VioraSFSScreen() {
               Submit Your Cut
             </button>
           </div>
-        </div>
-      </section>
-
-      {/* Highlights / Features Grid */}
-      <section className="max-w-7xl mx-auto px-6 py-12 border-t border-white/5">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {highlights.map((item, idx) => (
-            <div
-              key={idx}
-              className="bg-primary-light border border-white/5 p-8 rounded-sm hover:border-secondary/20 transition-all duration-300"
-            >
-              {item.icon}
-              <h3 className="font-serif text-lg text-white tracking-wide mb-3">{item.title}</h3>
-              <p className="text-xs text-accent-muted font-light leading-relaxed">{item.description}</p>
-            </div>
-          ))}
         </div>
       </section>
 
