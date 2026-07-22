@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import html2pdf from 'html2pdf.js';
+import { supabase } from '../supabaseClient';
 
 const r2Client = new S3Client({
   region: 'auto',
@@ -118,7 +119,21 @@ export default function LetterheadScreen({ adminData }: LetterheadScreenProps) {
       
       await r2Client.send(uploadCommand);
       
-      alert('Letterhead securely saved to the document bucket!');
+      const { error: dbError } = await supabase
+        .from('admin_documents')
+        .insert([
+          {
+            title: `Letterhead to ${recipientName}`,
+            type: 'letterhead',
+            recipient_name: recipientName,
+            file_url: key,
+            created_by: signerName
+          }
+        ]);
+        
+      if (dbError) throw dbError;
+      
+      alert('Letterhead securely saved to the document bucket & database!');
       
       if (!originalIsPrintMode) {
         setIsPrintMode(false);

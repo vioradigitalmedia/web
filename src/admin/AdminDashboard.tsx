@@ -77,6 +77,16 @@ interface FestivalSubmission {
   created_at: string;
 }
 
+interface AdminDocument {
+  id: string;
+  title: string;
+  type: string;
+  recipient_name: string;
+  file_url: string;
+  created_by: string;
+  created_at: string;
+}
+
 export default function AdminDashboard() {
   const [messages, setMessages] = useState<ContactMessage[]>([]);
   const [loading, setLoading] = useState(true);
@@ -118,12 +128,57 @@ export default function AdminDashboard() {
   const [presignedLoading, setPresignedLoading] = useState(false);
   const [showMediaModal, setShowMediaModal] = useState(false);
   const [mediaFilter, setMediaFilter] = useState<'movies' | 'posters' | 'docs'>('movies');
+  const [adminDocs, setAdminDocs] = useState<AdminDocument[]>([]);
+  const [adminDocsLoading, setAdminDocsLoading] = useState(false);
+  const [selectedDocKey, setSelectedDocKey] = useState<string | null>(null);
 
   // Admin data for Letterhead auto-fill
   const [adminData, setAdminData] = useState<{ first_name: string; last_name: string; designation: string; signature?: string | null } | null>(null);
 
+  const fetchAdminDocs = async () => {
+    setAdminDocsLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('admin_documents')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      setAdminDocs(data || []);
+    } catch (err) {
+      console.error('Error fetching admin docs:', err);
+    } finally {
+      setAdminDocsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (mediaFilter === 'docs') {
+      fetchAdminDocs();
+    }
+  }, [mediaFilter]);
+
   useEffect(() => {
     const generateUrls = async () => {
+      if (selectedDocKey) {
+        setPresignedLoading(true);
+        try {
+          const command = new GetObjectCommand({
+            Bucket: 'viorasf',
+            Key: selectedDocKey,
+          });
+          const url = await getSignedUrl(r2Client, command, { expiresIn: 3600 });
+          setIdPresignedUrl(url); // Re-use idPresignedUrl for the iframe in the modal
+          setMoviePresignedUrl(null);
+          setPosterPresignedUrl(null);
+        } catch (err) {
+          console.error(err);
+        } finally {
+          setPresignedLoading(false);
+        }
+        return;
+      }
+
       const selected = submissions.find(s => s.id === selectedSubmissionId);
       if (!selected) {
         setMoviePresignedUrl(null);
@@ -176,7 +231,7 @@ export default function AdminDashboard() {
     };
 
     generateUrls();
-  }, [selectedSubmissionId, submissions]);
+  }, [selectedSubmissionId, submissions, selectedDocKey]);
 
   useEffect(() => {
     // 1. Fetch current session
@@ -843,12 +898,61 @@ export default function AdminDashboard() {
                 </div>
                 <p className="text-sm font-light">No media assets found.</p>
               </div>
+            ) : mediaFilter === 'docs' ? (
+              adminDocsLoading ? (
+                <div className="py-20 flex flex-col items-center justify-center gap-4">
+                  <div className="h-8 w-8 rounded-full border-2 border-secondary/20 border-t-secondary animate-spin" />
+                  <span className="text-xs text-accent-muted tracking-widest uppercase font-light">Loading Documents...</span>
+                </div>
+              ) : adminDocs.length === 0 ? (
+                <div className="py-20 text-center text-accent-muted space-y-3">
+                  <div className="h-12 w-12 rounded-full border border-white/10 flex items-center justify-center mx-auto text-white/40">
+                    <i className="fa-solid fa-file-pdf text-lg"></i>
+                  </div>
+                  <p className="text-sm font-light">No documents found.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                  {adminDocs.map(doc => (
+                    <button 
+                      key={doc.id}
+                      onClick={() => {
+                        setSelectedSubmissionId(null);
+                        setSelectedDocKey(doc.file_url);
+                        setShowMediaModal(true);
+                      }}
+                      className="border border-white/5 bg-primary-light rounded-sm overflow-hidden flex flex-col hover:border-secondary/50 hover:bg-white/[0.02] transition-all duration-300 text-left w-full cursor-pointer group"
+                    >
+                       <div className="aspect-video w-full bg-black/40 flex flex-col items-center justify-center border-b border-white/5 relative p-4 text-center">
+                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center z-10">
+                            <div className="h-12 w-12 rounded-full bg-secondary/90 flex items-center justify-center shadow-[0_0_20px_rgba(197,160,89,0.4)]">
+                              <i className="fa-solid fa-magnifying-glass text-black text-lg"></i>
+                            </div>
+                         </div>
+                         <i className="fa-solid fa-file-pdf text-3xl text-white/20 mb-3 group-hover:opacity-0 transition-opacity duration-300"></i>
+                         <span className="text-[10px] text-white/50 uppercase tracking-widest font-semibold break-all line-clamp-2 group-hover:opacity-0 transition-opacity duration-300">
+                           {doc.file_url.split('/').pop()}
+                         </span>
+                      </div>
+                      <div className="p-5 flex-grow flex flex-col w-full">
+                        <h3 className="text-sm font-semibold text-white truncate w-full" title={doc.title}>
+                          {doc.title}
+                        </h3>
+                        <p className="text-[10px] text-accent-muted truncate w-full mt-1">
+                          {new Date(doc.created_at).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {(mediaFilter === 'movies' ? submissions.filter(s => s.movie_url) : mediaFilter === 'posters' ? submissions.filter(s => s.poster_url) : submissions.filter(s => s.id_url)).map((sub) => (
+                {(mediaFilter === 'movies' ? submissions.filter(s => s.movie_url) : submissions.filter(s => s.poster_url)).map((sub) => (
                   <button 
                     key={sub.id} 
                     onClick={() => {
+                      setSelectedDocKey(null);
                       setSelectedSubmissionId(sub.id);
                       setShowMediaModal(true);
                     }}
@@ -860,9 +964,9 @@ export default function AdminDashboard() {
                             <i className={`fa-solid ${mediaFilter === 'movies' ? 'fa-play ml-1' : 'fa-magnifying-glass'} text-black text-lg`}></i>
                           </div>
                        </div>
-                       <i className={`fa-solid ${mediaFilter === 'movies' ? 'fa-film' : mediaFilter === 'posters' ? 'fa-image' : 'fa-id-card'} text-3xl text-white/20 mb-3 group-hover:opacity-0 transition-opacity duration-300`}></i>
+                       <i className={`fa-solid ${mediaFilter === 'movies' ? 'fa-film' : 'fa-image'} text-3xl text-white/20 mb-3 group-hover:opacity-0 transition-opacity duration-300`}></i>
                        <span className="text-[10px] text-white/50 uppercase tracking-widest font-semibold break-all line-clamp-2 group-hover:opacity-0 transition-opacity duration-300">
-                         {mediaFilter === 'movies' ? sub.movie_url : mediaFilter === 'posters' ? sub.poster_url : sub.id_url}
+                         {mediaFilter === 'movies' ? sub.movie_url : sub.poster_url}
                        </span>
                     </div>
                     <div className="p-5 space-y-2 flex-grow flex flex-col w-full">
@@ -890,7 +994,7 @@ export default function AdminDashboard() {
             )}
 
             {/* Media Player Modal */}
-            {showMediaModal && selectedSubmissionId && (
+            {showMediaModal && (selectedSubmissionId || selectedDocKey) && (
               <div className="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center p-6 backdrop-blur-sm animate-fade-in">
                 <button 
                   onClick={() => setShowMediaModal(false)} 
