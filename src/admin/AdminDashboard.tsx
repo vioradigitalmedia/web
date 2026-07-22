@@ -107,6 +107,7 @@ export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'messages' | 'media' | 'submissions' | 'cfo' | 'letterhead' | 'partners'>('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [appView, setAppView] = useState<'selection' | 'dashboard'>('selection');
 
   // Partners States
   const [partners, setPartners] = useState<PartnerProposal[]>([]);
@@ -158,7 +159,7 @@ export default function AdminDashboard() {
         .from('admin_documents')
         .select('*')
         .order('created_at', { ascending: false });
-      
+
       if (error) throw error;
       setAdminDocs(data || []);
     } catch (err) {
@@ -525,6 +526,68 @@ export default function AdminDashboard() {
 
   if (!session) {
     return <AdminLogin />;
+  }
+
+  if (appView === 'selection') {
+    return (
+      <div className="min-h-screen bg-[#020202] text-white flex flex-col items-center justify-center p-6 relative overflow-hidden">
+        {/* Background elements */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-secondary/5 rounded-full blur-[100px] pointer-events-none" />
+
+        <div className="mb-12 text-center z-10">
+          <img
+            src="/logo.jpg"
+            alt="Viora Logo"
+            className="h-16 w-16 object-contain rounded-md border border-secondary/20 mx-auto mb-6 shadow-[0_0_30px_rgba(197,160,89,0.15)]"
+          />
+          <h1 className="font-serif text-4xl text-white tracking-wide mb-2">Welcome Admin</h1>
+          <p className="text-accent-muted text-sm tracking-widest uppercase font-light">Select an application to continue</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl w-full z-10">
+          {/* Option 1: Viora Console */}
+          <button
+            onClick={() => setAppView('dashboard')}
+            className="group relative bg-[#0A0A0A]/80 backdrop-blur-md border border-white/10 hover:border-secondary/50 rounded-lg p-8 flex flex-col items-center justify-center gap-6 transition-all duration-500 hover:shadow-[0_0_40px_rgba(197,160,89,0.1)] hover:-translate-y-1 overflow-hidden cursor-pointer"
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-secondary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <div className="h-16 w-16 rounded-full bg-secondary/10 border border-secondary/30 flex items-center justify-center text-secondary group-hover:scale-110 transition-transform duration-500">
+              <i className="fa-solid fa-gauge-high text-2xl"></i>
+            </div>
+            <div className="text-center relative z-10">
+              <h3 className="text-xl font-serif tracking-wide text-white mb-2">Viora Web Console</h3>
+              <p className="text-xs text-accent-muted font-light leading-relaxed">Access the main dashboard, manage submissions, messages, and analytics.</p>
+            </div>
+          </button>
+
+          {/* Option 2: Coming Soon */}
+          <div className="group relative bg-[#0A0A0A]/40 backdrop-blur-md border border-white/5 rounded-lg p-8 flex flex-col items-center justify-center gap-6 cursor-not-allowed opacity-75">
+            <div className="h-16 w-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/30">
+              <i className="fa-solid fa-film text-2xl"></i>
+            </div>
+            <div className="text-center">
+              <h3 className="text-xl font-serif tracking-wide text-white/50 mb-2">Application 2</h3>
+              <div className="inline-block mt-2 px-3 py-1 bg-white/5 border border-white/10 rounded-full">
+                <span className="text-[10px] tracking-widest text-white/40 uppercase font-semibold">Coming Soon</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Option 3: Coming Soon */}
+          <div className="group relative bg-[#0A0A0A]/40 backdrop-blur-md border border-white/5 rounded-lg p-8 flex flex-col items-center justify-center gap-6 cursor-not-allowed opacity-75">
+            <div className="h-16 w-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/30">
+              <i className="fa-solid fa-chart-line text-2xl"></i>
+            </div>
+            <div className="text-center">
+              <h3 className="text-xl font-serif tracking-wide text-white/50 mb-2">Application 3</h3>
+              <div className="inline-block mt-2 px-3 py-1 bg-white/5 border border-white/10 rounded-full">
+                <span className="text-[10px] tracking-widest text-white/40 uppercase font-semibold">Coming Soon</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   // Render individual panels
@@ -980,19 +1043,19 @@ export default function AdminDashboard() {
                 <div className="flex items-center gap-6 mt-1">
                   <h1 className="font-serif text-3xl text-white tracking-wide">Media Library</h1>
                   <div className="flex items-center bg-black/40 p-1 rounded-sm border border-white/5">
-                    <button 
+                    <button
                       onClick={() => setMediaFilter('movies')}
                       className={`px-4 py-1.5 text-xs tracking-widest uppercase transition-all duration-300 rounded-sm ${mediaFilter === 'movies' ? 'bg-secondary text-black font-bold' : 'text-accent-muted hover:text-white'}`}
                     >
                       Movies
                     </button>
-                    <button 
+                    <button
                       onClick={() => setMediaFilter('posters')}
                       className={`px-4 py-1.5 text-xs tracking-widest uppercase transition-all duration-300 rounded-sm ${mediaFilter === 'posters' ? 'bg-secondary text-black font-bold' : 'text-accent-muted hover:text-white'}`}
                     >
                       Posters
                     </button>
-                    <button 
+                    <button
                       onClick={() => setMediaFilter('docs')}
                       className={`px-4 py-1.5 text-xs tracking-widest uppercase transition-all duration-300 rounded-sm ${mediaFilter === 'docs' ? 'bg-secondary text-black font-bold' : 'text-accent-muted hover:text-white'}`}
                     >
@@ -1050,7 +1113,7 @@ export default function AdminDashboard() {
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                   {adminDocs.map(doc => (
-                    <button 
+                    <button
                       key={doc.id}
                       onClick={() => {
                         setSelectedSubmissionId(null);
@@ -1059,16 +1122,16 @@ export default function AdminDashboard() {
                       }}
                       className="border border-white/5 bg-primary-light rounded-sm overflow-hidden flex flex-col hover:border-secondary/50 hover:bg-white/[0.02] transition-all duration-300 text-left w-full cursor-pointer group"
                     >
-                       <div className="aspect-video w-full bg-black/40 flex flex-col items-center justify-center border-b border-white/5 relative p-4 text-center">
-                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center z-10">
-                            <div className="h-12 w-12 rounded-full bg-secondary/90 flex items-center justify-center shadow-[0_0_20px_rgba(197,160,89,0.4)]">
-                              <i className="fa-solid fa-magnifying-glass text-black text-lg"></i>
-                            </div>
-                         </div>
-                         <i className="fa-solid fa-file-pdf text-3xl text-white/20 mb-3 group-hover:opacity-0 transition-opacity duration-300"></i>
-                         <span className="text-[10px] text-white/50 uppercase tracking-widest font-semibold break-all line-clamp-2 group-hover:opacity-0 transition-opacity duration-300">
-                           {doc.file_url.split('/').pop()}
-                         </span>
+                      <div className="aspect-video w-full bg-black/40 flex flex-col items-center justify-center border-b border-white/5 relative p-4 text-center">
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center z-10">
+                          <div className="h-12 w-12 rounded-full bg-secondary/90 flex items-center justify-center shadow-[0_0_20px_rgba(197,160,89,0.4)]">
+                            <i className="fa-solid fa-magnifying-glass text-black text-lg"></i>
+                          </div>
+                        </div>
+                        <i className="fa-solid fa-file-pdf text-3xl text-white/20 mb-3 group-hover:opacity-0 transition-opacity duration-300"></i>
+                        <span className="text-[10px] text-white/50 uppercase tracking-widest font-semibold break-all line-clamp-2 group-hover:opacity-0 transition-opacity duration-300">
+                          {doc.file_url.split('/').pop()}
+                        </span>
                       </div>
                       <div className="p-5 flex-grow flex flex-col w-full">
                         <h3 className="text-sm font-semibold text-white truncate w-full" title={doc.title}>
@@ -1085,8 +1148,8 @@ export default function AdminDashboard() {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {(mediaFilter === 'movies' ? submissions.filter(s => s.movie_url) : submissions.filter(s => s.poster_url)).map((sub) => (
-                  <button 
-                    key={sub.id} 
+                  <button
+                    key={sub.id}
                     onClick={() => {
                       setSelectedDocKey(null);
                       setSelectedSubmissionId(sub.id);
@@ -1095,15 +1158,15 @@ export default function AdminDashboard() {
                     className="border border-white/5 bg-primary-light rounded-sm overflow-hidden flex flex-col hover:border-secondary/50 hover:bg-white/[0.02] transition-all duration-300 text-left w-full cursor-pointer group"
                   >
                     <div className="aspect-video w-full bg-black/40 flex flex-col items-center justify-center border-b border-white/5 relative p-4 text-center">
-                       <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center z-10">
-                          <div className="h-12 w-12 rounded-full bg-secondary/90 flex items-center justify-center shadow-[0_0_20px_rgba(197,160,89,0.4)]">
-                            <i className={`fa-solid ${mediaFilter === 'movies' ? 'fa-play ml-1' : 'fa-magnifying-glass'} text-black text-lg`}></i>
-                          </div>
-                       </div>
-                       <i className={`fa-solid ${mediaFilter === 'movies' ? 'fa-film' : 'fa-image'} text-3xl text-white/20 mb-3 group-hover:opacity-0 transition-opacity duration-300`}></i>
-                       <span className="text-[10px] text-white/50 uppercase tracking-widest font-semibold break-all line-clamp-2 group-hover:opacity-0 transition-opacity duration-300">
-                         {mediaFilter === 'movies' ? sub.movie_url : sub.poster_url}
-                       </span>
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center z-10">
+                        <div className="h-12 w-12 rounded-full bg-secondary/90 flex items-center justify-center shadow-[0_0_20px_rgba(197,160,89,0.4)]">
+                          <i className={`fa-solid ${mediaFilter === 'movies' ? 'fa-play ml-1' : 'fa-magnifying-glass'} text-black text-lg`}></i>
+                        </div>
+                      </div>
+                      <i className={`fa-solid ${mediaFilter === 'movies' ? 'fa-film' : 'fa-image'} text-3xl text-white/20 mb-3 group-hover:opacity-0 transition-opacity duration-300`}></i>
+                      <span className="text-[10px] text-white/50 uppercase tracking-widest font-semibold break-all line-clamp-2 group-hover:opacity-0 transition-opacity duration-300">
+                        {mediaFilter === 'movies' ? sub.movie_url : sub.poster_url}
+                      </span>
                     </div>
                     <div className="p-5 space-y-2 flex-grow flex flex-col w-full">
                       <h3 className="text-sm font-semibold text-white truncate w-full" title={sub.film_title}>
@@ -1112,14 +1175,14 @@ export default function AdminDashboard() {
                       <p className="text-xs text-accent-muted truncate w-full">
                         Dir: <span className="text-white/80">{sub.director}</span>
                       </p>
-                      
+
                       {sub.poster_url && mediaFilter !== 'posters' && (
                         <div className="mt-auto pt-4 border-t border-white/5 flex items-center justify-between w-full">
                           <span className="text-[10px] text-white/30 font-medium tracking-wide">
-                             Has assets
+                            Has assets
                           </span>
                           <span className="text-[10px] text-secondary/80 font-medium tracking-wide">
-                             + POSTER
+                            + POSTER
                           </span>
                         </div>
                       )}
@@ -1132,42 +1195,42 @@ export default function AdminDashboard() {
             {/* Media Player Modal */}
             {showMediaModal && (selectedSubmissionId || selectedDocKey) && (
               <div className="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center p-6 backdrop-blur-sm animate-fade-in">
-                <button 
-                  onClick={() => setShowMediaModal(false)} 
+                <button
+                  onClick={() => setShowMediaModal(false)}
                   className="absolute top-6 right-6 text-white/50 hover:text-white transition-colors duration-200 z-10"
                 >
                   <i className="fa-solid fa-xmark text-3xl"></i>
                 </button>
                 <div className="w-full max-w-5xl bg-black rounded-sm overflow-hidden border border-white/10 shadow-2xl relative">
                   {presignedLoading ? (
-                     <div className="py-32 flex flex-col items-center justify-center gap-4">
-                       <div className="h-10 w-10 rounded-full border-2 border-secondary/20 border-t-secondary animate-spin"></div>
-                       <span className="text-sm text-accent-muted tracking-widest uppercase">Securing media stream...</span>
-                     </div>
+                    <div className="py-32 flex flex-col items-center justify-center gap-4">
+                      <div className="h-10 w-10 rounded-full border-2 border-secondary/20 border-t-secondary animate-spin"></div>
+                      <span className="text-sm text-accent-muted tracking-widest uppercase">Securing media stream...</span>
+                    </div>
                   ) : mediaFilter === 'movies' && moviePresignedUrl ? (
-                     <video 
-                       src={moviePresignedUrl} 
-                       controls 
-                       autoPlay 
-                       className="w-full aspect-video bg-black outline-none"
-                     />
+                    <video
+                      src={moviePresignedUrl}
+                      controls
+                      autoPlay
+                      className="w-full aspect-video bg-black outline-none"
+                    />
                   ) : mediaFilter === 'posters' && posterPresignedUrl ? (
-                     <img 
-                       src={posterPresignedUrl} 
-                       alt="Poster" 
-                       className="w-full max-h-[85vh] object-contain bg-black outline-none"
-                     />
+                    <img
+                      src={posterPresignedUrl}
+                      alt="Poster"
+                      className="w-full max-h-[85vh] object-contain bg-black outline-none"
+                    />
                   ) : mediaFilter === 'docs' && idPresignedUrl ? (
-                     <iframe 
-                       src={idPresignedUrl} 
-                       title="Document" 
-                       className="w-full h-[85vh] bg-white outline-none rounded-sm"
-                     />
+                    <iframe
+                      src={idPresignedUrl}
+                      title="Document"
+                      className="w-full h-[85vh] bg-white outline-none rounded-sm"
+                    />
                   ) : (
-                     <div className="py-32 flex flex-col items-center justify-center gap-4">
-                       <i className="fa-solid fa-triangle-exclamation text-4xl text-red-500/50"></i>
-                       <span className="text-sm text-red-400">Failed to load media stream</span>
-                     </div>
+                    <div className="py-32 flex flex-col items-center justify-center gap-4">
+                      <i className="fa-solid fa-triangle-exclamation text-4xl text-red-500/50"></i>
+                      <span className="text-sm text-red-400">Failed to load media stream</span>
+                    </div>
                   )}
                 </div>
               </div>
