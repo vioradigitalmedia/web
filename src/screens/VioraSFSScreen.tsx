@@ -141,7 +141,7 @@ export default function VioraSFSScreen() {
         setErrorMessage('All contact information fields are required.');
         return false;
       }
-      
+
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(email)) {
         setErrorMessage('Please enter a valid email address.');
@@ -225,7 +225,7 @@ export default function VioraSFSScreen() {
 
     const options: RazorpayOptions = {
       key: razorpayKey,
-      amount: 69900, // ₹999 in paise (999 * 100)
+      amount: 100, // ₹999 in paise (999 * 100)
       currency: 'INR',
       name: 'Viora Media',
       description: `Short Film Fest 2026 Entry: ${filmTitle}`,
