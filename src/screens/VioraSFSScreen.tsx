@@ -174,10 +174,6 @@ export default function VioraSFSScreen() {
         setErrorMessage('Please select a movie file to submit.');
         return false;
       }
-      if (!posterFile) {
-        setErrorMessage('Please upload a movie poster to submit.');
-        return false;
-      }
       if (!agreeRules) {
         setErrorMessage('You must agree to the festival rules to proceed.');
         return false;
@@ -552,6 +548,7 @@ export default function VioraSFSScreen() {
                       ></div>
                     </div>
                     <p className="text-[10px] text-secondary font-mono tracking-widest">{progress}% COMPLETE</p>
+                    <p className="text-[9px] text-accent-muted pt-1 animate-pulse">Kindly wait until the upload finishes. Do not close this tab.</p>
                   </div>
                 </div>
               ) : paying ? (
@@ -856,26 +853,26 @@ export default function VioraSFSScreen() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-white/5 pt-4">
                         <div>
                           <label className="block text-[10px] tracking-widest text-secondary font-semibold uppercase mb-1.5">
-                            Main Actor
+                            Actor
                           </label>
                           <input
                             type="text"
                             value={mainActor}
                             onChange={(e) => setMainActor(e.target.value)}
                             className="w-full bg-black/60 border border-white/10 focus:border-secondary focus:outline-none px-4 py-3.5 text-xs text-white placeholder-white/20 transition-all rounded-sm focus:ring-1 focus:ring-secondary/30"
-                            placeholder="Lead Actor"
+                            placeholder="Actor"
                           />
                         </div>
                         <div>
                           <label className="block text-[10px] tracking-widest text-secondary font-semibold uppercase mb-1.5">
-                            Main Actress
+                            Actress
                           </label>
                           <input
                             type="text"
                             value={mainActress}
                             onChange={(e) => setMainActress(e.target.value)}
                             className="w-full bg-black/60 border border-white/10 focus:border-secondary focus:outline-none px-4 py-3.5 text-xs text-white placeholder-white/20 transition-all rounded-sm focus:ring-1 focus:ring-secondary/30"
-                            placeholder="Lead Actress"
+                            placeholder="Actress"
                           />
                         </div>
                       </div>
@@ -917,13 +914,12 @@ export default function VioraSFSScreen() {
 
                         <div>
                           <label className="block text-[10px] tracking-widest text-secondary font-semibold uppercase mb-1.5">
-                            Upload Poster
+                            Upload Poster (Optional)
                           </label>
                           <div className="relative group border border-dashed border-white/10 hover:border-secondary/40 transition-colors duration-300 rounded-sm bg-black/40 p-5 flex flex-col items-center justify-center text-center cursor-pointer h-32">
                             <input
                               type="file"
                               accept="image/*"
-                              required
                               onChange={handlePosterChange}
                               className="absolute inset-0 opacity-0 cursor-pointer"
                             />
