@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useSeo } from '../hooks/useSeo';
 import { supabase } from '../supabaseClient';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { Upload } from '@aws-sdk/lib-storage';
 
 const r2Client = new S3Client({
   region: 'auto',
@@ -269,16 +270,6 @@ export default function VioraSFSScreen() {
     setUploading(true);
     setProgress(0);
 
-    const interval = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 95) {
-          clearInterval(interval);
-          return 95;
-        }
-        return prev + Math.floor(Math.random() * 15) + 5;
-      });
-    }, 150);
-
     try {
       if (!selectedFile) {
         throw new Error('No movie file selected.');
@@ -286,15 +277,25 @@ export default function VioraSFSScreen() {
 
       // 1. Upload Movie File directly to Cloudflare R2
       const movieFileName = `movies/${Date.now()}_${selectedFile.name}`;
-      const moviePutCommand = new PutObjectCommand({
-        Bucket: 'viorasf',
-        Key: movieFileName,
-        Body: selectedFile,
-        ContentType: selectedFile.type,
+      const movieUpload = new Upload({
+        client: r2Client,
+        params: {
+          Bucket: 'viorasf',
+          Key: movieFileName,
+          Body: selectedFile,
+          ContentType: selectedFile.type,
+        },
+      });
+
+      movieUpload.on('httpUploadProgress', (progressEvent) => {
+        if (progressEvent.loaded && progressEvent.total) {
+          const percent = Math.round((progressEvent.loaded / progressEvent.total) * 95);
+          setProgress(percent);
+        }
       });
 
       try {
-        await r2Client.send(moviePutCommand);
+        await movieUpload.done();
       } catch (uploadErr: any) {
         throw new Error(`Movie upload to R2 failed: ${uploadErr.message}`);
       }
@@ -374,7 +375,6 @@ export default function VioraSFSScreen() {
         throw new Error(`Database insert failed: ${insertError.message}`);
       }
 
-      clearInterval(interval);
       setProgress(100);
       setTimeout(() => {
         setUploading(false);
@@ -382,7 +382,6 @@ export default function VioraSFSScreen() {
       }, 500);
 
     } catch (err) {
-      clearInterval(interval);
       setUploading(false);
       const errorMsg = err instanceof Error ? err.message : 'Submission failed. Please check your network and try again.';
       setErrorMessage(errorMsg);
