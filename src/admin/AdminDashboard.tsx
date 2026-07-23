@@ -528,7 +528,7 @@ export default function AdminDashboard() {
     return <AdminLogin />;
   }
 
-  if (appView === 'selection') {
+  if (appView === 'selection' && session?.user?.email === 'takilesh07@gmail.com') {
     return (
       <div className="min-h-screen bg-[#020202] text-white flex flex-col items-center justify-center p-6 relative overflow-hidden">
         {/* Background elements */}
