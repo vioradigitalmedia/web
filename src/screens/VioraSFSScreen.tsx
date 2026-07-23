@@ -141,6 +141,19 @@ export default function VioraSFSScreen() {
         setErrorMessage('All contact information fields are required.');
         return false;
       }
+      
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        setErrorMessage('Please enter a valid email address.');
+        return false;
+      }
+
+      const digitsOnly = phone.replace(/\D/g, '');
+      if (digitsOnly.length < 10) {
+        setErrorMessage('Please enter a valid phone number (at least 10 digits).');
+        return false;
+      }
+
       if (isCollegeStudent && !collegeIdFile) {
         setErrorMessage('Please upload a scanned copy of your College ID Card.');
         return false;
@@ -158,6 +171,10 @@ export default function VioraSFSScreen() {
     } else if (step === 4) {
       if (!selectedFile) {
         setErrorMessage('Please select a movie file to submit.');
+        return false;
+      }
+      if (!posterFile) {
+        setErrorMessage('Please upload a movie poster to submit.');
         return false;
       }
       if (!agreeRules) {
@@ -577,7 +594,7 @@ export default function VioraSFSScreen() {
                     <div className="space-y-4 animate-fade-in text-left">
                       <div>
                         <label className="block text-[10px] tracking-widest text-secondary font-semibold uppercase mb-1.5">
-                          Full Name
+                          Full Name *
                         </label>
                         <input
                           type="text"
@@ -591,7 +608,7 @@ export default function VioraSFSScreen() {
 
                       <div>
                         <label className="block text-[10px] tracking-widest text-secondary font-semibold uppercase mb-1.5">
-                          Phone Number
+                          Phone Number *
                         </label>
                         <input
                           type="tel"
@@ -605,7 +622,7 @@ export default function VioraSFSScreen() {
 
                       <div>
                         <label className="block text-[10px] tracking-widest text-secondary font-semibold uppercase mb-1.5">
-                          Email Address
+                          Email Address *
                         </label>
                         <input
                           type="email"
@@ -619,7 +636,7 @@ export default function VioraSFSScreen() {
 
                       <div>
                         <label className="block text-[10px] tracking-widest text-secondary font-semibold uppercase mb-1.5">
-                          City
+                          City *
                         </label>
                         <input
                           type="text"
@@ -694,7 +711,7 @@ export default function VioraSFSScreen() {
                     <div className="space-y-4 animate-fade-in text-left">
                       <div>
                         <label className="block text-[10px] tracking-widest text-secondary font-semibold uppercase mb-1.5">
-                          Film Title
+                          Film Title *
                         </label>
                         <input
                           type="text"
@@ -709,7 +726,7 @@ export default function VioraSFSScreen() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                           <label className="block text-[10px] tracking-widest text-secondary font-semibold uppercase mb-1.5">
-                            Genre
+                            Genre *
                           </label>
                           <input
                             type="text"
@@ -722,10 +739,11 @@ export default function VioraSFSScreen() {
                         </div>
                         <div>
                           <label className="block text-[10px] tracking-widest text-secondary font-semibold uppercase mb-1.5">
-                            Runtime (e.g. 15 mins)
+                            Runtime (minutes) *
                           </label>
                           <input
-                            type="text"
+                            type="number"
+                            min="1"
                             required
                             value={runtime}
                             onChange={(e) => setRuntime(e.target.value)}
@@ -738,7 +756,7 @@ export default function VioraSFSScreen() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                           <label className="block text-[10px] tracking-widest text-secondary font-semibold uppercase mb-1.5">
-                            Language
+                            Language *
                           </label>
                           <input
                             type="text"
@@ -751,7 +769,7 @@ export default function VioraSFSScreen() {
                         </div>
                         <div>
                           <label className="block text-[10px] tracking-widest text-secondary font-semibold uppercase mb-1.5">
-                            Oneline
+                            Oneline *
                           </label>
                           <input
                             type="text"
@@ -900,12 +918,13 @@ export default function VioraSFSScreen() {
 
                         <div>
                           <label className="block text-[10px] tracking-widest text-secondary font-semibold uppercase mb-1.5">
-                            Upload Poster (Optional)
+                            Upload Poster
                           </label>
                           <div className="relative group border border-dashed border-white/10 hover:border-secondary/40 transition-colors duration-300 rounded-sm bg-black/40 p-5 flex flex-col items-center justify-center text-center cursor-pointer h-32">
                             <input
                               type="file"
                               accept="image/*"
+                              required
                               onChange={handlePosterChange}
                               className="absolute inset-0 opacity-0 cursor-pointer"
                             />
