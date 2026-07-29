@@ -159,25 +159,7 @@ export default function HomeScreen() {
         </div>
       </section>
 
-      {/* Signature Branding Pillars Strip */}
-      <section className="bg-primary-light border-y border-white/5 py-8 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex flex-wrap justify-center md:justify-start gap-4 md:gap-8 items-center text-xs tracking-[0.3em] font-semibold text-secondary uppercase">
-            <span>Vision</span>
-            <span className="text-white/20">•</span>
-            <span>Innovation</span>
-            <span className="text-white/20">•</span>
-            <span>Light</span>
-            <span className="text-white/20">•</span>
-            <span>Rhythm</span>
-            <span className="text-white/20">•</span>
-            <span>Art</span>
-          </div>
-          <p className="text-[10px] tracking-widest text-accent-muted/80 uppercase font-light text-center md:text-right">
-            The five pillars that shape every story.
-          </p>
-        </div>
-      </section>
+
 
       {/* Featured Section - Left Header / Right Text */}
       <section className="max-w-7xl mx-auto px-6 md:px-16 py-24">
@@ -221,6 +203,26 @@ export default function HomeScreen() {
         </div>
       </section>
 
+      {/* Signature Branding Pillars Strip */}
+      <section className="bg-primary-light border-y border-white/5 py-8 overflow-hidden">
+        <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="flex flex-wrap justify-center md:justify-start gap-4 md:gap-8 items-center text-xs tracking-[0.3em] font-semibold text-secondary uppercase">
+            <span>Vizhi</span>
+            <span className="text-white/20">•</span>
+            <span>Innovation</span>
+            <span className="text-white/20">•</span>
+            <span>Oli</span>
+            <span className="text-white/20">•</span>
+            <span>Rhythm</span>
+            <span className="text-white/20">•</span>
+            <span>Art</span>
+          </div>
+          <p className="text-[10px] tracking-widest text-accent-muted/80 uppercase font-light text-center md:text-right">
+            The five pillars that shape every story.
+          </p>
+        </div>
+      </section>
+
       {/* Why Viora Section - Left Text / Right Checkbox List */}
       <section className="max-w-7xl mx-auto px-6 md:px-16 py-24">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
@@ -234,6 +236,13 @@ export default function HomeScreen() {
             <p className="text-xs text-accent-muted font-light leading-relaxed mt-6 max-w-md">
               We design opportunities that remove gatekeepers, bringing emerging directors directly to the center stage.
             </p>
+            <br />
+            <Link
+              to="/aboutus"
+              className="px-8 py-3.5 bg-secondary text-black hover:bg-white border border-secondary hover:text-black transition-all duration-300 font-semibold text-xs tracking-widest uppercase rounded-sm text-center inline-block"
+            >
+              About Us
+            </Link>
           </div>
 
           {/* Right Checklist */}
