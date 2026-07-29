@@ -58,8 +58,44 @@ export default function PartnerScreen() {
       <div className="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] bg-secondary/5 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute bottom-[-10%] right-[-10%] w-[600px] h-[600px] bg-secondary/5 rounded-full blur-[150px] pointer-events-none" />
 
+      {/* Our Partners Section */}
+      <section className="max-w-6xl mx-auto px-6 pt-32 pb-24 relative z-10">
+        <div className="text-center mb-12">
+          <span className="text-[10px] tracking-[0.4em] text-secondary font-semibold uppercase block mb-3">Trusted Collaborators</span>
+          <h2 className="font-serif text-3xl md:text-4xl text-white tracking-wide">Our Partners</h2>
+        </div>
+        <div className="flex justify-center">
+          <div className="group border border-white/10 bg-primary-light/50 rounded-sm px-10 py-8 hover:border-secondary/30 hover:-translate-y-1 hover:shadow-[0_4px_20px_rgba(197,160,89,0.12)] transition-all duration-300 cursor-default">
+            <div className="flex items-center gap-6">
+
+            <img
+              src="/verus.jpg"
+              alt="Verus Productions"
+              className="h-24 md:h-32 w-auto object-contain"
+            />
+            <div className="flex flex-col gap-1">
+              <span className="font-serif text-xl md:text-2xl text-white tracking-widest uppercase">Verus Productions</span>
+              <span className="text-[10px] text-secondary tracking-widest uppercase font-light">Acquisition Partner</span>
+              <div className="flex items-center gap-4 mt-3">
+                <a href="https://instagram.com/verusproductionsofficial" target="_blank" rel="noopener noreferrer" className="text-accent-muted hover:text-secondary transition-colors duration-300">
+                  <i className="fa-brands fa-instagram text-lg"></i>
+                </a>
+                <a href="https://twitter.com/verusproduction" target="_blank" rel="noopener noreferrer" className="text-accent-muted hover:text-secondary transition-colors duration-300">
+                  <i className="fa-brands fa-x-twitter text-lg"></i>
+                </a>
+                <a href="https://verusproductions.com" target="_blank" rel="noopener noreferrer" className="text-accent-muted hover:text-secondary transition-colors duration-300">
+                  <i className="fa-solid fa-arrow-up-right-from-square text-lg"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+          </div>
+        </div>
+
+      </section>
+
       {/* Hero Section */}
-      <section className="max-w-4xl mx-auto px-6 pt-32 pb-16 relative z-10 text-center">
+      <section className="max-w-4xl mx-auto px-6 pb-16 relative z-10 text-center">
         <div className="mb-8 flex justify-center">
           <i className="fa-solid fa-handshake text-5xl md:text-7xl text-secondary/80"></i>
         </div>
@@ -219,6 +255,8 @@ export default function PartnerScreen() {
           </div>
         </div>
       </section>
+
     </div>
+
   );
 }

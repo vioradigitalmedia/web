@@ -166,9 +166,25 @@ export default function FestivalsScreen() {
         </div>
       </section>
 
-
+      {/* Acquisition Partner Section */}
+      <section className="max-w-7xl mx-auto px-6 py-16 mb-24">
+        <div className="text-center">
+          <span className="text-[10px] tracking-[0.4em] text-secondary font-semibold uppercase">Acquisition Partner</span>
+          <div className="mt-8 flex flex-col items-center gap-4">
+            <div className="border border-white/10 bg-primary-light rounded-sm p-8 inline-flex items-center justify-center hover:border-secondary/30 transition-all duration-300">
+              <img
+                src="/verus.jpg"
+                alt="Verus Productions"
+                className="h-20 md:h-28 w-auto object-contain"
+              />
+            </div>
+            <span className="font-serif text-lg md:text-xl text-white tracking-widest uppercase mt-2">Verus Productions</span>
+          </div>
+        </div>
+      </section>
 
       {/* Awards Section */}
+
       <section className="bg-primary-light border-y border-white/5 py-24 px-6 mb-24 relative">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">

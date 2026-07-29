@@ -84,7 +84,7 @@ export default function HomeScreen() {
                 to="/viorasfs"
                 className="px-8 py-3.5 bg-secondary text-black hover:bg-white hover:text-black transition-all duration-300 font-semibold text-xs tracking-widest uppercase rounded-sm text-center inline-block"
               >
-                Submit Film
+                Film Festival
               </Link>
               <Link
                 to="/aboutus"
