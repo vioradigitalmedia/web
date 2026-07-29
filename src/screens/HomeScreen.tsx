@@ -81,7 +81,7 @@ export default function HomeScreen() {
 
             <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
               <Link
-                to="/viorasfs"
+                to="/festivals"
                 className="px-8 py-3.5 bg-secondary text-black hover:bg-white hover:text-black transition-all duration-300 font-semibold text-xs tracking-widest uppercase rounded-sm text-center inline-block"
               >
                 Film Festival
