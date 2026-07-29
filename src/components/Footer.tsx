@@ -144,11 +144,12 @@ export default function Footer() {
                 <a href="https://www.instagram.com/vioramediahub/" target="_blank" rel="noopener noreferrer" className="hover:text-secondary text-base transition-colors duration-200" aria-label="Instagram">
                   <i className="fa-brands fa-instagram"></i>
                 </a>
-                <a href="#youtube" className="hover:text-secondary text-base transition-colors duration-200" aria-label="YouTube">
+                <a href="https://www.youtube.com/@Vioramediahub" target="_blank" rel="noopener noreferrer" className="hover:text-secondary text-base transition-colors duration-200" aria-label="YouTube">
                   <i className="fa-brands fa-youtube"></i>
                 </a>
-                <a href="#x" className="hover:text-secondary text-base transition-colors duration-200" aria-label="X (Twitter)">
-                  <i className="fa-brands fa-x-twitter"></i>                </a>
+                <a href="https://x.com/VioraMediahub" target="_blank" rel="noopener noreferrer" className="hover:text-secondary text-base transition-colors duration-200" aria-label="X (Twitter)">
+                  <i className="fa-brands fa-x-twitter"></i>
+                </a>
                 <a href="#facebook" className="hover:text-secondary text-base transition-colors duration-200" aria-label="Facebook">
                   <i className="fa-brands fa-facebook-f"></i>
                 </a>
