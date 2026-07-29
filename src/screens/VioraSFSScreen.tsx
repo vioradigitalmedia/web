@@ -433,8 +433,8 @@ export default function VioraSFSScreen() {
           <div className="pt-6">
             <button
               type="button"
-              onClick={() => setIsModalOpen(true)}
-              className="inline-block px-8 py-3.5 bg-secondary text-black font-semibold text-xs tracking-widest uppercase hover:bg-white hover:text-black transition-all duration-300 rounded-sm cursor-pointer"
+              disabled
+              className="inline-block px-8 py-3.5 bg-secondary/40 text-black/50 font-semibold text-xs tracking-widest uppercase rounded-sm cursor-not-allowed opacity-60"
             >
               Submit Your Cut
             </button>
@@ -482,8 +482,8 @@ export default function VioraSFSScreen() {
           <div className="pt-4">
             <button
               type="button"
-              onClick={() => setIsModalOpen(true)}
-              className="inline-block px-8 py-3.5 bg-transparent border border-secondary text-secondary font-semibold text-xs tracking-widest uppercase hover:bg-secondary hover:text-black transition-all duration-300 rounded-sm cursor-pointer"
+              disabled
+              className="inline-block px-8 py-3.5 bg-transparent border border-secondary/40 text-secondary/40 font-semibold text-xs tracking-widest uppercase rounded-sm cursor-not-allowed opacity-60"
             >
               Submit Your Cut Now
             </button>
