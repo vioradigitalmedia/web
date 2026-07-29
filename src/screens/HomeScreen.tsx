@@ -86,12 +86,6 @@ export default function HomeScreen() {
               >
                 Film Festival
               </Link>
-              <Link
-                to="/aboutus"
-                className="px-8 py-3.5 border border-white/20 text-white hover:text-secondary hover:border-secondary transition-all duration-300 text-xs tracking-widest uppercase rounded-sm text-center inline-block"
-              >
-                About Us
-              </Link>
             </div>
           </div>
 
