@@ -93,7 +93,7 @@ export default function HomeScreen() {
         <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
 
           {/* Left Hero Content */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
@@ -126,14 +126,14 @@ export default function HomeScreen() {
           </motion.div>
 
           {/* Right Hero Visual Orbit */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, delay: 0.15, ease: [0.23, 1, 0.32, 1] }}
             className="lg:col-span-5 flex justify-center lg:justify-end items-center relative z-10 select-none order-1 lg:order-2 w-full"
           >
             <div className="relative w-[440px] h-[440px] sm:w-[480px] sm:h-[480px] flex items-center justify-center scale-90 sm:scale-100">
-              
+
               {/* Center V Symbol */}
               <div className="relative z-10 flex flex-col items-center">
                 <img
@@ -200,7 +200,7 @@ export default function HomeScreen() {
 
       {/* Core Philosophy Section */}
       <section className="max-w-7xl mx-auto px-6 md:px-16 py-24">
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.3 }}
@@ -253,11 +253,15 @@ export default function HomeScreen() {
             ))}
           </div>
         </div>
-      </section>
-
-      {/* Platform Edge Section */}
+      </section>      {/* Platform Edge Section */}
       <section className="max-w-7xl mx-auto px-6 md:px-16 py-24">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.25 }}
+          transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
+          className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center"
+        >
           <div className="lg:col-span-6 text-left">
             <h2 className="font-serif text-3xl md:text-5xl text-white tracking-wide leading-tight">
               Built for the Next Generation of Storytellers
@@ -268,7 +272,7 @@ export default function HomeScreen() {
             <div className="mt-8">
               <Link
                 to="/aboutus"
-                className="px-8 py-3.5 bg-secondary text-black hover:bg-white transition-all duration-300 font-semibold text-xs tracking-widest uppercase rounded-sm inline-block active:scale-[0.98]"
+                className="px-8 py-3.5 bg-secondary text-black hover:bg-white transition-[transform,background-color,color] duration-160 ease-out font-semibold text-xs tracking-widest uppercase rounded-sm inline-block active:scale-[0.97]"
               >
                 About Us
               </Link>
@@ -278,21 +282,34 @@ export default function HomeScreen() {
           <div className="lg:col-span-6 text-left lg:pl-10">
             <ul className="space-y-5">
               {whyViora.map((item, idx) => (
-                <li key={idx} className="flex items-start gap-4 group">
-                  <CheckCircle2 className="w-5 h-5 text-secondary shrink-0 mt-0.5 group-hover:scale-110 transition-transform duration-200" />
+                <motion.li
+                  key={idx}
+                  initial={{ opacity: 0, x: 12 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.3, delay: idx * 0.05, ease: [0.23, 1, 0.32, 1] }}
+                  className="flex items-start gap-4 group"
+                >
+                  <CheckCircle2 className="w-5 h-5 text-secondary shrink-0 mt-0.5 group-hover:scale-110 transition-transform duration-200 ease-out" />
                   <span className="text-sm text-accent-muted group-hover:text-white transition-colors duration-200 font-light leading-relaxed">
                     {item}
                   </span>
-                </li>
+                </motion.li>
               ))}
             </ul>
           </div>
-        </div>
+        </motion.div>
       </section>
 
       {/* Upcoming Festival Event Callout */}
       <section id="upcoming-festival" className="bg-zinc-950 border-y border-white/10 py-24 px-6 md:px-16">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.25 }}
+          transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
+          className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center"
+        >
           <div className="lg:col-span-6 text-left">
             <h2 className="font-serif text-3xl md:text-5xl text-white mb-6">Upcoming Festival</h2>
             <p className="text-base text-accent-muted font-light leading-relaxed max-w-md">
@@ -301,7 +318,11 @@ export default function HomeScreen() {
           </div>
 
           <div className="lg:col-span-6 flex justify-end">
-            <div className="w-full max-w-lg border border-secondary/40 bg-black p-8 rounded-sm text-left shadow-[0_0_30px_rgba(197,160,89,0.1)] relative">
+            <motion.div
+              whileHover={{ y: -4 }}
+              transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
+              className="w-full max-w-lg border border-secondary/40 bg-black p-8 rounded-sm text-left shadow-[0_0_30px_rgba(197,160,89,0.1)] hover:border-secondary/70 transition-colors duration-200 relative"
+            >
               <div className="inline-block px-3 py-1 bg-secondary text-black font-bold text-[9px] tracking-widest uppercase rounded-sm mb-4">
                 Submissions Open
               </div>
@@ -313,38 +334,52 @@ export default function HomeScreen() {
 
               <Link
                 to="/viorasfs"
-                className="w-full py-4 bg-secondary text-black hover:bg-white transition-all duration-300 font-semibold text-xs tracking-widest uppercase rounded-sm text-center inline-block active:scale-[0.98]"
+                className="w-full py-4 bg-secondary text-black hover:bg-white transition-[transform,background-color,color] duration-160 ease-out font-semibold text-xs tracking-widest uppercase rounded-sm text-center inline-block active:scale-[0.97]"
               >
                 Submit Your Entry
               </Link>
-            </div>
+            </motion.div>
           </div>
-        </div>
+        </motion.div>
       </section>
 
       {/* Vision Section */}
       <section className="max-w-7xl mx-auto px-6 md:px-16 py-24">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-12">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.25 }}
+          transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
+          className="grid grid-cols-1 md:grid-cols-12 gap-12"
+        >
           <div className="md:col-span-4 text-left">
             <h2 className="font-serif text-3xl md:text-5xl text-white tracking-wide">Our Vision</h2>
           </div>
 
           <div className="md:col-span-8 grid grid-cols-1 sm:grid-cols-2 gap-6 text-left">
-            <div className="p-8 border border-white/10 bg-zinc-950 rounded-sm">
+            <motion.div
+              whileHover={{ y: -2 }}
+              transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
+              className="p-8 border border-white/10 bg-zinc-950 rounded-sm hover:border-secondary/40 transition-colors duration-200"
+            >
               <span className="text-xs tracking-widest text-secondary font-semibold uppercase block mb-3">Today</span>
               <p className="text-sm text-accent-muted font-light leading-relaxed">
                 Connecting creators through digital media, curated festivals, hands-on workshops, industry dialogues, and collaborative networking.
               </p>
-            </div>
+            </motion.div>
 
-            <div className="p-8 border border-white/10 bg-zinc-950 rounded-sm">
+            <motion.div
+              whileHover={{ y: -2 }}
+              transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
+              className="p-8 border border-white/10 bg-zinc-950 rounded-sm hover:border-secondary/40 transition-colors duration-200"
+            >
               <span className="text-xs tracking-widest text-secondary font-semibold uppercase block mb-3">Tomorrow</span>
               <p className="text-sm text-accent-muted font-light leading-relaxed">
                 Building a global cinema ecosystem where independent filmmakers learn, collaborate, gain funding, showcase projects, and define the future of cinema.
               </p>
-            </div>
+            </motion.div>
           </div>
-        </div>
+        </motion.div>
       </section>
 
     </div>
