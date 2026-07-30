@@ -1,19 +1,18 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'motion/react';
-import { 
-  Clapperboard, 
-  UserCheck, 
-  Scissors, 
-  Video, 
-  Music, 
-  Volume2, 
-  Award, 
+import {
+  Clapperboard,
+  UserCheck,
+  Scissors,
+  Video,
+  Music,
+  Volume2,
+  Award,
   Users,
   Camera,
   Scroll,
   Trophy,
   ArrowUpRight,
-  Sparkles
 } from 'lucide-react';
 import { useSeo } from '../hooks/useSeo';
 
@@ -55,17 +54,12 @@ export default function FestivalsScreen() {
         <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
 
           {/* Left Column: Hero Text */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             className="lg:col-span-6 text-left space-y-6"
           >
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-secondary/10 border border-secondary/20 mb-2">
-              <Sparkles className="w-3.5 h-3.5 text-secondary" />
-              <span className="text-[11px] uppercase tracking-widest text-secondary font-medium">Exhibition</span>
-            </div>
-
             <h1 className="font-serif text-4xl md:text-6xl text-white tracking-wide leading-tight">
               Short Film <span className="text-gold-gradient font-italic font-normal">Festivals</span>
             </h1>
@@ -76,7 +70,7 @@ export default function FestivalsScreen() {
           </motion.div>
 
           {/* Right Column: Card */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6, delay: 0.2 }}
