@@ -11,7 +11,6 @@ import {
   Calendar,
   CheckCircle2,
   ArrowUpRight,
-  Sparkles,
   Music
 } from 'lucide-react';
 import { useSeo } from '../hooks/useSeo';
