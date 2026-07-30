@@ -93,13 +93,12 @@ export default function HomeScreen() {
         <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
 
           {/* Left Hero Content */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
+          <motion.div 
+            initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
             className="lg:col-span-7 text-left flex flex-col items-start z-10 order-2 lg:order-1"
           >
-
             <h1 className="font-serif text-4xl sm:text-6xl lg:text-7xl tracking-tight text-white mb-6 leading-[1.05]">
               Where Every Story <br />
               Finds Its <span className="text-gold-gradient font-italic font-normal pb-1 inline-block">Stage.</span>
@@ -112,14 +111,14 @@ export default function HomeScreen() {
             <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
               <Link
                 to="/festivals"
-                className="group px-8 py-3.5 bg-secondary text-black hover:bg-white hover:text-black transition-all duration-300 font-semibold text-xs tracking-widest uppercase rounded-sm text-center inline-flex items-center justify-center gap-2 active:scale-[0.98]"
+                className="group px-8 py-3.5 bg-secondary text-black hover:bg-white hover:text-black transition-[transform,background-color,color] duration-160 ease-out font-semibold text-xs tracking-widest uppercase rounded-sm text-center inline-flex items-center justify-center gap-2 active:scale-[0.97]"
               >
                 <span>Film Festival</span>
-                <ArrowUpRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                <ArrowUpRight className="w-4 h-4 transition-transform duration-200 ease-out group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
               </Link>
               <Link
                 to="/aboutus"
-                className="px-8 py-3.5 border border-white/20 text-white hover:border-secondary hover:text-secondary transition-all duration-300 font-semibold text-xs tracking-widest uppercase rounded-sm text-center inline-block active:scale-[0.98]"
+                className="px-8 py-3.5 border border-white/20 text-white hover:border-secondary hover:text-secondary transition-[transform,border-color,color] duration-160 ease-out font-semibold text-xs tracking-widest uppercase rounded-sm text-center inline-block active:scale-[0.97]"
               >
                 Learn More
               </Link>
@@ -127,14 +126,14 @@ export default function HomeScreen() {
           </motion.div>
 
           {/* Right Hero Visual Orbit */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.5, delay: 0.15, ease: [0.23, 1, 0.32, 1] }}
             className="lg:col-span-5 flex justify-center lg:justify-end items-center relative z-10 select-none order-1 lg:order-2 w-full"
           >
             <div className="relative w-[440px] h-[440px] sm:w-[480px] sm:h-[480px] flex items-center justify-center scale-90 sm:scale-100">
-
+              
               {/* Center V Symbol */}
               <div className="relative z-10 flex flex-col items-center">
                 <img
@@ -201,11 +200,11 @@ export default function HomeScreen() {
 
       {/* Core Philosophy Section */}
       <section className="max-w-7xl mx-auto px-6 md:px-16 py-24">
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
+        <motion.div 
+          initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
           className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start"
         >
           <div className="md:col-span-5 text-left">
@@ -233,17 +232,17 @@ export default function HomeScreen() {
             {whatWeDo.map((item, idx) => (
               <motion.div
                 key={idx}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 16 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.2 }}
-                transition={{ duration: 0.5, delay: idx * 0.05 }}
-                className={`p-8 border border-white/10 bg-black/60 hover:border-secondary/50 transition-all duration-300 rounded-sm flex flex-col justify-between group ${item.span}`}
+                transition={{ duration: 0.4, delay: idx * 0.04, ease: [0.23, 1, 0.32, 1] }}
+                className={`p-8 border border-white/10 bg-black/60 hover:border-secondary/50 transition-[transform,border-color] duration-200 ease-out rounded-sm flex flex-col justify-between group ${item.span}`}
               >
                 <div>
-                  <div className="h-11 w-11 rounded-full border border-secondary/30 flex items-center justify-center bg-secondary/10 mb-6 group-hover:scale-105 transition-transform duration-300">
+                  <div className="h-11 w-11 rounded-full border border-secondary/30 flex items-center justify-center bg-secondary/10 mb-6 group-hover:scale-[1.06] transition-transform duration-200 ease-out">
                     {item.icon}
                   </div>
-                  <h3 className="font-serif text-xl text-white mb-3 tracking-wide group-hover:text-secondary transition-colors duration-300">
+                  <h3 className="font-serif text-xl text-white mb-3 tracking-wide group-hover:text-secondary transition-colors duration-200">
                     {item.title}
                   </h3>
                   <p className="text-sm text-accent-muted font-light leading-relaxed">
