@@ -1,4 +1,20 @@
 import { Link } from 'react-router-dom';
+import { motion } from 'motion/react';
+import { 
+  Clapperboard, 
+  UserCheck, 
+  Scissors, 
+  Video, 
+  Music, 
+  Volume2, 
+  Award, 
+  Users,
+  Camera,
+  Scroll,
+  Trophy,
+  ArrowUpRight,
+  Sparkles
+} from 'lucide-react';
 import { useSeo } from '../hooks/useSeo';
 
 export default function FestivalsScreen() {
@@ -7,156 +23,122 @@ export default function FestivalsScreen() {
     description: 'Compete for digital laurels, handcrafted trophies, and cash prizes. Submit your narrative, documentary, or animation short film to Viora today.'
   });
 
-
   const awards = [
-    { title: 'Best Director', category: 'Individual Excellence', icon: 'fa-clapperboard' },
-    { title: 'Best Actor', category: 'Performance Excellence', icon: 'fa-masks-theater' },
-    { title: 'Best Actress', category: 'Performance Excellence', icon: 'fa-masks-theater' },
-    { title: 'Best Editing', category: 'Post-Production Excellence', icon: 'fa-scissors' },
-    { title: 'Best Cinematography', category: 'Visual Excellence', icon: 'fa-video' },
-    { title: 'Best Composer', category: 'Auditory Excellence', icon: 'fa-music' },
-    { title: 'Best Sound Design', category: 'Auditory Excellence', icon: 'fa-volume-high' },
-    { title: 'Special Jury Award', category: 'Honorary Excellence', icon: 'fa-award' },
-    { title: 'Audience Choice', category: 'Popular Choice', icon: 'fa-users' },
+    { title: 'Best Director', category: 'Individual Excellence', icon: <Clapperboard className="w-5 h-5 text-secondary" /> },
+    { title: 'Best Actor', category: 'Performance Excellence', icon: <UserCheck className="w-5 h-5 text-secondary" /> },
+    { title: 'Best Actress', category: 'Performance Excellence', icon: <UserCheck className="w-5 h-5 text-secondary" /> },
+    { title: 'Best Editing', category: 'Post-Production Excellence', icon: <Scissors className="w-5 h-5 text-secondary" /> },
+    { title: 'Best Cinematography', category: 'Visual Excellence', icon: <Video className="w-5 h-5 text-secondary" /> },
+    { title: 'Best Composer', category: 'Auditory Excellence', icon: <Music className="w-5 h-5 text-secondary" /> },
+    { title: 'Best Sound Design', category: 'Auditory Excellence', icon: <Volume2 className="w-5 h-5 text-secondary" /> },
+    { title: 'Special Jury Award', category: 'Honorary Excellence', icon: <Award className="w-5 h-5 text-secondary" /> },
+    { title: 'Audience Choice', category: 'Popular Choice', icon: <Users className="w-5 h-5 text-secondary" /> },
   ];
 
   const reelFrames = [
-    { title: 'Camera', label: 'Frame 01', icon: <i className="fa-solid fa-camera"></i> },
-    { title: 'Script', label: 'Frame 02', icon: <i className="fa-solid fa-scroll"></i> },
-    { title: 'Director', label: 'Frame 03', icon: <i className="fa-solid fa-clapperboard"></i> },
-    { title: 'Actor', label: 'Frame 04', icon: <i className="fa-solid fa-masks-theater"></i> },
-    { title: 'Editing', label: 'Frame 05', icon: <i className="fa-solid fa-scissors"></i> },
-    { title: 'Audience', label: 'Frame 06', icon: <i className="fa-solid fa-users"></i> },
-    { title: 'Trophy', label: 'Frame 07', icon: <i className="fa-solid fa-trophy"></i> },
+    { title: 'Camera', label: 'Frame 01', icon: <Camera className="w-6 h-6 text-secondary" /> },
+    { title: 'Script', label: 'Frame 02', icon: <Scroll className="w-6 h-6 text-secondary" /> },
+    { title: 'Director', label: 'Frame 03', icon: <Clapperboard className="w-6 h-6 text-secondary" /> },
+    { title: 'Actor', label: 'Frame 04', icon: <UserCheck className="w-6 h-6 text-secondary" /> },
+    { title: 'Editing', label: 'Frame 05', icon: <Scissors className="w-6 h-6 text-secondary" /> },
+    { title: 'Audience', label: 'Frame 06', icon: <Users className="w-6 h-6 text-secondary" /> },
+    { title: 'Trophy', label: 'Frame 07', icon: <Trophy className="w-6 h-6 text-secondary" /> },
   ];
 
-
-
   return (
-    <div className="w-full bg-black min-h-screen pb-24">
+    <div className="w-full bg-black min-h-screen pb-24 text-white overflow-hidden">
+
       {/* Hero & Featured Card Section */}
-      <section className="max-w-7xl mx-auto px-6 py-12 md:py-20 relative overflow-hidden mb-16">
-        {/* Glow effect */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
-          <div className="w-[500px] h-[500px] bg-secondary/5 rounded-full blur-[120px] animate-pulse-slow" />
-        </div>
+      <section className="max-w-7xl mx-auto px-6 py-16 md:py-24 relative overflow-hidden mb-16 border-b border-white/10">
+        <div className="absolute top-1/4 left-1/4 w-[450px] h-[450px] bg-secondary/10 rounded-full blur-[130px] pointer-events-none" />
 
         <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
 
           {/* Left Column: Hero Text */}
-          <div className="lg:col-span-6 text-left space-y-6">
-            <div>
-              <span className="text-xs tracking-[0.35em] text-secondary font-semibold uppercase">Exhibition</span>
-              <h1 className="font-serif text-4xl md:text-6xl text-white tracking-wide mt-4 mb-6 leading-tight">
-                Short Film <span className="text-gold-gradient font-italic font-normal">Festivals</span>
-              </h1>
-              <p className="text-sm md:text-base text-accent-muted font-light leading-relaxed tracking-wide max-w-xl">
-                Discover exceptional films, celebrate emerging talent, and experience cinema through curated festivals. We provide a premium stage for independent filmmakers to share their vision.
-              </p>
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="lg:col-span-6 text-left space-y-6"
+          >
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-secondary/10 border border-secondary/20 mb-2">
+              <Sparkles className="w-3.5 h-3.5 text-secondary" />
+              <span className="text-[11px] uppercase tracking-widest text-secondary font-medium">Exhibition</span>
             </div>
-          </div>
+
+            <h1 className="font-serif text-4xl md:text-6xl text-white tracking-wide leading-tight">
+              Short Film <span className="text-gold-gradient font-italic font-normal">Festivals</span>
+            </h1>
+
+            <p className="text-base text-accent-muted font-light leading-relaxed tracking-wide max-w-xl">
+              Discover exceptional films, celebrate emerging talent, and experience cinema through curated festivals. We provide a premium stage for independent filmmakers to share their vision.
+            </p>
+          </motion.div>
 
           {/* Right Column: Card */}
-          <div className="lg:col-span-6">
-            {/* Card: Viora Short Film Festival 2026 */}
-            <div className="border border-white/5 bg-primary-light p-8 md:p-10 rounded-sm border-gold-glow relative overflow-hidden flex flex-col justify-between">
-              <div className="absolute top-0 right-0 h-32 w-32 bg-secondary/5 rounded-full blur-2xl pointer-events-none"></div>
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="lg:col-span-6"
+          >
+            <div className="border border-white/10 bg-zinc-950 p-8 md:p-10 rounded-sm shadow-[0_0_30px_rgba(197,160,89,0.1)] relative overflow-hidden flex flex-col justify-between">
+              <div className="inline-block px-3 py-1 bg-secondary text-black font-bold text-[9px] tracking-widest uppercase rounded-sm mb-4 self-start">
+                Submissions Open
+              </div>
+
               <div>
                 <h2 className="font-serif text-2xl md:text-3xl text-white tracking-wide mb-4">
                   Viora Short Film Festival 2026
                 </h2>
-                <p className="text-sm text-accent-muted font-light leading-relaxed mb-6">
+                <p className="text-sm text-accent-muted font-light leading-relaxed mb-8">
                   Showcase your creativity, connect with fellow filmmakers, and compete for recognition.
                 </p>
               </div>
-              <div className="pt-6 border-t border-white/5">
+
+              <div className="pt-6 border-t border-white/10">
                 <Link
                   to="/viorasfs"
-                  className="relative px-6 py-2.5 text-xs font-semibold tracking-widest uppercase border border-secondary bg-secondary text-black hover:bg-white hover:text-black hover:border-white transition-all duration-300 rounded-sm hover:shadow-[0_0_15px_rgba(255,255,255,0.4)] inline-block text-center w-full"
+                  className="group px-6 py-3.5 text-xs font-semibold tracking-widest uppercase bg-secondary text-black hover:bg-white transition-all duration-300 rounded-sm inline-flex items-center justify-center gap-2 w-full active:scale-[0.98]"
                 >
-                  View
+                  <span>View Event Details</span>
+                  <ArrowUpRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                 </Link>
               </div>
             </div>
-          </div>
+          </motion.div>
 
         </div>
       </section>
 
-      {/* Film Reel Header */}
-      <div className="max-w-7xl mx-auto px-6 text-center mb-10">
-        <span className="text-[10px] tracking-[0.4em] text-secondary font-semibold uppercase">Evolution of a Project</span>
-        <h2 className="font-serif text-2xl md:text-3xl text-white mt-2">The Cinematic Journey</h2>
+      {/* Film Reel Section */}
+      <div className="max-w-7xl mx-auto px-6 text-center mb-8">
+        <h2 className="font-serif text-2xl md:text-4xl text-white">The Cinematic Journey</h2>
       </div>
 
-      {/* Film Reel Animation Section */}
-      <section className="w-full py-12 bg-primary-light border-y border-white/5 relative mb-24">
-        
-        {/* Film Strip Section Container (Full width) */}
-        <div className="w-full overflow-hidden relative flex py-4 border-y-2 border-dashed border-white/10 bg-black/40 z-10">
+      <section className="w-full py-10 bg-zinc-950 border-y border-white/10 relative mb-24">
+        <div className="w-full overflow-hidden relative flex py-4 border-y border-dashed border-white/10 bg-black/60 z-10">
           <div className="flex animate-roll-reel">
 
-            {/* First Set of Frames */}
-            <div className="flex gap-8 px-4 flex-shrink-0">
+            {/* Loop Set 1 */}
+            <div className="flex gap-8 px-4 shrink-0">
               {reelFrames.map((frame, idx) => (
                 <div key={`reel-1-${idx}`} className="flex flex-col items-center gap-3 w-56 relative">
-                  {/* Sprocket Top */}
-                  <div className="w-full h-3.5 relative opacity-25">
-                    <div className="absolute left-0 w-7 h-3.5 bg-white rounded-[3px]"></div>
-                    <div className="absolute left-16 w-7 h-3.5 bg-white rounded-[3px]"></div>
-                    <div className="absolute left-32 w-7 h-3.5 bg-white rounded-[3px]"></div>
-                    <div className="absolute left-48 w-7 h-3.5 bg-white rounded-[3px]"></div>
-                  </div>
-
-                  {/* Film Frame Card */}
                   <div className="w-56 h-36 bg-black border border-white/10 rounded-sm p-4 flex flex-col items-center justify-center text-center relative group hover:border-secondary/50 transition-colors duration-300">
-                    {/* Frame border lines resembling slide frame */}
-                    <div className="absolute top-0 bottom-0 left-2 right-2 border-x border-white/5"></div>
-                    <div className="relative z-10">
-                      <div className="mb-2 text-2xl text-secondary">{frame.icon}</div>
-                      <span className="block font-serif text-sm text-white font-medium tracking-wide mb-1">{frame.title}</span>
-                    </div>
-                  </div>
-
-                  {/* Sprocket Bottom */}
-                  <div className="w-full h-3.5 relative opacity-25">
-                    <div className="absolute left-0 w-7 h-3.5 bg-white rounded-[3px]"></div>
-                    <div className="absolute left-16 w-7 h-3.5 bg-white rounded-[3px]"></div>
-                    <div className="absolute left-32 w-7 h-3.5 bg-white rounded-[3px]"></div>
-                    <div className="absolute left-48 w-7 h-3.5 bg-white rounded-[3px]"></div>
+                    <div className="mb-2 transition-transform duration-300 group-hover:scale-110">{frame.icon}</div>
+                    <span className="block font-serif text-sm text-white font-medium tracking-wide mb-1">{frame.title}</span>
                   </div>
                 </div>
               ))}
             </div>
 
-            {/* Second Set of Frames (for seamless infinite loop) */}
-            <div className="flex gap-8 px-4 flex-shrink-0">
+            {/* Loop Set 2 */}
+            <div className="flex gap-8 px-4 shrink-0">
               {reelFrames.map((frame, idx) => (
                 <div key={`reel-2-${idx}`} className="flex flex-col items-center gap-3 w-56 relative">
-                  {/* Sprocket Top */}
-                  <div className="w-full h-3.5 relative opacity-25">
-                    <div className="absolute left-0 w-7 h-3.5 bg-white rounded-[3px]"></div>
-                    <div className="absolute left-16 w-7 h-3.5 bg-white rounded-[3px]"></div>
-                    <div className="absolute left-32 w-7 h-3.5 bg-white rounded-[3px]"></div>
-                    <div className="absolute left-48 w-7 h-3.5 bg-white rounded-[3px]"></div>
-                  </div>
-
-                  {/* Film Frame Card */}
                   <div className="w-56 h-36 bg-black border border-white/10 rounded-sm p-4 flex flex-col items-center justify-center text-center relative group hover:border-secondary/50 transition-colors duration-300">
-                    {/* Frame border lines resembling slide frame */}
-                    <div className="absolute top-0 bottom-0 left-2 right-2 border-x border-white/5"></div>
-                    <div className="relative z-10">
-                      <div className="mb-2 text-2xl text-secondary">{frame.icon}</div>
-                      <span className="block font-serif text-sm text-white font-medium tracking-wide mb-1">{frame.title}</span>
-                    </div>
-                  </div>
-
-                  {/* Sprocket Bottom */}
-                  <div className="w-full h-3.5 relative opacity-25">
-                    <div className="absolute left-0 w-7 h-3.5 bg-white rounded-[3px]"></div>
-                    <div className="absolute left-16 w-7 h-3.5 bg-white rounded-[3px]"></div>
-                    <div className="absolute left-32 w-7 h-3.5 bg-white rounded-[3px]"></div>
-                    <div className="absolute left-48 w-7 h-3.5 bg-white rounded-[3px]"></div>
+                    <div className="mb-2 transition-transform duration-300 group-hover:scale-110">{frame.icon}</div>
+                    <span className="block font-serif text-sm text-white font-medium tracking-wide mb-1">{frame.title}</span>
                   </div>
                 </div>
               ))}
@@ -166,12 +148,12 @@ export default function FestivalsScreen() {
         </div>
       </section>
 
-      {/* Acquisition Partner Section */}
+      {/* Acquisition Partner */}
       <section className="max-w-7xl mx-auto px-6 py-16 mb-24">
         <div className="text-center">
-          <span className="text-[10px] tracking-[0.4em] text-secondary font-semibold uppercase">Acquisition Partner</span>
+          <span className="text-xs tracking-widest text-secondary font-semibold uppercase">Acquisition Partner</span>
           <div className="mt-8 flex flex-col items-center gap-4">
-            <div className="border border-white/10 bg-primary-light rounded-sm p-8 inline-flex items-center justify-center hover:border-secondary/30 transition-all duration-300">
+            <div className="border border-white/10 bg-zinc-950 rounded-sm p-8 inline-flex items-center justify-center hover:border-secondary/40 transition-all duration-300">
               <img
                 src="/verus.jpg"
                 alt="Verus Productions"
@@ -183,38 +165,40 @@ export default function FestivalsScreen() {
         </div>
       </section>
 
-      {/* Awards Section */}
-
-      <section className="bg-primary-light border-y border-white/5 py-24 px-6 mb-24 relative">
+      {/* Accolades & Laurels */}
+      <section className="bg-zinc-950 border-y border-white/10 py-24 px-6 mb-24 relative">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <span className="text-xs tracking-[0.25em] text-secondary uppercase font-semibold">Trophies & Recognition</span>
-            <h2 className="font-serif text-3xl md:text-5xl text-white mt-2">Accolades & Laurels</h2>
-            <p className="text-xs md:text-sm text-accent-muted font-light tracking-wide max-w-xl mx-auto mt-4">
+            <h2 className="font-serif text-3xl md:text-5xl text-white">Accolades & Laurels</h2>
+            <p className="text-sm text-accent-muted font-light tracking-wide max-w-xl mx-auto mt-4">
               Winners receive custom handcrafted trophies, digital laurels, and certification of recognition to highlight their achievement.
             </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             {awards.map((award, idx) => (
-              <div
+              <motion.div
                 key={idx}
-                className="group border border-white/5 bg-black p-6 rounded-sm text-center flex flex-col items-center justify-center hover:border-secondary/35 hover:-translate-y-1 hover:shadow-[0_4px_20px_rgba(197,160,89,0.15)] transition-all duration-300 cursor-default"
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: idx * 0.05 }}
+                className="group border border-white/10 bg-black/60 p-8 rounded-sm text-center flex flex-col items-center justify-center hover:border-secondary/50 transition-all duration-300"
               >
-                <i className={`fa-solid ${award.icon} text-secondary text-xl mb-3 transition-transform duration-300 group-hover:scale-125 group-hover:rotate-6`}></i>
-                <span className="text-xs font-semibold text-white tracking-wider uppercase mb-1">
+                <div className="mb-3 transition-transform duration-300 group-hover:scale-110">
+                  {award.icon}
+                </div>
+                <span className="text-sm font-semibold text-white tracking-wider uppercase mb-1">
                   {award.title}
                 </span>
-                <span className="text-[10px] text-accent-muted tracking-widest uppercase font-light">
+                <span className="text-[11px] text-accent-muted tracking-widest uppercase font-light">
                   {award.category}
                 </span>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
       </section>
-
-
 
     </div>
   );

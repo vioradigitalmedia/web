@@ -1,4 +1,19 @@
 import { Link } from 'react-router-dom';
+import { motion } from 'motion/react';
+import {
+  Newspaper,
+  Film,
+  GraduationCap,
+  Users,
+  Trophy,
+  Briefcase,
+  Clapperboard,
+  Calendar,
+  CheckCircle2,
+  ArrowUpRight,
+  Sparkles,
+  Music
+} from 'lucide-react';
 import { useSeo } from '../hooks/useSeo';
 
 export default function HomeScreen() {
@@ -6,325 +21,331 @@ export default function HomeScreen() {
     title: 'Viora Media | Premium Cinema Ecosystem & Film Community',
     description: 'Viora connects filmmakers, audiences, and industry professionals. Watch original productions, discover resources, and showcase your stories today.'
   });
+
   const whatWeDo = [
     {
       title: 'Digital Media',
-      desc: 'Stay informed through original interviews, industry news, podcasts, reviews, and exclusive storytelling.',
-      icon: <i className="fa-solid fa-newspaper text-secondary text-2xl"></i>
+      desc: 'Original interviews, industry news, podcasts, reviews, and exclusive film journalism.',
+      icon: <Newspaper className="w-5 h-5 text-secondary" />,
+      span: 'lg:col-span-2 lg:row-span-1'
     },
     {
       title: 'Short Film Festivals',
-      desc: 'Discover exceptional films, celebrate emerging talent, and experience cinema through curated festivals.',
-      icon: <i className="fa-solid fa-film text-secondary text-2xl"></i>
+      desc: 'Discover exceptional films and emerging talent through curated competition festivals.',
+      icon: <Film className="w-5 h-5 text-secondary" />,
+      span: 'lg:col-span-1 lg:row-span-1'
     },
     {
       title: 'Academy',
-      desc: 'Learn from filmmakers and industry experts through workshops, masterclasses, and practical training.',
-      icon: <i className="fa-solid fa-graduation-cap text-secondary text-2xl"></i>
-    },
-    {
-      title: 'Community',
-      desc: 'Join a thriving network of filmmakers, actors, writers, technicians, students, and cinema enthusiasts.',
-      icon: <i className="fa-solid fa-users text-secondary text-2xl"></i>
-    },
-    {
-      title: 'Awards & Recognition',
-      desc: 'Recognize creative excellence and celebrate the people shaping the future of cinema.',
-      icon: <i className="fa-solid fa-trophy text-secondary text-2xl"></i>
-    },
-    {
-      title: 'Opportunities',
-      desc: 'Access casting calls, crew opportunities, internships, collaborations, competitions, and career resources.',
-      icon: <i className="fa-solid fa-briefcase text-secondary text-2xl"></i>
+      desc: 'Workshops, masterclasses, and practical training led by active industry experts.',
+      icon: <GraduationCap className="w-5 h-5 text-secondary" />,
+      span: 'lg:col-span-1 lg:row-span-1'
     },
     {
       title: 'Viora Originals',
-      desc: 'Watch exclusive films, documentaries, conversations, and premium Viora productions.',
-      icon: <i className="fa-solid fa-clapperboard text-secondary text-2xl"></i>
+      desc: 'Exclusive films, documentaries, in-depth conversations, and flagship productions.',
+      icon: <Clapperboard className="w-5 h-5 text-secondary" />,
+      span: 'lg:col-span-2 lg:row-span-1'
     },
     {
-      title: 'Events',
-      desc: 'Experience meetups, screenings, networking sessions, conferences, and live industry experiences.',
-      icon: <i className="fa-solid fa-calendar-days text-secondary text-2xl"></i>
+      title: 'Community',
+      desc: 'Network with filmmakers, actors, writers, technicians, and cinema enthusiasts.',
+      icon: <Users className="w-5 h-5 text-secondary" />,
+      span: 'lg:col-span-1 lg:row-span-1'
+    },
+    {
+      title: 'Awards & Recognition',
+      desc: 'Recognizing creative excellence and celebrating visionary voices shaping cinema.',
+      icon: <Trophy className="w-5 h-5 text-secondary" />,
+      span: 'lg:col-span-1 lg:row-span-1'
+    },
+    {
+      title: 'Opportunities',
+      desc: 'Access casting calls, crew roles, internships, collaborations, and career resources.',
+      icon: <Briefcase className="w-5 h-5 text-secondary" />,
+      span: 'lg:col-span-1 lg:row-span-1'
+    },
+    {
+      title: 'Live Events',
+      desc: 'Screenings, networking sessions, conferences, and immersive film industry experiences.',
+      icon: <Calendar className="w-5 h-5 text-secondary" />,
+      span: 'lg:col-span-1 lg:row-span-1'
     }
   ];
 
   const whyViora = [
-    'Open to creators at every stage',
-    'Industry-led workshops and mentorship',
-    'Meaningful networking and collaboration',
-    'Recognition through festivals and awards',
-    'A thriving community built around cinema'
+    'Open to storytellers and creators at every career stage',
+    'Industry-led workshops, practical labs, and mentorship',
+    'Meaningful cross-functional networking and collaboration',
+    'Global recognition through curated film festivals',
+    'A thriving, independent community built around cinema'
   ];
 
-  return (
-    <div className="w-full bg-black min-h-screen">
+  const pillars = ['Vizhi', 'Innovation', 'Oli', 'Rhythm', 'Art'];
 
-      {/* Hero Section - Left aligned content / Right graphic */}
-      <section className="relative min-h-[90vh] flex items-center px-6 md:px-16 pt-24 pb-20 overflow-hidden">
-        {/* Background glowing effects with slow pulsing and floating animations */}
-        <div className="absolute top-1/3 left-1/4 w-[400px] h-[400px] bg-secondary/5 rounded-full blur-[110px] pointer-events-none animate-pulse-slow" />
-        <div className="absolute right-10 bottom-10 w-[300px] h-[300px] bg-secondary/5 rounded-full blur-[90px] pointer-events-none animate-float-slow" />
+  return (
+    <div className="w-full bg-black min-h-screen text-white overflow-hidden">
+
+      {/* Hero Section */}
+      <section className="relative min-h-[92dvh] flex items-center px-6 md:px-16 pt-24 pb-16 border-b border-white/10">
+        <div className="absolute top-1/4 left-1/4 w-[450px] h-[450px] bg-secondary/10 rounded-full blur-[130px] pointer-events-none animate-pulse-slow" />
+        <div className="absolute right-12 bottom-12 w-[350px] h-[350px] bg-secondary/5 rounded-full blur-[100px] pointer-events-none animate-float-slow" />
 
         <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
 
-          {/* Left Text Column */}
-          <div className="lg:col-span-7 text-left flex flex-col items-start z-10 order-2 lg:order-1 mt-8 lg:mt-0">
+          {/* Left Hero Content */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+            className="lg:col-span-7 text-left flex flex-col items-start z-10 order-2 lg:order-1"
+          >
 
-            <h1 className="font-serif text-4xl md:text-7xl tracking-tight text-white mb-6 leading-tight">
+            <h1 className="font-serif text-4xl sm:text-6xl lg:text-7xl tracking-tight text-white mb-6 leading-[1.05]">
               Where Every Story <br />
-              Finds Its <span className="text-gold-gradient font-italic font-normal">Stage.</span>
+              Finds Its <span className="text-gold-gradient font-italic font-normal pb-1 inline-block">Stage.</span>
             </h1>
 
-            <p className="text-sm md:text-base text-accent-muted max-w-xl font-light tracking-wide leading-relaxed mb-10">
-              Viora is a premium cinema ecosystem that brings together creators, audiences, industry professionals, and aspiring talent through media, festivals, education, networking, awards, and original storytelling. We exist to connect every corner of cinema under one vision.            </p>
+            <p className="text-base text-accent-muted max-w-xl font-light tracking-wide leading-relaxed mb-8">
+              Viora unites creators, audiences, and industry professionals through digital media, short film festivals, academy programs, awards, and original cinema productions.
+            </p>
 
             <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
               <Link
                 to="/festivals"
-                className="px-8 py-3.5 bg-secondary text-black hover:bg-white hover:text-black transition-all duration-300 font-semibold text-xs tracking-widest uppercase rounded-sm text-center inline-block"
+                className="group px-8 py-3.5 bg-secondary text-black hover:bg-white hover:text-black transition-all duration-300 font-semibold text-xs tracking-widest uppercase rounded-sm text-center inline-flex items-center justify-center gap-2 active:scale-[0.98]"
               >
-                Film Festival
+                <span>Film Festival</span>
+                <ArrowUpRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+              </Link>
+              <Link
+                to="/aboutus"
+                className="px-8 py-3.5 border border-white/20 text-white hover:border-secondary hover:text-secondary transition-all duration-300 font-semibold text-xs tracking-widest uppercase rounded-sm text-center inline-block active:scale-[0.98]"
+              >
+                Learn More
               </Link>
             </div>
-          </div>
+          </motion.div>
 
-          {/* Right Graphic Column - Revolving Cinematic Elements around V */}
-          <div className="lg:col-span-5 flex justify-center lg:justify-end items-center relative z-10 select-none order-1 lg:order-2 w-full">
-            <div className="relative w-[500px] h-[500px] flex items-center justify-center scale-[0.65] sm:scale-[0.85] lg:scale-100 origin-center my-[-90px] sm:my-[-30px] lg:my-0">
+          {/* Right Hero Visual Orbit */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            className="lg:col-span-5 flex justify-center lg:justify-end items-center relative z-10 select-none order-1 lg:order-2 w-full"
+          >
+            <div className="relative w-[440px] h-[440px] sm:w-[480px] sm:h-[480px] flex items-center justify-center scale-90 sm:scale-100">
 
               {/* Center V Symbol */}
               <div className="relative z-10 flex flex-col items-center">
                 <img
                   src="/file_no_bg.svg"
                   alt="Viora Logo"
-                  className="w-56 h-56 object-contain mix-blend-screen select-none -mb-4"
+                  className="w-48 h-48 sm:w-56 sm:h-56 object-contain mix-blend-screen select-none drop-shadow-[0_0_20px_rgba(197,160,89,0.3)]"
                 />
               </div>
 
-
-              {/* Axis 2 (Innermost - Radius 110px / Diameter 220px) */}
+              {/* Axis Rings */}
               <div className="absolute w-[220px] h-[220px] rounded-full border border-secondary/20 flex items-center justify-center">
-                {/* Film Reel Icon */}
-                <div className="absolute" style={{ animation: 'spin-orbit 26s linear infinite', animationDelay: '-6.5s' }}>
+                <div className="absolute" style={{ animation: 'spin-orbit 26s linear infinite' }}>
                   <div className="absolute" style={{ transform: 'translate(-50%, -50%) translateY(-110px)' }}>
-                    <div className="h-9 w-9 rounded-full bg-black border border-secondary/40 flex items-center justify-center shadow-[0_0_8px_rgba(197,160,89,0.2)]" style={{ animation: 'spin-reverse 26s linear infinite', animationDelay: '-6.5s' }}>
-                      <i className="fa-solid fa-film text-secondary text-xs"></i>
+                    <div className="h-9 w-9 rounded-full bg-black border border-secondary/40 flex items-center justify-center shadow-[0_0_10px_rgba(197,160,89,0.3)]">
+                      <Film className="w-4 h-4 text-secondary" />
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Axis 3 (Inner-Mid - Radius 150px / Diameter 300px) */}
               <div className="absolute w-[300px] h-[300px] rounded-full border border-secondary/20 flex items-center justify-center">
-                {/* Clapboard Icon */}
-                <div className="absolute" style={{ animation: 'spin-orbit 34s linear infinite', animationDelay: '-17s' }}>
+                <div className="absolute" style={{ animation: 'spin-orbit 34s linear infinite', animationDelay: '-12s' }}>
                   <div className="absolute" style={{ transform: 'translate(-50%, -50%) translateY(-150px)' }}>
-                    <div className="h-10 w-10 rounded-full bg-black border border-secondary/40 flex items-center justify-center shadow-[0_0_10px_rgba(197,160,89,0.25)]" style={{ animation: 'spin-reverse 34s linear infinite', animationDelay: '-17s' }}>
-                      <i className="fa-solid fa-clapperboard text-secondary text-sm"></i>
+                    <div className="h-10 w-10 rounded-full bg-black border border-secondary/40 flex items-center justify-center shadow-[0_0_12px_rgba(197,160,89,0.3)]">
+                      <Clapperboard className="w-4 h-4 text-secondary" />
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Axis 4 (Outer-Mid - Radius 190px / Diameter 380px) */}
               <div className="absolute w-[380px] h-[380px] rounded-full border border-secondary/20 flex items-center justify-center">
-                {/* Camera Icon */}
-                <div className="absolute" style={{ animation: 'spin-orbit 42s linear infinite', animationDelay: '-31.5s' }}>
+                <div className="absolute" style={{ animation: 'spin-orbit 42s linear infinite', animationDelay: '-24s' }}>
                   <div className="absolute" style={{ transform: 'translate(-50%, -50%) translateY(-190px)' }}>
-                    <div className="h-11 w-11 rounded-full bg-black border border-secondary/40 flex items-center justify-center shadow-[0_0_10px_rgba(197,160,89,0.25)]" style={{ animation: 'spin-reverse 42s linear infinite', animationDelay: '-31.5s' }}>
-                      <i className="fa-solid fa-video text-secondary text-sm"></i>
+                    <div className="h-11 w-11 rounded-full bg-black border border-secondary/40 flex items-center justify-center shadow-[0_0_14px_rgba(197,160,89,0.3)]">
+                      <Music className="w-4.5 h-4.5 text-secondary" />
                     </div>
                   </div>
                 </div>
-              </div>
-
-              {/* Axis 5 (Outermost - Radius 230px / Diameter 460px with Music Icon) */}
-              <div className="absolute w-[460px] h-[460px] rounded-full border border-secondary/20 flex items-center justify-center">
-
-                {/* Music Note Icon */}
-                <div className="absolute" style={{ animation: 'spin-orbit 50s linear infinite' }}>
-                  <div className="absolute" style={{ transform: 'translate(-50%, -50%) translateY(-230px)' }}>
-                    <div className="h-12 w-12 rounded-full bg-black border border-secondary/40 flex items-center justify-center shadow-[0_0_12px_rgba(197,160,89,0.3)]" style={{ animation: 'spin-reverse 50s linear infinite' }}>
-                      <i className="fa-solid fa-music text-secondary text-base"></i>
-                    </div>
-                  </div>
-                </div>
-
               </div>
 
             </div>
-          </div>
+          </motion.div>
 
         </div>
       </section>
 
+      {/* Kinetic Brand Marquee */}
+      <section className="bg-zinc-950 border-b border-white/10 py-6 overflow-hidden select-none">
+        <div className="flex whitespace-nowrap animate-roll-reel items-center">
+          {[...Array(4)].map((_, loopIdx) => (
+            <div key={loopIdx} className="flex items-center gap-8 shrink-0 px-4">
+              {pillars.map((pillar, pIdx) => (
+                <div key={pIdx} className="flex items-center gap-8">
+                  <span className="text-xs uppercase tracking-[0.3em] font-semibold text-secondary/90">
+                    {pillar}
+                  </span>
+                  <span className="text-white/20 text-xs">•</span>
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      </section>
 
-
-      {/* Featured Section - Left Header / Right Text */}
+      {/* Core Philosophy Section */}
       <section className="max-w-7xl mx-auto px-6 md:px-16 py-24">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.6 }}
+          className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start"
+        >
           <div className="md:col-span-5 text-left">
-            <span className="text-xs tracking-[0.25em] text-secondary uppercase font-semibold">Core Philosophy</span>
-            <h2 className="font-serif text-3xl md:text-5xl text-white tracking-wide mt-2">Discover. Create. Inspire.</h2>
+            <h2 className="font-serif text-3xl md:text-5xl text-white tracking-wide leading-tight">
+              Discover. Create. <br className="hidden md:block" />
+              Inspire.
+            </h2>
           </div>
-          <div className="md:col-span-7 text-left md:pl-8 border-l-0 md:border-l border-secondary/20 pl-0 md:pl-8 mt-4 md:mt-0">
-            <p className="text-sm md:text-base text-accent-muted font-light leading-relaxed tracking-wide">
-              Cinema has never been built by one person. It is shaped by storytellers, dreamers, technicians, artists, innovators, and audiences who come together to create something greater than themselves. Viora exists to unite these voices under one platform—where ideas become collaborations, talent finds opportunity, and every contribution moves cinema forward.            </p>
+          <div className="md:col-span-7 text-left md:pl-10 md:border-l border-white/10">
+            <p className="text-base text-accent-muted font-light leading-relaxed tracking-wide">
+              Cinema has never been built in isolation. It is shaped by storytellers, dreamers, technicians, and audiences coming together. Viora exists to unite these voices under one platform—where ideas become collaborations, talent finds opportunity, and every contribution moves cinema forward.
+            </p>
           </div>
-        </div>
+        </motion.div>
       </section>
 
-      {/* What We Do Section - Alternating Left/Right Grid Items */}
-      <section className="bg-primary-light border-y border-white/5 py-24 px-6 md:px-16">
+      {/* Bento Grid Section ("What We Do") */}
+      <section className="bg-zinc-950 border-y border-white/10 py-24 px-6 md:px-16">
         <div className="max-w-7xl mx-auto">
-          <div className="text-left mb-16">
-            <span className="text-xs tracking-[0.25em] text-secondary uppercase font-semibold">Capabilities</span>
-            <h2 className="font-serif text-3xl md:text-5xl text-white tracking-wide mt-2">What We Do</h2>
+          <div className="text-left mb-14">
+            <h2 className="font-serif text-3xl md:text-5xl text-white tracking-wide">What We Do</h2>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {whatWeDo.map((item, idx) => (
-              <div
+              <motion.div
                 key={idx}
-                className={`p-8 border border-white/5 bg-black hover:border-secondary/30 transition-all duration-300 rounded-sm flex items-start gap-5 border-gold-glow ${idx % 2 === 0 ? 'text-left lg:translate-y-0' : 'text-left lg:translate-y-4'
-                  }`}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.2 }}
+                transition={{ duration: 0.5, delay: idx * 0.05 }}
+                className={`p-8 border border-white/10 bg-black/60 hover:border-secondary/50 transition-all duration-300 rounded-sm flex flex-col justify-between group ${item.span}`}
               >
-                <div className="h-12 w-12 rounded-full border border-secondary/20 flex items-center justify-center bg-secondary/5 flex-shrink-0">
-                  {item.icon}
-                </div>
                 <div>
-                  <h3 className="font-serif text-lg text-white mb-2 tracking-wide">{item.title}</h3>
-                  <p className="text-xs text-accent-muted font-light leading-relaxed">{item.desc}</p>
+                  <div className="h-11 w-11 rounded-full border border-secondary/30 flex items-center justify-center bg-secondary/10 mb-6 group-hover:scale-105 transition-transform duration-300">
+                    {item.icon}
+                  </div>
+                  <h3 className="font-serif text-xl text-white mb-3 tracking-wide group-hover:text-secondary transition-colors duration-300">
+                    {item.title}
+                  </h3>
+                  <p className="text-sm text-accent-muted font-light leading-relaxed">
+                    {item.desc}
+                  </p>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Signature Branding Pillars Strip */}
-      <section className="bg-primary-light border-y border-white/5 py-8 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex flex-wrap justify-center md:justify-start gap-4 md:gap-8 items-center text-xs tracking-[0.3em] font-semibold text-secondary uppercase">
-            <span>Vizhi</span>
-            <span className="text-white/20">•</span>
-            <span>Innovation</span>
-            <span className="text-white/20">•</span>
-            <span>Oli</span>
-            <span className="text-white/20">•</span>
-            <span>Rhythm</span>
-            <span className="text-white/20">•</span>
-            <span>Art</span>
-          </div>
-          <p className="text-[10px] tracking-widest text-accent-muted/80 uppercase font-light text-center md:text-right">
-            The five pillars that shape every story.
-          </p>
-        </div>
-      </section>
-
-      {/* Why Viora Section - Left Text / Right Checkbox List */}
+      {/* Platform Edge Section */}
       <section className="max-w-7xl mx-auto px-6 md:px-16 py-24">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-
-          {/* Left Text */}
           <div className="lg:col-span-6 text-left">
-            <span className="text-xs tracking-[0.25em] text-secondary uppercase font-semibold">Platform Edge</span>
-            <h2 className="font-serif text-3xl md:text-5xl text-white tracking-wide mt-2 leading-tight">
+            <h2 className="font-serif text-3xl md:text-5xl text-white tracking-wide leading-tight">
               Built for the Next Generation of Storytellers
             </h2>
-            <p className="text-xs text-accent-muted font-light leading-relaxed mt-6 max-w-md">
-              We design opportunities that remove gatekeepers, bringing emerging directors directly to the center stage.
+            <p className="text-sm text-accent-muted font-light leading-relaxed mt-6 max-w-md">
+              We design opportunities that remove traditional gatekeepers, bringing emerging directors and crew directly into the spotlight.
             </p>
-            <br />
-            <Link
-              to="/aboutus"
-              className="px-8 py-3.5 bg-secondary text-black hover:bg-white border border-secondary hover:text-black transition-all duration-300 font-semibold text-xs tracking-widest uppercase rounded-sm text-center inline-block"
-            >
-              About Us
-            </Link>
+            <div className="mt-8">
+              <Link
+                to="/aboutus"
+                className="px-8 py-3.5 bg-secondary text-black hover:bg-white transition-all duration-300 font-semibold text-xs tracking-widest uppercase rounded-sm inline-block active:scale-[0.98]"
+              >
+                About Us
+              </Link>
+            </div>
           </div>
 
-          {/* Right Checklist */}
-          <div className="lg:col-span-6 text-left lg:pl-12">
-            <ul className="space-y-4">
+          <div className="lg:col-span-6 text-left lg:pl-10">
+            <ul className="space-y-5">
               {whyViora.map((item, idx) => (
-                <li key={idx} className="flex items-center gap-4 group">
-                  <i className="fa-solid fa-circle-check text-secondary text-base group-hover:scale-110 transition-transform duration-200"></i>
-                  <span className="text-xs md:text-sm text-accent-muted group-hover:text-white transition-colors duration-200 font-light">
+                <li key={idx} className="flex items-start gap-4 group">
+                  <CheckCircle2 className="w-5 h-5 text-secondary shrink-0 mt-0.5 group-hover:scale-110 transition-transform duration-200" />
+                  <span className="text-sm text-accent-muted group-hover:text-white transition-colors duration-200 font-light leading-relaxed">
                     {item}
                   </span>
                 </li>
               ))}
             </ul>
           </div>
-
         </div>
       </section>
 
-      {/* Upcoming Festival Section - Asymmetric Right Box */}
-      <section id="upcoming-festival" className="bg-primary-light border-y border-white/5 py-24 px-6 md:px-16">
+      {/* Upcoming Festival Event Callout */}
+      <section id="upcoming-festival" className="bg-zinc-950 border-y border-white/10 py-24 px-6 md:px-16">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-
-          {/* Left Description */}
           <div className="lg:col-span-6 text-left">
-            <span className="text-xs tracking-[0.25em] text-secondary uppercase font-semibold">Seasonal Event</span>
-            <h2 className="font-serif text-3xl md:text-5xl text-white mt-2 mb-6">Upcoming Festival</h2>
-            <p className="text-sm text-accent-muted font-light leading-relaxed max-w-md">
-              Submit and exhibit your screenplays or short features to a jury of active filmmakers. Meet collaborators and make your voice heard.
+            <h2 className="font-serif text-3xl md:text-5xl text-white mb-6">Upcoming Festival</h2>
+            <p className="text-base text-accent-muted font-light leading-relaxed max-w-md">
+              Submit your screenplays and short films to a jury of active filmmakers. Network with potential collaborators and exhibit your voice on the big screen.
             </p>
           </div>
 
-          {/* Right Showcase Box */}
           <div className="lg:col-span-6 flex justify-end">
-            <div className="w-full max-w-lg border border-secondary/30 bg-black p-8 rounded-sm text-left border-gold-glow flex flex-col gap-6 relative">
-              <span className="absolute -top-3 -right-3 px-4 py-1.5 bg-secondary text-black font-semibold text-[8px] tracking-widest uppercase rounded-sm">
+            <div className="w-full max-w-lg border border-secondary/40 bg-black p-8 rounded-sm text-left shadow-[0_0_30px_rgba(197,160,89,0.1)] relative">
+              <div className="inline-block px-3 py-1 bg-secondary text-black font-bold text-[9px] tracking-widest uppercase rounded-sm mb-4">
                 Submissions Open
-              </span>
-
-              <div>
-                <h3 className="font-serif text-xl md:text-2xl text-white">Viora Short Film Festival 2026</h3>
-                <p className="text-xs text-accent-muted font-light leading-relaxed mt-3">
-                  Showcase your creativity, connect with fellow filmmakers, and compete for recognition.
-                </p>
               </div>
+
+              <h3 className="font-serif text-2xl text-white mb-3">Viora Short Film Festival 2026</h3>
+              <p className="text-sm text-accent-muted font-light leading-relaxed mb-8">
+                Showcase your film, compete for recognition, and connect with producers and distributor representatives.
+              </p>
 
               <Link
                 to="/viorasfs"
-                className="w-full py-3.5 bg-secondary text-black hover:bg-white hover:text-black transition-all duration-300 font-semibold text-xs tracking-widest uppercase rounded-sm text-center inline-block"
+                className="w-full py-4 bg-secondary text-black hover:bg-white transition-all duration-300 font-semibold text-xs tracking-widest uppercase rounded-sm text-center inline-block active:scale-[0.98]"
               >
                 Submit Your Entry
               </Link>
             </div>
           </div>
-
         </div>
       </section>
 
-      {/* Our Vision Section - Alternating Left/Right layout boxes */}
+      {/* Vision Section */}
       <section className="max-w-7xl mx-auto px-6 md:px-16 py-24">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-12">
-
           <div className="md:col-span-4 text-left">
-            <span className="text-xs tracking-[0.25em] text-secondary uppercase font-semibold">Roadmap</span>
-            <h2 className="font-serif text-3xl md:text-5xl text-white tracking-wide mt-2">Our Vision</h2>
+            <h2 className="font-serif text-3xl md:text-5xl text-white tracking-wide">Our Vision</h2>
           </div>
 
-          {/* Left/Right Split of Today & Tomorrow */}
-          <div className="md:col-span-8 grid grid-cols-1 sm:grid-cols-2 gap-8 text-left">
-            <div className="p-6 border border-white/5 bg-primary-light hover:border-secondary/20 transition-all duration-300 rounded-sm">
-              <span className="text-[10px] tracking-widest text-secondary font-bold uppercase block mb-3">Today</span>
-              <p className="text-xs text-accent-muted font-light leading-relaxed">
-                We are bringing creators together through digital media, film festivals, workshops, industry conversations, networking events, and meaningful opportunities that celebrate creativity and spark collaboration.              </p>
+          <div className="md:col-span-8 grid grid-cols-1 sm:grid-cols-2 gap-6 text-left">
+            <div className="p-8 border border-white/10 bg-zinc-950 rounded-sm">
+              <span className="text-xs tracking-widest text-secondary font-semibold uppercase block mb-3">Today</span>
+              <p className="text-sm text-accent-muted font-light leading-relaxed">
+                Connecting creators through digital media, curated festivals, hands-on workshops, industry dialogues, and collaborative networking.
+              </p>
             </div>
 
-            <div className="p-6 border border-white/5 bg-primary-light hover:border-secondary/20 transition-all duration-300 rounded-sm">
-              <span className="text-[10px] tracking-widest text-secondary font-bold uppercase block mb-3">Tomorrow</span>
-              <p className="text-xs text-accent-muted font-light leading-relaxed">
-                Our vision is to build the world's most connected cinema ecosystem—a platform where creators learn, collaborate, showcase their work, gain recognition, discover opportunities, and shape the future of storytelling together.              </p>
+            <div className="p-8 border border-white/10 bg-zinc-950 rounded-sm">
+              <span className="text-xs tracking-widest text-secondary font-semibold uppercase block mb-3">Tomorrow</span>
+              <p className="text-sm text-accent-muted font-light leading-relaxed">
+                Building a global cinema ecosystem where independent filmmakers learn, collaborate, gain funding, showcase projects, and define the future of cinema.
+              </p>
             </div>
           </div>
-
         </div>
       </section>
 
