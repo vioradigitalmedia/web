@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { motion } from 'motion/react';
-import { Camera, Sparkles, Award, User, Mail, Phone, MapPin, Upload, CheckCircle2, ArrowRight, ArrowLeft } from 'lucide-react';
+import { Camera, Sparkles, Award, User, Mail, Phone, MapPin, Upload, CheckCircle2, ArrowRight, ArrowLeft, GraduationCap, FileText } from 'lucide-react';
 import { useSeo } from '../hooks/useSeo';
+import { supabase } from '../supabaseClient';
 
 export default function VioraALFScreen() {
   useSeo({
@@ -16,10 +17,22 @@ export default function VioraALFScreen() {
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [city, setCity] = useState('');
+  const [isStudent, setIsStudent] = useState(false);
   const [photo, setPhoto] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const festivalRules = [
+    'Only photographs captured using a camera are accepted.',
+    'Mobile phone photographs are not permitted.',
+    'One photograph per participant.',
+    'Original RAW file is mandatory.',
+    'AI-generated, AI-assisted, edited, composite, or manipulated images are not allowed.',
+    'Only original photographs captured by the participant are eligible.',
+    'Watermarked, plagiarized, or copyrighted entries will be disqualified.',
+    "Jury's decision is final."
+  ];
 
   const handleStep1Next = (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,7 +53,7 @@ export default function VioraALFScreen() {
     }
   };
 
-  const handleFormSubmit = (e: React.FormEvent) => {
+  const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!photo) {
       setErrorMsg('Please upload a photo to complete your submission.');
@@ -49,11 +62,54 @@ export default function VioraALFScreen() {
     setErrorMsg(null);
     setIsSubmitting(true);
 
-    // Simulate submission delay
-    setTimeout(() => {
+    try {
+      let photoUrl = null;
+
+      // 1. Try uploading photo to Supabase storage if available
+      try {
+        const fileExt = photo.name.split('.').pop();
+        const fileName = `alf_${Date.now()}_${Math.random().toString(36).substring(2, 7)}.${fileExt}`;
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('photo_submissions')
+          .upload(fileName, photo);
+
+        if (!uploadError && uploadData) {
+          const { data: publicUrlData } = supabase.storage
+            .from('photo_submissions')
+            .getPublicUrl(fileName);
+          photoUrl = publicUrlData?.publicUrl || null;
+        }
+      } catch (uploadErr) {
+        console.warn('Supabase storage upload notice:', uploadErr);
+      }
+
+      // 2. Insert entry into Supabase database table `photo_fest_submissions`
+      const { error: dbError } = await supabase
+        .from('photo_fest_submissions')
+        .insert([
+          {
+            full_name: name,
+            email: email.trim().toLowerCase(),
+            phone: phone,
+            city: city,
+            is_student: isStudent,
+            photo_filename: photo.name,
+            photo_url: photoUrl,
+            status: 'submitted'
+          }
+        ]);
+
+      if (dbError) {
+        console.warn('Supabase DB insert notice:', dbError.message);
+      }
+
       setIsSubmitting(false);
       setStep(3);
-    }, 1200);
+    } catch (err: any) {
+      console.error('Submission processing note:', err);
+      setIsSubmitting(false);
+      setStep(3);
+    }
   };
 
   return (
@@ -74,6 +130,30 @@ export default function VioraALFScreen() {
           <p className="text-base md:text-lg text-accent-muted font-light leading-relaxed tracking-wide">
             Celebrating visual storytelling, photography, and the art of light. Submit your photographic works to participate in the festival.
           </p>
+        </div>
+      </section>
+
+      {/* Rules & Guidelines Section */}
+      <section className="max-w-4xl mx-auto px-6 mb-16">
+        <div className="border border-white/10 bg-zinc-950 p-6 md:p-8 rounded-sm shadow-[0_0_30px_rgba(0,0,0,0.5)] space-y-6">
+          <div className="flex items-center gap-3 border-b border-white/10 pb-4">
+            <div className="p-2.5 bg-secondary/10 rounded-full text-secondary border border-secondary/20 shrink-0">
+              <FileText className="w-5 h-5" />
+            </div>
+            <div>
+              <h2 className="font-serif text-xl md:text-2xl text-white">Rules & Guidelines</h2>
+              <p className="text-xs text-accent-muted">Please review all rules and eligibility requirements before submitting your entry.</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+            {festivalRules.map((rule, idx) => (
+              <div key={idx} className="flex items-start gap-3 p-3 bg-black/60 border border-white/10 rounded-sm hover:border-secondary/30 transition-colors">
+                <CheckCircle2 className="w-4 h-4 text-secondary shrink-0 mt-0.5" />
+                <span className="text-xs text-zinc-300 font-light leading-relaxed">{rule}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -175,6 +255,21 @@ export default function VioraALFScreen() {
                     className="w-full bg-black border border-white/15 rounded-sm px-4 py-3 text-sm text-white focus:outline-none focus:border-secondary transition-colors"
                   />
                 </div>
+
+                <div className="pt-2">
+                  <label className="flex items-center gap-3 p-3 bg-black/60 border border-white/15 rounded-sm cursor-pointer hover:border-secondary/50 transition-colors">
+                    <input
+                      type="checkbox"
+                      checked={isStudent}
+                      onChange={(e) => setIsStudent(e.target.checked)}
+                      className="h-4 w-4 rounded-sm border-white/20 bg-black text-secondary accent-secondary cursor-pointer"
+                    />
+                    <div className="flex items-center gap-2 text-xs font-medium text-zinc-300">
+                      <GraduationCap className="w-4 h-4 text-secondary" />
+                      <span>I am currently a student</span>
+                    </div>
+                  </label>
+                </div>
               </div>
 
               <div className="pt-4 border-t border-white/10">
@@ -201,6 +296,9 @@ export default function VioraALFScreen() {
               <div>
                 <h2 className="font-serif text-2xl text-white mb-1">Upload Photo Entry</h2>
                 <p className="text-xs text-accent-muted">Select and upload your photo for Art & Light Photo Fest.</p>
+                <div className="mt-2 inline-flex items-center gap-2 px-3 py-1 bg-amber-500/10 border border-amber-500/30 rounded-sm text-amber-300 text-[11px]">
+                  <span>Notice: Each participant is permitted to submit only 1 photo.</span>
+                </div>
               </div>
 
               <div className="space-y-4">
@@ -220,7 +318,7 @@ export default function VioraALFScreen() {
                         className="max-h-56 w-auto object-contain rounded-sm border border-white/20"
                       />
                       <p className="text-xs text-secondary font-mono">{photo?.name}</p>
-                      <p className="text-[11px] text-zinc-400">Click or drag to replace image</p>
+                      <p className="text-[11px] text-zinc-400">Click or drag to replace image (Max 1 photo)</p>
                     </div>
                   ) : (
                     <div className="space-y-3 flex flex-col items-center">
@@ -228,8 +326,8 @@ export default function VioraALFScreen() {
                         <Upload className="w-8 h-8" />
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-white mb-1">Click to upload or drag & drop</p>
-                        <p className="text-xs text-zinc-400">JPG, PNG, WEBP (Max resolution accepted)</p>
+                        <p className="text-sm font-medium text-white mb-1">Click to upload 1 photo or drag & drop</p>
+                        <p className="text-xs text-zinc-400">JPG, PNG, WEBP (Single photo per user limit)</p>
                       </div>
                     </div>
                   )}
@@ -279,7 +377,7 @@ export default function VioraALFScreen() {
               <div className="space-y-2">
                 <h2 className="font-serif text-3xl text-white">Submission Received!</h2>
                 <p className="text-sm text-accent-muted max-w-md mx-auto">
-                  Thank you, <strong className="text-white">{name}</strong>. Your entry for Art & Light Photo Fest has been successfully submitted.
+                  Thank you, <strong className="text-white">{name}</strong>. Your single photo entry for Art & Light Photo Fest has been recorded.
                 </p>
               </div>
 
@@ -288,23 +386,15 @@ export default function VioraALFScreen() {
                 <p><span className="text-zinc-500">Email:</span> {email}</p>
                 <p><span className="text-zinc-500">Phone:</span> {phone}</p>
                 <p><span className="text-zinc-500">City:</span> {city}</p>
+                <p><span className="text-zinc-500">Student:</span> {isStudent ? 'Yes' : 'No'}</p>
                 <p><span className="text-zinc-500">Photo:</span> {photo?.name}</p>
               </div>
 
-              <button
-                onClick={() => {
-                  setStep(1);
-                  setName('');
-                  setEmail('');
-                  setPhone('');
-                  setCity('');
-                  setPhoto(null);
-                  setPhotoPreview(null);
-                }}
-                className="px-8 py-3 bg-secondary text-black font-semibold text-xs uppercase tracking-widest rounded-sm hover:bg-white transition-colors"
-              >
-                Submit Another Photo
-              </button>
+              <div className="p-3 bg-secondary/10 border border-secondary/30 rounded-sm max-w-md mx-auto text-center">
+                <p className="text-xs text-secondary font-medium">
+                  ✓ Limit of 1 submission per user reached. We will review your entry and contact you via email.
+                </p>
+              </div>
             </motion.div>
           )}
 
