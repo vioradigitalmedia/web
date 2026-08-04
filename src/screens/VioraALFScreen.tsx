@@ -3,6 +3,18 @@ import { motion } from 'motion/react';
 import { Camera, Sparkles, Award, User, Mail, Phone, MapPin, Upload, CheckCircle2, ArrowRight, ArrowLeft, GraduationCap, FileText } from 'lucide-react';
 import { useSeo } from '../hooks/useSeo';
 import { supabase } from '../supabaseClient';
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+
+const r2Client = new S3Client({
+  region: 'auto',
+  endpoint: `https://${import.meta.env.VITE_R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+  credentials: {
+    accessKeyId: import.meta.env.VITE_R2_ACCESS_KEY_ID || '',
+    secretAccessKey: import.meta.env.VITE_R2_SECRET_ACCESS_KEY || '',
+  },
+  requestChecksumCalculation: 'WHEN_REQUIRED',
+  forcePathStyle: true,
+});
 
 export default function VioraALFScreen() {
   useSeo({
@@ -63,24 +75,41 @@ export default function VioraALFScreen() {
     setIsSubmitting(true);
 
     try {
-      let photoUrl = null;
+      let photoUrl: string | null = null;
 
-      // 1. Try uploading photo to Supabase storage if available
+      // 1. Upload Photo directly to Cloudflare R2 bucket (`viorasf`)
       try {
         const fileExt = photo.name.split('.').pop();
-        const fileName = `alf_${Date.now()}_${Math.random().toString(36).substring(2, 7)}.${fileExt}`;
-        const { data: uploadData, error: uploadError } = await supabase.storage
-          .from('photo_submissions')
-          .upload(fileName, photo);
+        const photoKey = `photos/${Date.now()}_${Math.random().toString(36).substring(2, 7)}.${fileExt}`;
+        
+        const photoPutCommand = new PutObjectCommand({
+          Bucket: 'viorasf',
+          Key: photoKey,
+          Body: photo,
+          ContentType: photo.type || 'image/jpeg',
+        });
 
-        if (!uploadError && uploadData) {
-          const { data: publicUrlData } = supabase.storage
+        await r2Client.send(photoPutCommand);
+        photoUrl = photoKey;
+      } catch (r2Err: any) {
+        console.warn('Cloudflare R2 photo upload notice:', r2Err);
+        // Fallback: try uploading to Supabase storage if R2 client fails
+        try {
+          const fileExt = photo.name.split('.').pop();
+          const fileName = `alf_${Date.now()}_${Math.random().toString(36).substring(2, 7)}.${fileExt}`;
+          const { data: uploadData, error: uploadError } = await supabase.storage
             .from('photo_submissions')
-            .getPublicUrl(fileName);
-          photoUrl = publicUrlData?.publicUrl || null;
+            .upload(fileName, photo);
+
+          if (!uploadError && uploadData) {
+            const { data: publicUrlData } = supabase.storage
+              .from('photo_submissions')
+              .getPublicUrl(fileName);
+            photoUrl = publicUrlData?.publicUrl || null;
+          }
+        } catch (sbErr) {
+          console.warn('Supabase storage upload fallback notice:', sbErr);
         }
-      } catch (uploadErr) {
-        console.warn('Supabase storage upload notice:', uploadErr);
       }
 
       // 2. Insert entry into Supabase database table `photo_fest_submissions`

@@ -97,6 +97,19 @@ interface AdminDocument {
   created_at: string;
 }
 
+interface PhotoFestSubmission {
+  id: string;
+  full_name: string;
+  email: string;
+  phone: string;
+  city: string;
+  is_student: boolean;
+  photo_filename: string;
+  photo_url: string | null;
+  status: string;
+  created_at: string;
+}
+
 export default function AdminDashboard() {
   const [messages, setMessages] = useState<ContactMessage[]>([]);
   const [loading, setLoading] = useState(true);
@@ -104,7 +117,7 @@ export default function AdminDashboard() {
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [session, setSession] = useState<any>(null);
   const [authLoading, setAuthLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'messages' | 'media' | 'submissions' | 'cfo' | 'letterhead' | 'partners'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'messages' | 'media' | 'submissions' | 'photo-submissions' | 'cfo' | 'letterhead' | 'partners'>('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [appView, setAppView] = useState<'selection' | 'dashboard'>('selection');
@@ -137,6 +150,14 @@ export default function AdminDashboard() {
   const [submissionsError, setSubmissionsError] = useState<string | null>(null);
   const [selectedSubmissionId, setSelectedSubmissionId] = useState<string | null>(null);
   const [expandedMobileSubmissionId, setExpandedMobileSubmissionId] = useState<string | null>(null);
+
+  // Photo Submissions States
+  const [photoSubmissions, setPhotoSubmissions] = useState<PhotoFestSubmission[]>([]);
+  const [photoSubmissionsLoading, setPhotoSubmissionsLoading] = useState(true);
+  const [photoSubmissionsError, setPhotoSubmissionsError] = useState<string | null>(null);
+  const [selectedPhotoSubmissionId, setSelectedPhotoSubmissionId] = useState<string | null>(null);
+  const [expandedMobilePhotoSubmissionId, setExpandedMobilePhotoSubmissionId] = useState<string | null>(null);
+  const [photoPresignedUrl, setPhotoPresignedUrl] = useState<string | null>(null);
 
   // Presigned URL States for Secure Private R2 Media
   const [moviePresignedUrl, setMoviePresignedUrl] = useState<string | null>(null);
@@ -249,6 +270,38 @@ export default function AdminDashboard() {
 
     generateUrls();
   }, [selectedSubmissionId, submissions, selectedDocKey]);
+
+  useEffect(() => {
+    const generatePhotoUrl = async () => {
+      const selected = photoSubmissions.find(s => s.id === selectedPhotoSubmissionId);
+      if (!selected || !selected.photo_url) {
+        setPhotoPresignedUrl(null);
+        return;
+      }
+
+      if (selected.photo_url.startsWith('http://') || selected.photo_url.startsWith('https://')) {
+        setPhotoPresignedUrl(selected.photo_url);
+        return;
+      }
+
+      setPresignedLoading(true);
+      try {
+        const photoCommand = new GetObjectCommand({
+          Bucket: 'viorasf',
+          Key: selected.photo_url,
+        });
+        const url = await getSignedUrl(r2Client, photoCommand, { expiresIn: 3600 });
+        setPhotoPresignedUrl(url);
+      } catch (err) {
+        console.error('Error generating photo presigned URL:', err);
+        setPhotoPresignedUrl(null);
+      } finally {
+        setPresignedLoading(false);
+      }
+    };
+
+    generatePhotoUrl();
+  }, [selectedPhotoSubmissionId, photoSubmissions]);
 
   useEffect(() => {
     // 1. Fetch current session
@@ -397,10 +450,58 @@ export default function AdminDashboard() {
       fetchMessages();
       fetchCfoTransactions();
       fetchSubmissions();
+      fetchPhotoSubmissions();
       fetchAdminData();
       fetchPartners();
     }
   }, [session]);
+
+  const fetchPhotoSubmissions = async () => {
+    setPhotoSubmissionsLoading(true);
+    setPhotoSubmissionsError(null);
+    try {
+      const { data, error: fetchError } = await supabase
+        .from('photo_fest_submissions')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (fetchError) throw fetchError;
+      setPhotoSubmissions(data || []);
+      if (data && data.length > 0) {
+        setSelectedPhotoSubmissionId(data[0].id);
+      } else {
+        setSelectedPhotoSubmissionId(null);
+      }
+    } catch (err: any) {
+      console.error('Error fetching photo submissions:', err);
+      setPhotoSubmissionsError(err.message || 'Failed to fetch photo fest submissions.');
+    } finally {
+      setPhotoSubmissionsLoading(false);
+    }
+  };
+
+  const handleDeletePhotoSubmission = async (id: string) => {
+    if (!window.confirm('Are you sure you want to delete this photo submission?')) return;
+
+    setUpdatingId(id);
+    try {
+      const { error: deleteError } = await supabase
+        .from('photo_fest_submissions')
+        .delete()
+        .eq('id', id);
+
+      if (deleteError) throw deleteError;
+
+      setPhotoSubmissions(prev => prev.filter(item => item.id !== id));
+      if (selectedPhotoSubmissionId === id) {
+        setSelectedPhotoSubmissionId(null);
+      }
+    } catch (err: any) {
+      alert('Error deleting photo submission: ' + err.message);
+    } finally {
+      setUpdatingId(null);
+    }
+  };
 
   const fetchSubmissions = async () => {
     setSubmissionsLoading(true);
@@ -1666,6 +1767,249 @@ export default function AdminDashboard() {
                                 Delete Entry
                               </button>
                             </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+        );
+
+      case 'photo-submissions':
+        const selectedPhotoSub = photoSubmissions.find(s => s.id === selectedPhotoSubmissionId);
+
+        return (
+          <div className="space-y-6">
+            {/* Header */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/5 pb-6">
+              <div>
+                <h1 className="font-serif text-2xl md:text-3xl text-white tracking-wide">Photo Fest Submissions</h1>
+                <p className="text-xs text-accent-muted mt-1">Review Art & Light Photo Fest participant entries and photo assets stored on Cloudflare R2.</p>
+              </div>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={fetchPhotoSubmissions}
+                  className="px-4 py-2 bg-white/5 border border-white/10 text-white rounded-sm text-xs font-semibold hover:bg-white/10 transition-colors flex items-center gap-2 cursor-pointer"
+                >
+                  <i className="fa-solid fa-rotate-right"></i> Refresh
+                </button>
+              </div>
+            </div>
+
+            {photoSubmissionsLoading ? (
+              <div className="py-20 text-center text-accent-muted space-y-3">
+                <div className="h-6 w-6 border-2 border-secondary border-t-transparent rounded-full animate-spin mx-auto"></div>
+                <p className="text-xs">Loading photo submissions...</p>
+              </div>
+            ) : photoSubmissionsError ? (
+              <div className="p-4 bg-red-950/40 border border-red-500/30 text-red-400 text-xs rounded-sm">
+                {photoSubmissionsError}
+              </div>
+            ) : photoSubmissions.length === 0 ? (
+              <div className="py-20 text-center text-accent-muted border border-white/5 rounded-sm bg-black/20">
+                <i className="fa-solid fa-camera text-3xl mb-3 text-white/20 block"></i>
+                <p className="text-sm font-serif text-white">No Photo Submissions Received Yet</p>
+                <p className="text-xs text-accent-muted mt-1">Entries submitted via Art & Light Photo Fest form will appear here.</p>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {/* Desktop Split View */}
+                <div className="hidden md:flex gap-6 min-h-[600px] h-[calc(100vh-220px)]">
+                  {/* Left Column: Submissions List */}
+                  <div className="w-1/3 border border-white/5 rounded-sm bg-primary-light flex flex-col overflow-hidden">
+                    <div className="p-4 border-b border-white/5 bg-black/40 flex justify-between items-center">
+                      <span className="text-xs font-mono text-secondary uppercase font-semibold">
+                        Entries ({photoSubmissions.length})
+                      </span>
+                    </div>
+
+                    <div className="flex-grow overflow-y-auto divide-y divide-white/5">
+                      {photoSubmissions.map((sub) => {
+                        const isSelected = sub.id === selectedPhotoSubmissionId;
+                        return (
+                          <div
+                            key={sub.id}
+                            onClick={() => setSelectedPhotoSubmissionId(sub.id)}
+                            className={`p-4 cursor-pointer transition-all duration-200 text-left ${
+                              isSelected ? 'bg-secondary/10 border-l-2 border-secondary' : 'hover:bg-white/[0.02]'
+                            }`}
+                          >
+                            <div className="flex justify-between items-start mb-1">
+                              <h4 className="text-xs font-semibold text-white truncate max-w-[180px]">{sub.full_name}</h4>
+                              <span className="text-[9px] text-accent-muted font-mono">
+                                {new Date(sub.created_at).toLocaleDateString()}
+                              </span>
+                            </div>
+                            <p className="text-[11px] text-accent-muted truncate">{sub.email}</p>
+                            <div className="flex items-center gap-2 mt-2">
+                              {sub.is_student && (
+                                <span className="text-[8px] font-bold uppercase tracking-wider text-secondary bg-secondary/10 border border-secondary/20 px-1.5 py-0.5 rounded-sm">
+                                  Student
+                                </span>
+                              )}
+                              <span className="text-[8px] font-bold uppercase tracking-wider text-emerald-400 bg-emerald-950/20 border border-emerald-500/20 px-1.5 py-0.5 rounded-sm">
+                                {sub.status}
+                              </span>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Right Column: Selected Submission Detail */}
+                  <div className="w-2/3 border border-white/5 rounded-sm bg-primary-light flex flex-col overflow-hidden">
+                    {selectedPhotoSub ? (
+                      <div className="flex-grow overflow-y-auto p-6 space-y-6 text-left">
+                        {/* Summary Card */}
+                        <div className="border border-white/5 bg-black/30 p-6 rounded-sm space-y-4">
+                          <div className="flex justify-between items-start border-b border-white/5 pb-4">
+                            <div>
+                              <h3 className="font-serif text-xl text-white">{selectedPhotoSub.full_name}</h3>
+                              <p className="text-xs text-accent-muted mt-0.5">{selectedPhotoSub.city} • {selectedPhotoSub.phone}</p>
+                            </div>
+                            <span className="text-xs text-accent-muted font-mono">
+                              Submitted: {new Date(selectedPhotoSub.created_at).toLocaleString()}
+                            </span>
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-4 text-xs">
+                            <div>
+                              <span className="text-accent-muted block mb-0.5">Email Address</span>
+                              <span className="text-white font-medium">{selectedPhotoSub.email}</span>
+                            </div>
+                            <div>
+                              <span className="text-accent-muted block mb-0.5">Category</span>
+                              <span className="text-white font-medium">{selectedPhotoSub.is_student ? 'Student Category' : 'General / Professional'}</span>
+                            </div>
+                            <div>
+                              <span className="text-accent-muted block mb-0.5">Original File</span>
+                              <span className="text-white font-mono">{selectedPhotoSub.photo_filename}</span>
+                            </div>
+                            <div>
+                              <span className="text-accent-muted block mb-0.5">Storage Key (R2)</span>
+                              <span className="text-secondary font-mono text-[11px] truncate block">{selectedPhotoSub.photo_url || 'N/A'}</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Photo Preview & Media Link */}
+                        <div className="border border-white/5 bg-black/30 p-6 rounded-sm space-y-4">
+                          <span className="text-[10px] tracking-widest text-secondary font-semibold uppercase block border-b border-white/5 pb-2">
+                            Submitted Photograph (Cloudflare R2)
+                          </span>
+
+                          {presignedLoading ? (
+                            <div className="py-12 text-center text-accent-muted space-y-2">
+                              <div className="h-5 w-5 border-2 border-secondary border-t-transparent rounded-full animate-spin mx-auto"></div>
+                              <p className="text-xs">Generating secure Cloudflare R2 preview link...</p>
+                            </div>
+                          ) : photoPresignedUrl ? (
+                            <div className="space-y-4">
+                              <div className="border border-white/10 rounded-sm overflow-hidden bg-black flex items-center justify-center max-h-[400px]">
+                                <img
+                                  src={photoPresignedUrl}
+                                  alt={selectedPhotoSub.photo_filename}
+                                  className="max-h-[400px] w-auto object-contain"
+                                />
+                              </div>
+                              <div className="flex gap-3 justify-end">
+                                <a
+                                  href={photoPresignedUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="px-4 py-2 bg-secondary text-black font-semibold text-xs rounded-sm hover:bg-white transition-colors inline-flex items-center gap-2 cursor-pointer"
+                                >
+                                  <i className="fa-solid fa-expand"></i> View Full Resolution
+                                </a>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="py-8 text-center text-red-400 text-xs border border-red-500/20 rounded-sm bg-red-950/20">
+                              Photo asset URL not available or failed to generate secure signed link.
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Actions */}
+                        <div className="flex justify-end pt-4 border-t border-white/5">
+                          <button
+                            disabled={updatingId === selectedPhotoSub.id}
+                            onClick={() => handleDeletePhotoSubmission(selectedPhotoSub.id)}
+                            className="px-4 py-2 border border-red-500/20 text-red-400 hover:bg-red-950/30 rounded-sm text-xs tracking-widest uppercase font-semibold transition-all duration-300 cursor-pointer disabled:opacity-50"
+                          >
+                            Delete Submission
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex-grow flex flex-col items-center justify-center text-accent-muted p-10">
+                        <i className="fa-solid fa-camera text-2xl text-white/30 mb-3"></i>
+                        <p className="text-sm font-light">Select a photo submission from the left list to view details.</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Mobile View */}
+                <div className="block md:hidden space-y-4 w-full">
+                  {photoSubmissions.map((sub) => {
+                    const isExpanded = sub.id === expandedMobilePhotoSubmissionId;
+                    return (
+                      <div
+                        key={sub.id}
+                        className={`border rounded-sm bg-primary-light transition-all duration-300 ${
+                          isExpanded ? 'border-secondary/30' : 'border-white/5'
+                        }`}
+                      >
+                        <div
+                          onClick={() => {
+                            setSelectedPhotoSubmissionId(sub.id);
+                            setExpandedMobilePhotoSubmissionId(isExpanded ? null : sub.id);
+                          }}
+                          className="p-4 flex items-center justify-between cursor-pointer"
+                        >
+                          <div className="space-y-1 text-left">
+                            <h4 className="text-xs font-semibold text-white truncate max-w-[200px]">{sub.full_name}</h4>
+                            <p className="text-[10px] text-accent-muted">{sub.city} | {sub.is_student ? 'Student' : 'General'}</p>
+                          </div>
+                          <i className={`fa-solid fa-chevron-down text-accent-muted text-xs transition-transform duration-300 ${isExpanded ? 'rotate-180 text-secondary' : ''}`}></i>
+                        </div>
+
+                        {isExpanded && (
+                          <div className="p-4 border-t border-white/5 bg-black/20 space-y-4 text-left">
+                            <div className="text-[11px] space-y-2 text-accent-muted">
+                              <p><strong className="text-white">Email:</strong> {sub.email}</p>
+                              <p><strong className="text-white">Phone:</strong> {sub.phone}</p>
+                              <p><strong className="text-white">City:</strong> {sub.city}</p>
+                              <p><strong className="text-white">Student:</strong> {sub.is_student ? 'Yes' : 'No'}</p>
+                              <p><strong className="text-white">Photo File:</strong> {sub.photo_filename}</p>
+                            </div>
+
+                            {photoPresignedUrl && (
+                              <div className="space-y-2">
+                                <img src={photoPresignedUrl} alt={sub.photo_filename} className="w-full h-auto rounded-sm border border-white/10" />
+                                <a
+                                  href={photoPresignedUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="w-full py-2 bg-secondary text-black font-semibold text-[10px] tracking-widest uppercase hover:bg-white transition-all rounded-sm text-center flex items-center justify-center gap-2 cursor-pointer"
+                                >
+                                  <i className="fa-solid fa-expand"></i> View Full Resolution
+                                </a>
+                              </div>
+                            )}
+
+                            <button
+                              disabled={updatingId === sub.id}
+                              onClick={() => handleDeletePhotoSubmission(sub.id)}
+                              className="w-full py-2 border border-red-500/20 text-red-400 hover:bg-red-950/30 rounded-sm text-[10px] tracking-widest uppercase font-semibold transition-all disabled:opacity-50 cursor-pointer"
+                            >
+                              Delete Submission
+                            </button>
                           </div>
                         )}
                       </div>
