@@ -8,6 +8,7 @@ import PrivacyPolicyScreen from './screens/PrivacyPolicyScreen';
 import TermsConditionsScreen from './screens/TermsConditionsScreen';
 import FestivalsScreen from './screens/FestivalsScreen';
 import VioraSFSScreen from './screens/VioraSFSScreen';
+import VioraALFScreen from './screens/VioraALFScreen';
 import PartnerScreen from './screens/PartnerScreen';
 import NotFoundScreen from './screens/NotFoundScreen';
 import AdminDashboard from './admin/AdminDashboard';
@@ -48,6 +49,7 @@ function App() {
             <Route path="/contact" element={<ContactScreen />} />
             <Route path="/festivals" element={<FestivalsScreen />} />
             <Route path="/viorasfs" element={<VioraSFSScreen />} />
+            <Route path="/vioraalf" element={<VioraALFScreen />} />
             <Route path="/partner-with-us" element={<PartnerScreen />} />
             <Route path="/privacy-policy" element={<PrivacyPolicyScreen />} />
             <Route path="/terms-conditions" element={<TermsConditionsScreen />} />

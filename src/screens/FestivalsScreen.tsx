@@ -69,7 +69,7 @@ export default function FestivalsScreen() {
             </p>
           </motion.div>
 
-          {/* Right Column: Card */}
+          {/* Right Column: Short Film Festival Card */}
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -93,6 +93,64 @@ export default function FestivalsScreen() {
               <div className="pt-6 border-t border-white/10">
                 <Link
                   to="/viorasfs"
+                  className="group px-6 py-3.5 text-xs font-semibold tracking-widest uppercase bg-secondary text-black hover:bg-white transition-all duration-300 rounded-sm inline-flex items-center justify-center gap-2 w-full active:scale-[0.98]"
+                >
+                  <span>View Event Details</span>
+                  <ArrowUpRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                </Link>
+              </div>
+            </div>
+          </motion.div>
+
+        </div>
+      </section>
+
+      {/* Art & Light Photo Fest Section */}
+      <section className="max-w-7xl mx-auto px-6 py-16 md:py-24 relative overflow-hidden mb-16 border-b border-white/10">
+        <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+
+          {/* Left Column: Heading & Description */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="lg:col-span-6 text-left space-y-6"
+          >
+            <h2 className="font-serif text-4xl md:text-6xl text-white tracking-wide leading-tight">
+              Art & Light <span className="text-gold-gradient font-italic font-normal">Photo Fest</span>
+            </h2>
+
+            <p className="text-base text-accent-muted font-light leading-relaxed tracking-wide max-w-xl">
+              Celebrating visual storytelling, photography, and the art of light.
+            </p>
+          </motion.div>
+
+          {/* Right Column: Card */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="lg:col-span-6"
+          >
+            <div className="border border-white/10 bg-zinc-950 p-8 md:p-10 rounded-sm shadow-[0_0_30px_rgba(197,160,89,0.05)] relative overflow-hidden flex flex-col justify-between">
+              <div className="inline-block px-3 py-1 bg-white/10 text-secondary border border-secondary/30 font-bold text-[9px] tracking-widest uppercase rounded-sm mb-4 self-start">
+                Coming Soon
+              </div>
+
+              <div>
+                <h3 className="font-serif text-2xl md:text-3xl text-white tracking-wide mb-4">
+                  Art & Light Photo Fest
+                </h3>
+                <p className="text-sm text-accent-muted font-light leading-relaxed mb-8">
+                  Submissions, guidelines, rules, and exhibition schedule for the Art & Light Photo Fest will be announced shortly.
+                </p>
+              </div>
+
+              <div className="pt-6 border-t border-white/10">
+                <Link
+                  to="/vioraalf"
                   className="group px-6 py-3.5 text-xs font-semibold tracking-widest uppercase bg-secondary text-black hover:bg-white transition-all duration-300 rounded-sm inline-flex items-center justify-center gap-2 w-full active:scale-[0.98]"
                 >
                   <span>View Event Details</span>
