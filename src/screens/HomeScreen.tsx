@@ -110,17 +110,18 @@ export default function HomeScreen() {
 
             <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
               <Link
+                to="/vioraalf"
+                className="group px-8 py-3.5 bg-secondary text-black hover:bg-white hover:text-black transition-[transform,background-color,color] duration-160 ease-out font-semibold text-xs tracking-widest uppercase rounded-sm text-center inline-flex items-center justify-center gap-2 active:scale-[0.97]"
+              >
+                <span>Art & Light Photo Fest</span>
+                <ArrowUpRight className="w-4 h-4 transition-transform duration-200 ease-out group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+              </Link>
+              <Link
                 to="/festivals"
                 className="group px-8 py-3.5 bg-secondary text-black hover:bg-white hover:text-black transition-[transform,background-color,color] duration-160 ease-out font-semibold text-xs tracking-widest uppercase rounded-sm text-center inline-flex items-center justify-center gap-2 active:scale-[0.97]"
               >
                 <span>Film Festival</span>
                 <ArrowUpRight className="w-4 h-4 transition-transform duration-200 ease-out group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-              </Link>
-              <Link
-                to="/aboutus"
-                className="px-8 py-3.5 border border-white/20 text-white hover:border-secondary hover:text-secondary transition-[transform,border-color,color] duration-160 ease-out font-semibold text-xs tracking-widest uppercase rounded-sm text-center inline-block active:scale-[0.97]"
-              >
-                Learn More
               </Link>
             </div>
           </motion.div>
