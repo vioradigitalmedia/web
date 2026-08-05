@@ -478,7 +478,29 @@ export default function AdminDashboard() {
     }
   }, [session]);
 
-  const fetchPhotoSubmissions = async () => {
+  const fetchPhotoSubmissions = async (forceRefresh = false) => {
+    // 1. Check in-memory / sessionStorage cache if forceRefresh is false
+    if (!forceRefresh) {
+      try {
+        const cachedData = sessionStorage.getItem('viora_photo_submissions_cache');
+        const cachedTime = sessionStorage.getItem('viora_photo_submissions_time');
+        if (cachedData && cachedTime) {
+          const age = Date.now() - parseInt(cachedTime, 10);
+          if (age < 5 * 60 * 1000) { // 5 minutes TTL
+            const parsed = JSON.parse(cachedData);
+            setPhotoSubmissions(parsed);
+            if (parsed.length > 0 && !selectedPhotoSubmissionId) {
+              setSelectedPhotoSubmissionId(parsed[0].id);
+            }
+            setPhotoSubmissionsLoading(false);
+            return;
+          }
+        }
+      } catch (cacheErr) {
+        console.warn('Frontend cache read notice:', cacheErr);
+      }
+    }
+
     setPhotoSubmissionsLoading(true);
     setPhotoSubmissionsError(null);
     try {
@@ -488,9 +510,19 @@ export default function AdminDashboard() {
         .order('created_at', { ascending: false });
 
       if (fetchError) throw fetchError;
-      setPhotoSubmissions(data || []);
-      if (data && data.length > 0) {
-        setSelectedPhotoSubmissionId(data[0].id);
+      const result = data || [];
+      setPhotoSubmissions(result);
+
+      // Save to sessionStorage cache
+      try {
+        sessionStorage.setItem('viora_photo_submissions_cache', JSON.stringify(result));
+        sessionStorage.setItem('viora_photo_submissions_time', Date.now().toString());
+      } catch (cacheSaveErr) {
+        console.warn('Frontend cache save notice:', cacheSaveErr);
+      }
+
+      if (result.length > 0) {
+        setSelectedPhotoSubmissionId(prev => prev || result[0].id);
       } else {
         setSelectedPhotoSubmissionId(null);
       }
@@ -514,9 +546,16 @@ export default function AdminDashboard() {
 
       if (deleteError) throw deleteError;
 
-      setPhotoSubmissions(prev => prev.filter(item => item.id !== id));
+      const updated = photoSubmissions.filter(item => item.id !== id);
+      setPhotoSubmissions(updated);
+
+      // Update cache
+      try {
+        sessionStorage.setItem('viora_photo_submissions_cache', JSON.stringify(updated));
+      } catch (e) {}
+
       if (selectedPhotoSubmissionId === id) {
-        setSelectedPhotoSubmissionId(null);
+        setSelectedPhotoSubmissionId(updated.length > 0 ? updated[0].id : null);
       }
     } catch (err: any) {
       alert('Error deleting photo submission: ' + err.message);
@@ -1813,7 +1852,7 @@ export default function AdminDashboard() {
               </div>
               <div className="flex items-center gap-3">
                 <button
-                  onClick={fetchPhotoSubmissions}
+                  onClick={() => fetchPhotoSubmissions(true)}
                   className="px-4 py-2 bg-white/5 border border-white/10 text-white rounded-sm text-xs font-semibold hover:bg-white/10 transition-colors flex items-center gap-2 cursor-pointer"
                 >
                   <i className="fa-solid fa-rotate-right"></i> Refresh
