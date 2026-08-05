@@ -30,6 +30,8 @@ export default function VioraALFScreen() {
   const [phone, setPhone] = useState('');
   const [city, setCity] = useState('');
   const [isStudent, setIsStudent] = useState(false);
+  const [studentIdPhoto, setStudentIdPhoto] = useState<File | null>(null);
+  const [studentIdPreview, setStudentIdPreview] = useState<string | null>(null);
   const [photo, setPhoto] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -52,8 +54,21 @@ export default function VioraALFScreen() {
       setErrorMsg('Please fill in all personal details fields.');
       return;
     }
+    if (isStudent && !studentIdPhoto) {
+      setErrorMsg('Please upload your Student ID photo to verify your student status.');
+      return;
+    }
     setErrorMsg(null);
     setStep(2);
+  };
+
+  const handleStudentIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setStudentIdPhoto(file);
+      setStudentIdPreview(URL.createObjectURL(file));
+      setErrorMsg(null);
+    }
   };
 
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -71,11 +86,16 @@ export default function VioraALFScreen() {
       setErrorMsg('Please upload a photo to complete your submission.');
       return;
     }
+    if (isStudent && !studentIdPhoto) {
+      setErrorMsg('Please upload your Student ID photo to complete your submission.');
+      return;
+    }
     setErrorMsg(null);
     setIsSubmitting(true);
 
     try {
       let photoUrl: string | null = null;
+      let idUrl: string | null = null;
 
       // 1. Upload Photo directly to Cloudflare R2 bucket (`viorasf`)
       try {
@@ -112,7 +132,27 @@ export default function VioraALFScreen() {
         }
       }
 
-      // 2. Insert entry into Supabase database table `photo_fest_submissions`
+      // 2. Upload Student ID Photo to Cloudflare R2 bucket (`viorasf`) if student
+      if (isStudent && studentIdPhoto) {
+        try {
+          const idExt = studentIdPhoto.name.split('.').pop();
+          const idKey = `id/${Date.now()}_${Math.random().toString(36).substring(2, 7)}.${idExt}`;
+
+          const idPutCommand = new PutObjectCommand({
+            Bucket: 'viorasf',
+            Key: idKey,
+            Body: studentIdPhoto,
+            ContentType: studentIdPhoto.type || 'image/jpeg',
+          });
+
+          await r2Client.send(idPutCommand);
+          idUrl = idKey;
+        } catch (idR2Err: any) {
+          console.warn('Cloudflare R2 Student ID upload notice:', idR2Err);
+        }
+      }
+
+      // 3. Insert entry into Supabase database table `photo_fest_submissions`
       const { error: dbError } = await supabase
         .from('photo_fest_submissions')
         .insert([
@@ -124,6 +164,7 @@ export default function VioraALFScreen() {
             is_student: isStudent,
             photo_filename: photo.name,
             photo_url: photoUrl,
+            id_url: idUrl,
             status: 'submitted'
           }
         ]);
@@ -285,7 +326,7 @@ export default function VioraALFScreen() {
                   />
                 </div>
 
-                <div className="pt-2">
+                <div className="pt-2 space-y-3">
                   <label className="flex items-center gap-3 p-3 bg-black/60 border border-white/15 rounded-sm cursor-pointer hover:border-secondary/50 transition-colors">
                     <input
                       type="checkbox"
@@ -298,6 +339,34 @@ export default function VioraALFScreen() {
                       <span>I am currently a student</span>
                     </div>
                   </label>
+
+                  {isStudent && (
+                    <div className="p-4 bg-black/80 border border-secondary/30 rounded-sm space-y-3 animate-fade-in">
+                      <label className="block text-xs font-medium text-secondary flex items-center gap-2">
+                        <GraduationCap className="w-4 h-4" /> Upload Student ID Photo *
+                      </label>
+                      <div className="border border-dashed border-white/20 bg-zinc-950 p-4 rounded-sm text-center relative hover:border-secondary/50 transition-colors">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleStudentIdChange}
+                          className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                        />
+                        {studentIdPreview ? (
+                          <div className="flex flex-col items-center gap-2">
+                            <img src={studentIdPreview} alt="Student ID Preview" className="max-h-32 w-auto object-contain rounded-sm border border-white/20" />
+                            <span className="text-[11px] text-secondary font-mono">{studentIdPhoto?.name}</span>
+                          </div>
+                        ) : (
+                          <div className="space-y-1">
+                            <Upload className="w-5 h-5 text-secondary mx-auto" />
+                            <p className="text-xs text-white">Click or drag student ID card / photo</p>
+                            <p className="text-[10px] text-zinc-400">JPG, PNG, WEBP</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 

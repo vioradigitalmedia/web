@@ -106,6 +106,7 @@ interface PhotoFestSubmission {
   is_student: boolean;
   photo_filename: string;
   photo_url: string | null;
+  id_url: string | null;
   status: string;
   created_at: string;
 }
@@ -158,6 +159,7 @@ export default function AdminDashboard() {
   const [selectedPhotoSubmissionId, setSelectedPhotoSubmissionId] = useState<string | null>(null);
   const [expandedMobilePhotoSubmissionId, setExpandedMobilePhotoSubmissionId] = useState<string | null>(null);
   const [photoPresignedUrl, setPhotoPresignedUrl] = useState<string | null>(null);
+  const [photoIdPresignedUrl, setPhotoIdPresignedUrl] = useState<string | null>(null);
 
   // Presigned URL States for Secure Private R2 Media
   const [moviePresignedUrl, setMoviePresignedUrl] = useState<string | null>(null);
@@ -274,27 +276,47 @@ export default function AdminDashboard() {
   useEffect(() => {
     const generatePhotoUrl = async () => {
       const selected = photoSubmissions.find(s => s.id === selectedPhotoSubmissionId);
-      if (!selected || !selected.photo_url) {
+      if (!selected) {
         setPhotoPresignedUrl(null);
-        return;
-      }
-
-      if (selected.photo_url.startsWith('http://') || selected.photo_url.startsWith('https://')) {
-        setPhotoPresignedUrl(selected.photo_url);
+        setPhotoIdPresignedUrl(null);
         return;
       }
 
       setPresignedLoading(true);
       try {
-        const photoCommand = new GetObjectCommand({
-          Bucket: 'viorasf',
-          Key: selected.photo_url,
-        });
-        const url = await getSignedUrl(r2Client, photoCommand, { expiresIn: 3600 });
-        setPhotoPresignedUrl(url);
+        if (selected.photo_url) {
+          if (selected.photo_url.startsWith('http://') || selected.photo_url.startsWith('https://')) {
+            setPhotoPresignedUrl(selected.photo_url);
+          } else {
+            const photoCommand = new GetObjectCommand({
+              Bucket: 'viorasf',
+              Key: selected.photo_url,
+            });
+            const url = await getSignedUrl(r2Client, photoCommand, { expiresIn: 3600 });
+            setPhotoPresignedUrl(url);
+          }
+        } else {
+          setPhotoPresignedUrl(null);
+        }
+
+        if (selected.id_url) {
+          if (selected.id_url.startsWith('http://') || selected.id_url.startsWith('https://')) {
+            setPhotoIdPresignedUrl(selected.id_url);
+          } else {
+            const idCommand = new GetObjectCommand({
+              Bucket: 'viorasf',
+              Key: selected.id_url,
+            });
+            const idUrl = await getSignedUrl(r2Client, idCommand, { expiresIn: 3600 });
+            setPhotoIdPresignedUrl(idUrl);
+          }
+        } else {
+          setPhotoIdPresignedUrl(null);
+        }
       } catch (err) {
-        console.error('Error generating photo presigned URL:', err);
+        console.error('Error generating photo presigned URLs:', err);
         setPhotoPresignedUrl(null);
+        setPhotoIdPresignedUrl(null);
       } finally {
         setPresignedLoading(false);
       }
@@ -1896,6 +1918,46 @@ export default function AdminDashboard() {
                           </div>
                         </div>
 
+                        {/* Student ID Photo Card */}
+                        {selectedPhotoSub.is_student && (
+                          <div className="border border-white/5 bg-black/30 p-6 rounded-sm space-y-4">
+                            <span className="text-[10px] tracking-widest text-secondary font-semibold uppercase block border-b border-white/5 pb-2">
+                              Verified Student ID (Cloudflare R2)
+                            </span>
+
+                            {presignedLoading ? (
+                              <div className="py-8 text-center text-accent-muted space-y-2">
+                                <div className="h-5 w-5 border-2 border-secondary border-t-transparent rounded-full animate-spin mx-auto"></div>
+                                <p className="text-xs">Generating secure R2 Student ID link...</p>
+                              </div>
+                            ) : photoIdPresignedUrl ? (
+                              <div className="space-y-4">
+                                <div className="border border-white/10 rounded-sm overflow-hidden bg-black flex items-center justify-center max-h-[250px]">
+                                  <img
+                                    src={photoIdPresignedUrl}
+                                    alt="Student ID Photo"
+                                    className="max-h-[250px] w-auto object-contain"
+                                  />
+                                </div>
+                                <div className="flex gap-3 justify-end">
+                                  <a
+                                    href={photoIdPresignedUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="px-4 py-2 border border-white/20 text-white font-semibold text-xs rounded-sm hover:border-secondary transition-colors inline-flex items-center gap-2 cursor-pointer"
+                                  >
+                                    <i className="fa-solid fa-address-card"></i> View Student ID
+                                  </a>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="py-6 text-center text-amber-400 text-xs border border-amber-500/20 rounded-sm bg-amber-950/20">
+                                Student ID file path: {selectedPhotoSub.id_url || 'No ID file attached'}
+                              </div>
+                            )}
+                          </div>
+                        )}
+
                         {/* Photo Preview & Media Link */}
                         <div className="border border-white/5 bg-black/30 p-6 rounded-sm space-y-4">
                           <span className="text-[10px] tracking-widest text-secondary font-semibold uppercase block border-b border-white/5 pb-2">
@@ -1998,7 +2060,22 @@ export default function AdminDashboard() {
                                   rel="noopener noreferrer"
                                   className="w-full py-2 bg-secondary text-black font-semibold text-[10px] tracking-widest uppercase hover:bg-white transition-all rounded-sm text-center flex items-center justify-center gap-2 cursor-pointer"
                                 >
-                                  <i className="fa-solid fa-expand"></i> View Full Resolution
+                                  <i className="fa-solid fa-expand font-semibold"></i> View Full Resolution
+                                </a>
+                              </div>
+                            )}
+
+                            {sub.is_student && photoIdPresignedUrl && (
+                              <div className="space-y-2 pt-2 border-t border-white/5">
+                                <span className="text-[10px] text-secondary uppercase font-semibold">Student ID Card</span>
+                                <img src={photoIdPresignedUrl} alt="Student ID" className="w-full h-auto rounded-sm border border-white/10" />
+                                <a
+                                  href={photoIdPresignedUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="w-full py-2 border border-white/20 text-white font-semibold text-[10px] tracking-widest uppercase hover:border-secondary transition-all rounded-sm text-center flex items-center justify-center gap-2 cursor-pointer"
+                                >
+                                  <i className="fa-solid fa-address-card"></i> View Student ID
                                 </a>
                               </div>
                             )}
