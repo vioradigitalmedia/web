@@ -1,9 +1,35 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
+  const [isLightMode, setIsLightMode] = useState(() => {
+    return document.documentElement.classList.contains('light-mode');
+  });
+
+  const toggleLightMode = () => {
+    const nextMode = !isLightMode;
+    setIsLightMode(nextMode);
+    if (nextMode) {
+      document.documentElement.classList.add('light-mode');
+      document.body.classList.add('light-mode');
+      localStorage.setItem('viora-theme', 'light');
+    } else {
+      document.documentElement.classList.remove('light-mode');
+      document.body.classList.remove('light-mode');
+      localStorage.setItem('viora-theme', 'dark');
+    }
+  };
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('viora-theme');
+    if (savedTheme === 'light') {
+      setIsLightMode(true);
+      document.documentElement.classList.add('light-mode');
+      document.body.classList.add('light-mode');
+    }
+  }, []);
 
   const navItems: { path: string; label: string; isComingSoon?: boolean }[] = [
     { path: '/', label: 'Home' },
@@ -12,7 +38,7 @@ export default function Header() {
   ];
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-black/80 backdrop-blur-md border-b border-secondary/20">
+    <header className="sticky top-0 z-50 w-full bg-black/80 backdrop-blur-md border-b border-secondary/20 transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
         
         {/* Logo and Brand */}
@@ -37,7 +63,7 @@ export default function Header() {
         </Link>
 
         {/* Desktop Navigation & CTA Button grouped together on the right */}
-        <div className="hidden md:flex items-center gap-8">
+        <div className="hidden md:flex items-center gap-6">
           <nav className="flex items-center gap-8">
             {navItems.map((item) => {
               const isActive = location.pathname === item.path;
@@ -71,6 +97,15 @@ export default function Header() {
               );
             })}
           </nav>
+
+          <button 
+            onClick={toggleLightMode}
+            title={isLightMode ? "Switch to Dark Mode" : "Switch to Light Mode"}
+            aria-label="Toggle Theme"
+            className="p-1 text-secondary hover:text-secondary-light transition-all duration-300 transform hover:scale-110 focus:outline-none cursor-pointer flex items-center justify-center"
+          >
+            <i className={`${isLightMode ? 'fa-regular' : 'fa-solid'} fa-circle-play text-xl`}></i>
+          </button>
 
           <Link 
             to="/contact"
@@ -126,6 +161,17 @@ export default function Header() {
               </Link>
             );
           })}
+          <div className="flex items-center justify-between py-2 border-t border-secondary/10 mt-1">
+            <span className="text-xs uppercase tracking-widest text-accent-muted">Switch Theme</span>
+            <button 
+              onClick={toggleLightMode}
+              aria-label="Toggle Theme"
+              className="p-2 text-secondary hover:text-secondary-light transition-all duration-300 focus:outline-none flex items-center gap-2 cursor-pointer"
+            >
+              <i className={`${isLightMode ? 'fa-regular' : 'fa-solid'} fa-circle-play text-xl`}></i>
+              <span className="text-xs font-semibold uppercase tracking-wider">{isLightMode ? 'Dark' : 'Light'}</span>
+            </button>
+          </div>
           <Link 
             to="/contact"
             onClick={() => setIsMenuOpen(false)}

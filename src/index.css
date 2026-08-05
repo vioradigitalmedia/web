@@ -6,7 +6,7 @@
 
 @layer base {
   body {
-    @apply bg-black text-white font-sans antialiased overflow-x-hidden;
+    @apply bg-black text-white font-sans antialiased overflow-x-hidden transition-colors duration-300;
   }
   
   /* Custom elegant scrollbar */
@@ -23,6 +23,285 @@
   ::-webkit-scrollbar-thumb:hover {
     background: #E2C792;
   }
+}
+
+/* =========================================
+   COMPREHENSIVE LIGHT MODE OVERRIDES
+   ========================================= */
+
+/* --- Root & Body --- */
+html.light-mode,
+html.light-mode body {
+  background-color: #f8f6f1 !important;
+  color: #1a1a1a !important;
+}
+
+/* --- Scrollbar --- */
+html.light-mode ::-webkit-scrollbar-track {
+  background: #f8f6f1 !important;
+}
+
+/* ---------------------------------------------------
+   BACKGROUNDS — solid blacks → white / off-white
+   --------------------------------------------------- */
+html.light-mode .bg-black,
+html.light-mode .bg-primary,
+html.light-mode .bg-primary-light,
+html.light-mode .bg-primary-dark {
+  background-color: #ffffff !important;
+}
+
+/* bg-black with opacity fractions */
+html.light-mode .bg-black\/30,
+html.light-mode .bg-black\/40,
+html.light-mode .bg-black\/50,
+html.light-mode .bg-black\/60,
+html.light-mode .bg-black\/70,
+html.light-mode .bg-black\/80,
+html.light-mode .bg-black\/90,
+html.light-mode .bg-black\/95 {
+  background-color: #ffffff !important;
+}
+
+/* Zinc / Neutral / Gray dark backgrounds → light gray */
+html.light-mode .bg-zinc-950,
+html.light-mode .bg-zinc-900,
+html.light-mode .bg-neutral-950,
+html.light-mode .bg-neutral-900,
+html.light-mode .bg-gray-950,
+html.light-mode .bg-gray-900 {
+  background-color: #f3f1ec !important;
+}
+
+/* bg-primary-light with opacity fractions */
+html.light-mode .bg-primary-light\/40,
+html.light-mode .bg-primary-light\/50,
+html.light-mode .bg-primary-light\/60 {
+  background-color: #ffffff !important;
+}
+
+/* bg-primary-dark with opacity */
+html.light-mode .bg-primary-dark\/80 {
+  background-color: #ffffff !important;
+}
+
+/* bg-white/5 and bg-white/10 badges — make them visible */
+html.light-mode .bg-white\/5,
+html.light-mode .bg-white\/10 {
+  background-color: rgba(0, 0, 0, 0.04) !important;
+}
+
+/* bg-secondary/5, bg-secondary/10 tinted glows — keep subtle */
+html.light-mode .bg-secondary\/5 {
+  background-color: rgba(197, 160, 89, 0.06) !important;
+}
+html.light-mode .bg-secondary\/10 {
+  background-color: rgba(197, 160, 89, 0.1) !important;
+}
+
+/* ---------------------------------------------------
+   HEADER, FOOTER, NAV — structural elements
+   --------------------------------------------------- */
+html.light-mode header {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  border-color: rgba(197, 160, 89, 0.25) !important;
+  backdrop-filter: blur(12px) !important;
+}
+
+html.light-mode footer,
+html.light-mode footer ~ div,
+html.light-mode .w-full.bg-black.border-t {
+  background-color: #f3f1ec !important;
+}
+
+/* Sticky nav tabs bar (VioraSFS) */
+html.light-mode nav.sticky {
+  background-color: rgba(255, 255, 255, 0.92) !important;
+  border-color: #e2e8f0 !important;
+}
+
+/* ---------------------------------------------------
+   TEXT COLORS
+   --------------------------------------------------- */
+html.light-mode .text-white {
+  color: #1a1a1a !important;
+}
+
+html.light-mode .text-white\/90 { color: #1f2937 !important; }
+html.light-mode .text-white\/80 { color: #374151 !important; }
+html.light-mode .text-white\/70 { color: #4b5563 !important; }
+html.light-mode .text-white\/60 { color: #6b7280 !important; }
+html.light-mode .text-white\/30,
+html.light-mode .text-white\/20 {
+  color: #9ca3af !important;
+}
+
+html.light-mode .text-accent-muted {
+  color: #52525b !important;
+}
+
+html.light-mode .text-accent-muted\/40,
+html.light-mode .text-accent-muted\/50 {
+  color: #71717a !important;
+}
+
+html.light-mode .text-gray-100,
+html.light-mode .text-gray-200 { color: #1f2937 !important; }
+html.light-mode .text-gray-300 { color: #374151 !important; }
+html.light-mode .text-gray-400,
+html.light-mode .text-gray-500,
+html.light-mode .text-neutral-400,
+html.light-mode .text-zinc-400 {
+  color: #6b7280 !important;
+}
+
+/* Preserve dark text on gold-background elements */
+html.light-mode .bg-gold-gradient,
+html.light-mode .bg-secondary {
+  color: #000000 !important;
+}
+
+/* ---------------------------------------------------
+   BORDERS
+   --------------------------------------------------- */
+html.light-mode .border-white\/5,
+html.light-mode .border-white\/10,
+html.light-mode .border-white\/15,
+html.light-mode .border-white\/20 {
+  border-color: #e2e8f0 !important;
+}
+
+html.light-mode .border-neutral-800,
+html.light-mode .border-gray-800,
+html.light-mode .border-zinc-800 {
+  border-color: #e2e8f0 !important;
+}
+
+html.light-mode .border-secondary\/20 {
+  border-color: rgba(197, 160, 89, 0.4) !important;
+}
+
+html.light-mode .border-secondary\/30 {
+  border-color: rgba(197, 160, 89, 0.45) !important;
+}
+
+html.light-mode .border-secondary\/40 {
+  border-color: rgba(197, 160, 89, 0.5) !important;
+}
+
+/* Dashed borders */
+html.light-mode .border-dashed {
+  border-color: #d1d5db !important;
+}
+
+/* ---------------------------------------------------
+   FORM CONTROLS
+   --------------------------------------------------- */
+html.light-mode input,
+html.light-mode textarea,
+html.light-mode select {
+  background-color: #ffffff !important;
+  color: #1a1a1a !important;
+  border-color: #cbd5e1 !important;
+}
+
+html.light-mode input::placeholder,
+html.light-mode textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+html.light-mode option {
+  background-color: #ffffff !important;
+  color: #1a1a1a !important;
+}
+
+/* Checkbox appearance */
+html.light-mode input[type="checkbox"] {
+  accent-color: #C5A059 !important;
+}
+
+/* File input text */
+html.light-mode input[type="file"] {
+  color: #4b5563 !important;
+}
+
+/* ---------------------------------------------------
+   GRADIENTS
+   --------------------------------------------------- */
+html.light-mode .from-black {
+  --tw-gradient-from: #f8f6f1 var(--tw-gradient-from-position) !important;
+}
+html.light-mode .via-black,
+html.light-mode .via-primary-dark\/80 {
+  --tw-gradient-via: #f8f6f1 var(--tw-gradient-via-position) !important;
+}
+html.light-mode .to-black {
+  --tw-gradient-to: #f8f6f1 var(--tw-gradient-to-position) !important;
+}
+
+/* bg-gradient-to-b from-black via-primary-dark to-black (VioraSFS hero) */
+html.light-mode .bg-gradient-to-b {
+  background: linear-gradient(to bottom, #f8f6f1, #f0ede5, #f8f6f1) !important;
+}
+
+/* ---------------------------------------------------
+   IMAGES & BLEND MODES
+   --------------------------------------------------- */
+/* The hero SVG logo uses mix-blend-screen (invisible on white).
+   Switch to normal blend in light mode. */
+html.light-mode .mix-blend-screen {
+  mix-blend-mode: normal !important;
+}
+
+/* ---------------------------------------------------
+   SHADOWS — subtle light-mode card shadows
+   --------------------------------------------------- */
+html.light-mode .shadow-xl {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06) !important;
+}
+
+html.light-mode .shadow-\[0_0_30px_rgba\(197\2c 160\2c 89\2c 0\.1\)\] {
+  box-shadow: 0 4px 20px rgba(197, 160, 89, 0.08) !important;
+}
+
+html.light-mode .shadow-\[0_0_25px_rgba\(197\2c 160\2c 89\2c 0\.3\)\] {
+  box-shadow: 0 2px 12px rgba(197, 160, 89, 0.06) !important;
+}
+
+/* ---------------------------------------------------
+   MODAL / OVERLAY BACKDROPS
+   --------------------------------------------------- */
+html.light-mode .fixed.inset-0.bg-black\/80,
+html.light-mode .fixed.inset-0.bg-black\/70,
+html.light-mode .fixed.inset-0.bg-black\/60 {
+  background-color: rgba(0, 0, 0, 0.4) !important;
+}
+
+/* ---------------------------------------------------
+   ERROR STATE
+   --------------------------------------------------- */
+html.light-mode .bg-red-950\/25 {
+  background-color: rgba(254, 226, 226, 0.6) !important;
+}
+
+html.light-mode .border-red-500\/25 {
+  border-color: rgba(239, 68, 68, 0.35) !important;
+}
+
+/* ---------------------------------------------------
+   ORBIT RING ICON CIRCLES (Home hero)
+   --------------------------------------------------- */
+html.light-mode .rounded-full.bg-black.border.border-secondary\/40 {
+  background-color: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* ---------------------------------------------------
+   GOLD GLOW BORDER (used in admin + cards)
+   --------------------------------------------------- */
+html.light-mode .border-gold-glow {
+  box-shadow: 0 2px 12px rgba(197, 160, 89, 0.1) !important;
+  border: 1px solid rgba(197, 160, 89, 0.35) !important;
 }
 
 @layer utilities {
