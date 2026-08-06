@@ -102,7 +102,7 @@ export default function VioraSFSScreen() {
   const [submitted, setSubmitted] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const feeAmount = isCollegeStudent ? 499 : 799;
+  const feeAmount = isCollegeStudent ? 299 : 499;
 
   const loadRazorpayScript = () => {
     return new Promise((resolve) => {
@@ -219,7 +219,7 @@ export default function VioraSFSScreen() {
 
     const options: RazorpayOptions = {
       key: razorpayKey,
-      amount: feeAmount * 100, // in paise (₹499 or ₹799)
+      amount: feeAmount * 100, // in paise (₹299 or ₹499)
       currency: 'INR',
       name: 'Viora Media',
       description: `SFS 2026 (${isCollegeStudent ? 'Student Category' : 'Professional Category'}): ${filmTitle}`,
@@ -430,28 +430,19 @@ export default function VioraSFSScreen() {
         </div>
 
         <div className="max-w-7xl mx-auto px-6 relative z-10 text-center">
-          {/* Partner Badges */}
-          <div className="flex flex-wrap items-center justify-center gap-4 mb-8 text-[11px] font-mono uppercase tracking-widest text-accent-muted">
-            <span className="flex items-center gap-2 border border-secondary/30 bg-secondary/5 px-3 py-1.5 rounded-full text-secondary">
-              <i className="fa-solid fa-award"></i> VIORA MEDIA
-            </span>
-            <span className="text-white/30">•</span>
-            <span className="flex items-center gap-2 border border-white/10 bg-white/5 px-3 py-1.5 rounded-full text-white/80">
-              <i className="fa-solid fa-handshake"></i> Official Acquisition Partner: VERUS PRODUCTIONS
-            </span>
-          </div>
 
           <h1 className="font-serif text-4xl md:text-7xl tracking-wide leading-tight max-w-5xl mx-auto mb-6">
             VIORA SHORT FILM FEST <br />
             <span className="text-gold-gradient font-italic font-normal">2026</span>
           </h1>
 
-          <div className="inline-block px-4 py-1 border border-secondary/40 text-secondary text-xs uppercase tracking-[0.25em] rounded-full mb-6 font-mono">
-            Official Rulebook & Submission Guidelines
-          </div>
-
-          <p className="text-sm md:text-lg text-accent-muted font-light leading-relaxed max-w-3xl mx-auto italic mb-10">
+          <p className="text-sm md:text-lg text-accent-muted font-light leading-relaxed max-w-3xl mx-auto italic mb-8">
             "Every remarkable film begins with a story worth telling."
+          </p>
+
+          {/* Verus Highlights */}
+          <p className="text-xs md:text-sm text-white/80 font-light leading-relaxed max-w-3xl mx-auto mb-10 text-center">
+            The <strong className="text-secondary font-semibold">First Prize</strong> winner from each category receives an exclusive pilot film narration opportunity with <strong className="text-secondary font-semibold">VERUS Productions</strong>. Additionally, the top three winning films from both categories will be acquired by VERUS Productions at a mutually agreed value.
           </p>
 
           {/* CTAs */}
@@ -689,7 +680,7 @@ export default function VioraSFSScreen() {
               <div className="bg-black/50 border border-white/10 p-6 rounded-sm flex items-center justify-between">
                 <div>
                   <span className="text-[10px] font-mono text-accent-muted uppercase tracking-widest block">Entry Fee</span>
-                  <span className="font-serif text-3xl text-secondary font-bold">₹499</span>
+                  <span className="font-serif text-3xl text-secondary font-bold">₹299</span>
                 </div>
                 <button
                   onClick={() => openRegistrationWithCategory(true)}
@@ -763,7 +754,7 @@ export default function VioraSFSScreen() {
               <div className="bg-black/50 border border-white/10 p-6 rounded-sm flex items-center justify-between">
                 <div>
                   <span className="text-[10px] font-mono text-accent-muted uppercase tracking-widest block">Entry Fee</span>
-                  <span className="font-serif text-3xl text-secondary font-bold">₹799</span>
+                  <span className="font-serif text-3xl text-secondary font-bold">₹499</span>
                 </div>
                 <button
                   onClick={() => openRegistrationWithCategory(false)}
@@ -1183,13 +1174,13 @@ export default function VioraSFSScreen() {
               onClick={() => openRegistrationWithCategory(true)}
               className="px-8 py-4 bg-secondary text-black font-semibold text-xs tracking-widest uppercase rounded-sm hover:bg-white transition-all cursor-pointer shadow-lg"
             >
-              Student Submission (₹499)
+              Student Submission (₹299)
             </button>
             <button
               onClick={() => openRegistrationWithCategory(false)}
               className="px-8 py-4 bg-white text-black font-semibold text-xs tracking-widest uppercase rounded-sm hover:bg-secondary transition-all cursor-pointer shadow-lg"
             >
-              Professional Submission (₹799)
+              Professional Submission (₹499)
             </button>
           </div>
         </section>
@@ -1401,7 +1392,7 @@ export default function VioraSFSScreen() {
                       <div className="p-4 bg-black/40 border border-white/10 rounded-sm space-y-3 mt-2">
                         <div className="flex items-center justify-between">
                           <label htmlFor="isCollegeStudentModal" className="text-xs text-white font-medium cursor-pointer">
-                            Submit under Student Category (₹499)
+                            Submit under Student Category (₹299)
                           </label>
                           <input
                             id="isCollegeStudentModal"

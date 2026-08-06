@@ -102,7 +102,7 @@ export default function Header() {
             onClick={toggleLightMode}
             title={isLightMode ? "Switch to Dark Mode" : "Switch to Light Mode"}
             aria-label="Toggle Theme"
-            className="p-1 text-secondary hover:text-secondary-light transition-all duration-300 transform hover:scale-110 focus:outline-none cursor-pointer flex items-center justify-center"
+            className="hidden p-1 text-secondary hover:text-secondary-light transition-all duration-300 transform hover:scale-110 focus:outline-none cursor-pointer items-center justify-center"
           >
             <i className={`${isLightMode ? 'fa-regular' : 'fa-solid'} fa-circle-play text-xl`}></i>
           </button>
@@ -161,7 +161,7 @@ export default function Header() {
               </Link>
             );
           })}
-          <div className="flex items-center justify-between py-2 border-t border-secondary/10 mt-1">
+          <div className="hidden items-center justify-between py-2 border-t border-secondary/10 mt-1">
             <span className="text-xs uppercase tracking-widest text-accent-muted">Switch Theme</span>
             <button 
               onClick={toggleLightMode}
