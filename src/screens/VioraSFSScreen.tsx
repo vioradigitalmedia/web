@@ -715,6 +715,20 @@ export default function VioraSFSScreen() {
                 </div>
               </div>
 
+              {/* Narration with Verus Productions */}
+              <div className="border-t border-white/10 pt-6">
+                <div className="p-4 bg-secondary/5 border border-secondary/30 rounded-sm flex items-start gap-3">
+                  <i className="fa-solid fa-bullhorn text-secondary text-lg mt-0.5 shrink-0"></i>
+                  <div className="space-y-1">
+                    <span className="text-[10px] font-mono text-secondary uppercase tracking-widest block">1st Prize Exclusive</span>
+                    <h4 className="font-serif text-sm text-white">Pilot Film Narration with VERUS Productions</h4>
+                    <p className="text-[11px] text-accent-muted font-light leading-relaxed">
+                      The First Prize winner receives an exclusive opportunity to narrate a pilot feature film project directly to the VERUS production team.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
               {/* Cash Prizes */}
               <div className="border-t border-white/10 pt-6 space-y-4">
                 <h4 className="font-serif text-sm text-secondary uppercase tracking-wider flex items-center gap-2">
@@ -772,6 +786,20 @@ export default function VioraSFSScreen() {
                 <div className="flex justify-between border-b border-white/5 pb-2">
                   <span className="text-accent-muted">Eligibility:</span>
                   <span className="text-white font-medium text-right">Open to non-student creators</span>
+                </div>
+              </div>
+
+              {/* Narration with Verus Productions */}
+              <div className="border-t border-white/10 pt-6">
+                <div className="p-4 bg-secondary/5 border border-secondary/30 rounded-sm flex items-start gap-3">
+                  <i className="fa-solid fa-bullhorn text-secondary text-lg mt-0.5 shrink-0"></i>
+                  <div className="space-y-1">
+                    <span className="text-[10px] font-mono text-secondary uppercase tracking-widest block">1st Prize Exclusive</span>
+                    <h4 className="font-serif text-sm text-white">Pilot Film Narration with VERUS Productions</h4>
+                    <p className="text-[11px] text-accent-muted font-light leading-relaxed">
+                      The First Prize winner receives an exclusive opportunity to narrate a pilot feature film project directly to the VERUS production team.
+                    </p>
+                  </div>
                 </div>
               </div>
 
