@@ -95,11 +95,10 @@ export default function Footer() {
               Community
             </h4>
             <ul className="flex flex-col gap-2 text-xs font-light">
-              <li className="relative group">
-                <span className="text-accent-muted/40 cursor-not-allowed flex items-center justify-between">
-                  <span>Become a Volunteer</span>
-                  <span className="text-[7px] bg-zinc-900 border border-secondary/20 text-secondary px-1 py-0.5 rounded-sm">Soon</span>
-                </span>
+              <li>
+                <Link to="/join-us" className="hover:text-secondary transition-colors duration-200">
+                  Join Us
+                </Link>
               </li>
               <li>
                 <Link to="/partner-with-us" className="hover:text-secondary transition-colors duration-200">

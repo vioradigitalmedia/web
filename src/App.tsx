@@ -10,6 +10,7 @@ import FestivalsScreen from './screens/FestivalsScreen';
 import VioraSFSScreen from './screens/VioraSFSScreen';
 import VioraALFScreen from './screens/VioraALFScreen';
 import PartnerScreen from './screens/PartnerScreen';
+import JoinUsScreen from './screens/JoinUsScreen';
 import NotFoundScreen from './screens/NotFoundScreen';
 import AdminDashboard from './admin/AdminDashboard';
 import ScrollToTop from './components/ScrollToTop';
@@ -51,6 +52,7 @@ function App() {
             <Route path="/viorasfs" element={<VioraSFSScreen />} />
             <Route path="/vioraalf" element={<VioraALFScreen />} />
             <Route path="/partner-with-us" element={<PartnerScreen />} />
+            <Route path="/join-us" element={<JoinUsScreen />} />
             <Route path="/privacy-policy" element={<PrivacyPolicyScreen />} />
             <Route path="/terms-conditions" element={<TermsConditionsScreen />} />
             <Route path="*" element={<NotFoundScreen />} />
