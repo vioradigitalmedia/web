@@ -1,4 +1,3 @@
-import React from 'react';
 import { CfoTransaction } from '../types';
 
 interface CfoTabProps {

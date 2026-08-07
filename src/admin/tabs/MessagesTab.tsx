@@ -1,4 +1,3 @@
-import React from 'react';
 import { ContactMessage } from '../types';
 
 interface MessagesTabProps {

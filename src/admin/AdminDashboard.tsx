@@ -811,7 +811,6 @@ export default function AdminDashboard() {
             setMediaFilter={setMediaFilter}
             adminDocs={adminDocs}
             adminDocsLoading={adminDocsLoading}
-            selectedSubmissionId={selectedSubmissionId}
             setSelectedSubmissionId={setSelectedSubmissionId}
             selectedDocKey={selectedDocKey}
             setSelectedDocKey={setSelectedDocKey}

@@ -1,4 +1,3 @@
-import React from 'react';
 import { JobApplication } from '../types';
 
 interface ApplicationsTabProps {

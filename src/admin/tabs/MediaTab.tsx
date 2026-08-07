@@ -1,4 +1,3 @@
-import React from 'react';
 import { FestivalSubmission, AdminDocument } from '../types';
 
 interface MediaTabProps {
@@ -7,7 +6,6 @@ interface MediaTabProps {
   setMediaFilter: (filter: 'movies' | 'posters' | 'docs') => void;
   adminDocs: AdminDocument[];
   adminDocsLoading: boolean;
-  selectedSubmissionId: string | null;
   setSelectedSubmissionId: (id: string | null) => void;
   selectedDocKey: string | null;
   setSelectedDocKey: (key: string | null) => void;
@@ -25,7 +23,6 @@ export default function MediaTab({
   setMediaFilter,
   adminDocs,
   adminDocsLoading,
-  selectedSubmissionId,
   setSelectedSubmissionId,
   selectedDocKey,
   setSelectedDocKey,
@@ -41,10 +38,6 @@ export default function MediaTab({
     if (!pathStr) return 'N/A';
     const parts = pathStr.split('/');
     return parts[parts.length - 1];
-  };
-
-  const getMediaUrlPrefix = (pathStr: string) => {
-    return pathStr.replace(/^(movies\/|posters\/)/, '');
   };
 
   return (

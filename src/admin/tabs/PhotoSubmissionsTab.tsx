@@ -1,4 +1,3 @@
-import React from 'react';
 import { PhotoFestSubmission } from '../types';
 
 interface PhotoSubmissionsTabProps {
