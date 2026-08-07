@@ -757,7 +757,6 @@ export default function AdminDashboard() {
 
   const totalSubmissions = submissions.length;
   const totalApplications = jobApplications.length;
-  const pendingApplications = jobApplications.filter(a => a.status === 'pending').length;
   const totalRevenue = submissions.reduce((sum, s) => {
     const rawAmount = Number(s.amount_paid || 999.00);
     const gatewayFee = rawAmount * 0.02;
