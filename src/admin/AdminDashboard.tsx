@@ -87,6 +87,19 @@ interface PartnerProposal {
   created_at: string;
 }
 
+interface JobApplication {
+  id: string;
+  role_id: string;
+  role_title: string;
+  name: string;
+  email: string;
+  phone: string | null;
+  portfolio: string | null;
+  cover_letter: string;
+  status: string;
+  created_at: string;
+}
+
 interface AdminDocument {
   id: string;
   title: string;
@@ -118,7 +131,7 @@ export default function AdminDashboard() {
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [session, setSession] = useState<any>(null);
   const [authLoading, setAuthLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'messages' | 'media' | 'submissions' | 'photo-submissions' | 'cfo' | 'letterhead' | 'partners'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'messages' | 'media' | 'submissions' | 'photo-submissions' | 'cfo' | 'letterhead' | 'partners' | 'applications'>('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [appView, setAppView] = useState<'selection' | 'dashboard'>('selection');
@@ -130,6 +143,12 @@ export default function AdminDashboard() {
   const [selectedPartnerId, setSelectedPartnerId] = useState<string | null>(null);
   const [selectedMessageId, setSelectedMessageId] = useState<string | null>(null);
   const [expandedMobileMessageId, setExpandedMobileMessageId] = useState<string | null>(null);
+
+  // Job Applications States
+  const [jobApplications, setJobApplications] = useState<JobApplication[]>([]);
+  const [jobApplicationsLoading, setJobApplicationsLoading] = useState(true);
+  const [jobApplicationsError, setJobApplicationsError] = useState<string | null>(null);
+  const [selectedApplicationId, setSelectedApplicationId] = useState<string | null>(null);
 
   // CFO States
   const [cfoTransactions, setCfoTransactions] = useState<CfoTransaction[]>([]);
@@ -467,6 +486,73 @@ export default function AdminDashboard() {
     }
   };
 
+  const fetchJobApplications = async () => {
+    setJobApplicationsLoading(true);
+    setJobApplicationsError(null);
+    try {
+      const { data, error: fetchError } = await supabase
+        .from('job_applications')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (fetchError) throw fetchError;
+      setJobApplications(data || []);
+      if (data && data.length > 0) {
+        setSelectedApplicationId(data[0].id);
+      } else {
+        setSelectedApplicationId(null);
+      }
+    } catch (err: any) {
+      console.error('Error fetching job applications:', err);
+      setJobApplicationsError(err.message || 'Failed to fetch job applications.');
+    } finally {
+      setJobApplicationsLoading(false);
+    }
+  };
+
+  const handleUpdateApplicationStatus = async (id: string, newStatus: string) => {
+    setUpdatingId(id);
+    try {
+      const { error: updateError } = await supabase
+        .from('job_applications')
+        .update({ status: newStatus })
+        .eq('id', id);
+
+      if (updateError) throw updateError;
+
+      setJobApplications(prev =>
+        prev.map(app => app.id === id ? { ...app, status: newStatus } : app)
+      );
+    } catch (err: any) {
+      alert('Error updating status: ' + err.message);
+    } finally {
+      setUpdatingId(null);
+    }
+  };
+
+  const handleDeleteApplication = async (id: string) => {
+    if (!window.confirm('Are you sure you want to delete this application?')) return;
+    setUpdatingId(id);
+    try {
+      const { error: deleteError } = await supabase
+        .from('job_applications')
+        .delete()
+        .eq('id', id);
+
+      if (deleteError) throw deleteError;
+
+      const updated = jobApplications.filter(app => app.id !== id);
+      setJobApplications(updated);
+      if (selectedApplicationId === id) {
+        setSelectedApplicationId(updated.length > 0 ? updated[0].id : null);
+      }
+    } catch (err: any) {
+      alert('Error deleting application: ' + err.message);
+    } finally {
+      setUpdatingId(null);
+    }
+  };
+
   useEffect(() => {
     if (session) {
       fetchMessages();
@@ -475,6 +561,7 @@ export default function AdminDashboard() {
       fetchPhotoSubmissions();
       fetchAdminData();
       fetchPartners();
+      fetchJobApplications();
     }
   }, [session]);
 
@@ -669,6 +756,8 @@ export default function AdminDashboard() {
   const pendingInquiries = filteredMessages.filter(m => m.status === 'pending').length;
 
   const totalSubmissions = submissions.length;
+  const totalApplications = jobApplications.length;
+  const pendingApplications = jobApplications.filter(a => a.status === 'pending').length;
   const totalRevenue = submissions.reduce((sum, s) => {
     const rawAmount = Number(s.amount_paid || 999.00);
     const gatewayFee = rawAmount * 0.02;
@@ -850,6 +939,156 @@ export default function AdminDashboard() {
             )}
           </div>
         );
+
+      case 'applications':
+        const selectedApplication = jobApplications.find(a => a.id === selectedApplicationId);
+        return (
+          <div className="space-y-6 animate-fade-in text-left flex flex-col h-full">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/5 pb-6">
+              <div>
+                <span className="text-[10px] tracking-[0.25em] text-secondary font-semibold uppercase">Recruitment</span>
+                <h1 className="font-serif text-3xl text-white tracking-wide mt-1">Job Applications</h1>
+              </div>
+              <button
+                onClick={fetchJobApplications}
+                className="px-4 py-2 bg-primary-light border border-white/10 hover:border-secondary text-xs tracking-widest uppercase transition-all duration-300 rounded-sm text-center flex items-center gap-2 cursor-pointer self-start sm:self-auto"
+              >
+                <i className="fa-solid fa-arrows-rotate"></i> Refresh
+              </button>
+            </div>
+            {jobApplicationsLoading ? (
+              <div className="py-20 flex flex-col items-center justify-center gap-4">
+                <i className="fa-solid fa-circle-notch fa-spin text-3xl text-secondary"></i>
+                <span className="text-xs tracking-widest uppercase text-accent-muted">Loading Applications...</span>
+              </div>
+            ) : jobApplicationsError ? (
+              <div className="p-6 bg-red-950/20 border border-red-500/20 text-red-400 rounded-sm text-center">
+                <i className="fa-solid fa-circle-exclamation text-2xl mb-2"></i>
+                <p className="text-sm">{jobApplicationsError}</p>
+              </div>
+            ) : jobApplications.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-20 text-center">
+                <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-6">
+                  <i className="fa-solid fa-briefcase text-2xl text-accent-muted"></i>
+                </div>
+                <h3 className="font-serif text-xl text-white mb-2">No Applications Yet</h3>
+                <p className="text-sm text-accent-muted font-light max-w-sm">
+                  Job applications submitted via the Join Us page will appear here.
+                </p>
+              </div>
+            ) : (
+              <div className="flex flex-col lg:flex-row gap-6 h-[calc(100vh-16rem)] min-h-[500px]">
+                {/* List View */}
+                <div className="w-full lg:w-1/3 border border-white/5 bg-primary-light rounded-sm flex flex-col overflow-hidden">
+                  <div className="p-4 border-b border-white/5 bg-black/20">
+                    <h3 className="text-xs font-semibold tracking-widest text-accent-muted uppercase">Applications ({jobApplications.length})</h3>
+                  </div>
+                  <div className="overflow-y-auto flex-1 custom-scrollbar">
+                    {jobApplications.map(app => (
+                      <div
+                        key={app.id}
+                        onClick={() => setSelectedApplicationId(app.id)}
+                        className={`p-4 border-b border-white/5 cursor-pointer transition-all ${selectedApplicationId === app.id ? 'bg-secondary/10 border-l-2 border-l-secondary' : 'hover:bg-white/5 border-l-2 border-l-transparent'}`}
+                      >
+                        <div className="flex justify-between items-start mb-1">
+                          <h4 className={`font-medium text-sm truncate ${selectedApplicationId === app.id ? 'text-secondary' : 'text-white'}`}>{app.name}</h4>
+                          <span className="text-[10px] text-accent-muted flex-shrink-0">{new Date(app.created_at).toLocaleDateString()}</span>
+                        </div>
+                        <p className="text-xs text-accent-muted truncate">{app.role_title}</p>
+                        <div className="flex items-center gap-2 mt-1.5">
+                          <span className={`text-[9px] tracking-wider uppercase font-semibold px-1.5 py-0.5 rounded-sm ${
+                            app.status === 'pending' ? 'bg-yellow-500/10 text-yellow-500' :
+                            app.status === 'reviewed' ? 'bg-blue-500/10 text-blue-400' :
+                            app.status === 'shortlisted' ? 'bg-green-500/10 text-green-400' :
+                            app.status === 'rejected' ? 'bg-red-500/10 text-red-400' :
+                            'bg-white/5 text-accent-muted'
+                          }`}>{app.status}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Detail View */}
+                <div className="hidden lg:flex w-full lg:w-2/3 border border-white/5 bg-primary-light rounded-sm flex-col overflow-hidden">
+                  {selectedApplication ? (
+                    <>
+                      <div className="p-6 border-b border-white/5 bg-black/20 flex justify-between items-start">
+                        <div>
+                          <h2 className="font-serif text-2xl text-white">{selectedApplication.name}</h2>
+                          <div className="flex flex-wrap items-center gap-4 mt-2 text-xs text-accent-muted">
+                            <a href={`mailto:${selectedApplication.email}`} className="hover:text-white transition-colors">
+                              <i className="fa-solid fa-envelope mr-2 text-secondary"></i>{selectedApplication.email}
+                            </a>
+                            {selectedApplication.phone && (
+                              <span>
+                                <i className="fa-solid fa-phone mr-2 text-secondary"></i>{selectedApplication.phone}
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-3 mt-2">
+                            <span className="text-[10px] tracking-widest uppercase text-secondary font-semibold bg-secondary/10 px-2 py-0.5 rounded-sm">
+                              {selectedApplication.role_title}
+                            </span>
+                            {selectedApplication.portfolio && (
+                              <a href={selectedApplication.portfolio} target="_blank" rel="noopener noreferrer" className="text-xs text-secondary hover:text-white transition-colors">
+                                <i className="fa-solid fa-arrow-up-right-from-square mr-1"></i>Portfolio
+                              </a>
+                            )}
+                          </div>
+                        </div>
+                        <span className="text-xs font-mono bg-white/5 px-2 py-1 rounded text-accent-muted">
+                          {new Date(selectedApplication.created_at).toLocaleString()}
+                        </span>
+                      </div>
+                      <div className="p-6 overflow-y-auto flex-1 custom-scrollbar">
+                        <div className="mb-6">
+                          <h4 className="text-[10px] tracking-widest text-accent-muted uppercase font-semibold border-b border-white/5 pb-2 mb-4">
+                            Why Viora?
+                          </h4>
+                          <div className="prose prose-invert prose-sm max-w-none text-accent-muted whitespace-pre-wrap font-light leading-relaxed">
+                            {selectedApplication.cover_letter}
+                          </div>
+                        </div>
+
+                        {/* Status Actions */}
+                        <div className="border-t border-white/5 pt-6">
+                          <h4 className="text-[10px] tracking-widest text-accent-muted uppercase font-semibold mb-4">
+                            Update Status
+                          </h4>
+                          <div className="flex flex-wrap gap-2">
+                            {['pending', 'reviewed', 'shortlisted', 'rejected'].map(status => (
+                              <button
+                                key={status}
+                                onClick={() => handleUpdateApplicationStatus(selectedApplication.id, status)}
+                                disabled={updatingId === selectedApplication.id || selectedApplication.status === status}
+                                className={`px-4 py-2 text-[10px] tracking-widest uppercase font-semibold rounded-sm transition-all duration-300 cursor-pointer border ${
+                                  selectedApplication.status === status
+                                    ? 'bg-secondary/10 text-secondary border-secondary/30'
+                                    : 'border-white/10 text-accent-muted hover:border-white/20 hover:text-white'
+                                } disabled:opacity-50 disabled:cursor-not-allowed`}
+                              >
+                                {status}
+                              </button>
+                            ))}
+                          </div>
+                          <button
+                            onClick={() => handleDeleteApplication(selectedApplication.id)}
+                            disabled={updatingId === selectedApplication.id}
+                            className="mt-4 px-4 py-2 text-[10px] tracking-widest uppercase font-semibold rounded-sm border border-red-500/20 text-red-400 hover:bg-red-950/20 transition-all duration-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            <i className="fa-solid fa-trash-can mr-2"></i>Delete Application
+                          </button>
+                        </div>
+                      </div>
+                    </>
+                  ) : null}
+                </div>
+              </div>
+            )}
+          </div>
+        );
+
       case 'dashboard':
         return (
           <div className="space-y-8 animate-fade-in text-left">
@@ -903,6 +1142,16 @@ export default function AdminDashboard() {
                 </div>
                 <div className="h-10 w-10 bg-secondary/5 rounded-full border border-secondary/20 flex items-center justify-center">
                   <i className="fa-solid fa-rupee-sign text-secondary text-sm"></i>
+                </div>
+              </div>
+
+              <div className="border border-white/5 bg-primary-light p-6 rounded-sm flex items-center justify-between border-gold-glow">
+                <div>
+                  <span className="text-[10px] tracking-widest text-accent-muted uppercase font-semibold">Job Applications</span>
+                  <h2 className="text-3xl font-serif text-white mt-1">{totalApplications}</h2>
+                </div>
+                <div className="h-10 w-10 bg-secondary/5 rounded-full border border-secondary/20 flex items-center justify-center">
+                  <i className="fa-solid fa-briefcase text-secondary text-sm"></i>
                 </div>
               </div>
             </div>

@@ -1,6 +1,6 @@
 interface AdminSidebarProps {
-  activeTab: 'dashboard' | 'messages' | 'media' | 'submissions' | 'photo-submissions' | 'cfo' | 'letterhead' | 'partners';
-  setActiveTab: (tab: 'dashboard' | 'messages' | 'media' | 'submissions' | 'photo-submissions' | 'cfo' | 'letterhead' | 'partners') => void;
+  activeTab: 'dashboard' | 'messages' | 'media' | 'submissions' | 'photo-submissions' | 'cfo' | 'letterhead' | 'partners' | 'applications';
+  setActiveTab: (tab: 'dashboard' | 'messages' | 'media' | 'submissions' | 'photo-submissions' | 'cfo' | 'letterhead' | 'partners' | 'applications') => void;
   userEmail: string;
   onLogout: () => void;
   isOpen?: boolean;
@@ -24,6 +24,7 @@ export default function AdminSidebar({
     { id: 'dashboard', label: 'Dashboard', icon: 'fa-solid fa-chart-line' },
     { id: 'messages', label: 'Messages', icon: 'fa-solid fa-envelope' },
     { id: 'partners', label: 'Partnerships', icon: 'fa-solid fa-handshake' },
+    { id: 'applications', label: 'Applications', icon: 'fa-solid fa-briefcase' },
     { id: 'cfo', label: 'CFO', icon: 'fa-solid fa-money-bill-trend-up' },
     { id: 'media', label: 'Media Library', icon: 'fa-solid fa-images' },
     { id: 'submissions', label: 'Film Submissions', icon: 'fa-solid fa-clapperboard' },
