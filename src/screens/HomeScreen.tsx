@@ -99,9 +99,9 @@ export default function HomeScreen() {
             transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
             className="lg:col-span-7 text-left flex flex-col items-start z-10 order-2 lg:order-1"
           >
-            <h1 className="font-serif text-4xl sm:text-6xl lg:text-7xl tracking-tight text-white mb-6 leading-[1.05]">
+            <h1 className="font-serif text-4xl sm:text-6xl lg:text-7xl tracking-tight text-white mb-6 leading-[1.1]">
               Where Every Story <br />
-              Finds Its <span className="text-gold-gradient font-italic font-normal pb-1 inline-block">Stage.</span>
+              Finds Its <span className="text-gold-gradient font-italic font-normal pb-2 inline-block">Stage.</span>
             </h1>
 
             <p className="text-base text-accent-muted max-w-xl font-light tracking-wide leading-relaxed mb-8">
