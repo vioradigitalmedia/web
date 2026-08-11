@@ -41,7 +41,7 @@ export default function PartnerScreen() {
         }]);
 
       if (error) throw error;
-      
+
       setSubmitted(true);
       setFormData({ name: '', email: '', company: '', proposal: '' });
     } catch (err: any) {
@@ -64,31 +64,79 @@ export default function PartnerScreen() {
           <span className="text-[10px] tracking-[0.4em] text-secondary font-semibold uppercase block mb-3">Trusted Collaborators</span>
           <h2 className="font-serif text-3xl md:text-4xl text-white tracking-wide">Our Partners</h2>
         </div>
-        <div className="flex justify-center">
+        <div className="flex flex-wrap justify-center gap-8">
+          {/* Verus Productions */}
           <div className="group border border-white/10 bg-primary-light/50 rounded-sm px-10 py-8 hover:border-secondary/30 hover:-translate-y-1 hover:shadow-[0_4px_20px_rgba(197,160,89,0.12)] transition-all duration-300 cursor-default">
             <div className="flex items-center gap-6">
-
-            <img
-              src="/verus.jpg"
-              alt="Verus Productions"
-              className="h-24 md:h-32 w-auto object-contain"
-            />
-            <div className="flex flex-col gap-1">
-              <span className="font-serif text-xl md:text-2xl text-white tracking-widest uppercase">Verus Productions</span>
-              <span className="text-[10px] text-secondary tracking-widest uppercase font-light">Acquisition Partner</span>
-              <div className="flex items-center gap-4 mt-3">
-                <a href="https://instagram.com/verusproductionsofficial" target="_blank" rel="noopener noreferrer" className="text-accent-muted hover:text-secondary transition-colors duration-300">
-                  <i className="fa-brands fa-instagram text-lg"></i>
-                </a>
-                <a href="https://twitter.com/verusproduction" target="_blank" rel="noopener noreferrer" className="text-accent-muted hover:text-secondary transition-colors duration-300">
-                  <i className="fa-brands fa-x-twitter text-lg"></i>
-                </a>
-                <a href="https://verusproductions.com" target="_blank" rel="noopener noreferrer" className="text-accent-muted hover:text-secondary transition-colors duration-300">
-                  <i className="fa-solid fa-arrow-up-right-from-square text-lg"></i>
-                </a>
+              <img
+                src="/verus.jpg"
+                alt="Verus Productions"
+                className="h-24 md:h-32 w-auto object-contain"
+              />
+              <div className="flex flex-col gap-1">
+                <span className="font-serif text-xl md:text-2xl text-white tracking-widest uppercase">Verus Productions</span>
+                <span className="text-[10px] text-secondary tracking-widest uppercase font-light">Acquisition Partner</span>
+                <div className="flex items-center gap-4 mt-3">
+                  <a href="https://instagram.com/verusproductionsofficial" target="_blank" rel="noopener noreferrer" className="text-accent-muted hover:text-secondary transition-colors duration-300">
+                    <i className="fa-brands fa-instagram text-lg"></i>
+                  </a>
+                  <a href="https://twitter.com/verusproduction" target="_blank" rel="noopener noreferrer" className="text-accent-muted hover:text-secondary transition-colors duration-300">
+                    <i className="fa-brands fa-x-twitter text-lg"></i>
+                  </a>
+                  <a href="https://verusproductions.com" target="_blank" rel="noopener noreferrer" className="text-accent-muted hover:text-secondary transition-colors duration-300">
+                    <i className="fa-solid fa-arrow-up-right-from-square text-lg"></i>
+                  </a>
+                </div>
               </div>
             </div>
           </div>
+
+          {/* Dark Colours Academy */}
+          <div className="group border border-white/10 bg-primary-light/50 rounded-sm px-10 py-8 hover:border-secondary/30 hover:-translate-y-1 hover:shadow-[0_4px_20px_rgba(197,160,89,0.12)] transition-all duration-300 cursor-default">
+            <div className="flex items-center gap-6">
+              <div className="w-24 h-24 md:w-32 md:h-32 bg-primary-light/30 border border-white/5 flex items-center justify-center rounded-sm">
+                <i className="fa-solid fa-handshake text-2xl text-secondary/20"></i>
+              </div>
+              <div className="flex flex-col gap-1">
+                <span className="font-serif text-xl md:text-2xl text-white tracking-widest uppercase">Dark Colours Academy</span>
+                <span className="text-[10px] text-secondary tracking-widest uppercase font-light">Creative Partner</span>
+                <div className="flex items-center gap-4 mt-3">
+                  <a href="#" className="text-accent-muted hover:text-secondary transition-colors duration-300">
+                    <i className="fa-brands fa-instagram text-lg"></i>
+                  </a>
+                  <a href="#" className="text-accent-muted hover:text-secondary transition-colors duration-300">
+                    <i className="fa-brands fa-x-twitter text-lg"></i>
+                  </a>
+                  <a href="#" className="text-accent-muted hover:text-secondary transition-colors duration-300">
+                    <i className="fa-solid fa-arrow-up-right-from-square text-lg"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Bridge Academy */}
+          <div className="group border border-white/10 bg-primary-light/50 rounded-sm px-10 py-8 hover:border-secondary/30 hover:-translate-y-1 hover:shadow-[0_4px_20px_rgba(197,160,89,0.12)] transition-all duration-300 cursor-default">
+            <div className="flex items-center gap-6">
+              <div className="w-24 h-24 md:w-32 md:h-32 bg-primary-light/30 border border-white/5 flex items-center justify-center rounded-sm">
+                <i className="fa-solid fa-handshake text-2xl text-secondary/20"></i>
+              </div>
+              <div className="flex flex-col gap-1">
+                <span className="font-serif text-xl md:text-2xl text-white tracking-widest uppercase">Bridge Academy</span>
+                <span className="text-[10px] text-secondary tracking-widest uppercase font-light">Creative Partner</span>
+                <div className="flex items-center gap-4 mt-3">
+                  <a href="#" className="text-accent-muted hover:text-secondary transition-colors duration-300">
+                    <i className="fa-brands fa-instagram text-lg"></i>
+                  </a>
+                  <a href="#" className="text-accent-muted hover:text-secondary transition-colors duration-300">
+                    <i className="fa-brands fa-x-twitter text-lg"></i>
+                  </a>
+                  <a href="https://www.bridgeacademy.in/film-studies/" className="text-accent-muted hover:text-secondary transition-colors duration-300">
+                    <i className="fa-solid fa-arrow-up-right-from-square text-lg"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -120,7 +168,7 @@ export default function PartnerScreen() {
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-6 bg-black/90 backdrop-blur-sm overflow-y-auto">
           <div className="relative w-full max-w-2xl bg-primary-light border border-white/5 p-8 md:p-12 rounded-sm shadow-2xl mt-20 mb-20 md:mt-0 md:mb-0">
-            <button 
+            <button
               onClick={() => setIsModalOpen(false)}
               className="absolute top-6 right-6 text-white/50 hover:text-white transition-colors"
             >
@@ -130,101 +178,101 @@ export default function PartnerScreen() {
               Partnership Proposal
             </h2>
 
-          {submitted ? (
-            <div className="text-center py-12">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-secondary/10 text-secondary mb-6">
-                <i className="fa-solid fa-check text-2xl"></i>
+            {submitted ? (
+              <div className="text-center py-12">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-secondary/10 text-secondary mb-6">
+                  <i className="fa-solid fa-check text-2xl"></i>
+                </div>
+                <h3 className="font-serif text-xl text-white tracking-wide mb-3">Proposal Received</h3>
+                <p className="text-sm text-accent-muted font-light">
+                  Thank you for your interest in partnering with Viora Media. Our team will review your proposal and get back to you shortly.
+                </p>
+                <button
+                  onClick={() => setSubmitted(false)}
+                  className="mt-8 text-xs tracking-widest uppercase text-secondary hover:text-white transition-colors duration-300"
+                >
+                  Submit another
+                </button>
               </div>
-              <h3 className="font-serif text-xl text-white tracking-wide mb-3">Proposal Received</h3>
-              <p className="text-sm text-accent-muted font-light">
-                Thank you for your interest in partnering with Viora Media. Our team will review your proposal and get back to you shortly.
-              </p>
-              <button 
-                onClick={() => setSubmitted(false)}
-                className="mt-8 text-xs tracking-widest uppercase text-secondary hover:text-white transition-colors duration-300"
-              >
-                Submit another
-              </button>
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            ) : (
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label htmlFor="name" className="text-[10px] tracking-widest uppercase text-accent-muted font-semibold">
+                      Full Name
+                    </label>
+                    <input
+                      type="text"
+                      id="name"
+                      name="name"
+                      required
+                      value={formData.name}
+                      onChange={handleChange}
+                      className="w-full bg-black border border-white/10 p-3 text-sm text-white focus:outline-none focus:border-secondary/50 transition-colors duration-300 rounded-sm placeholder:text-white/20"
+                      placeholder="John Doe"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label htmlFor="email" className="text-[10px] tracking-widest uppercase text-accent-muted font-semibold">
+                      Email Address
+                    </label>
+                    <input
+                      type="email"
+                      id="email"
+                      name="email"
+                      required
+                      value={formData.email}
+                      onChange={handleChange}
+                      className="w-full bg-black border border-white/10 p-3 text-sm text-white focus:outline-none focus:border-secondary/50 transition-colors duration-300 rounded-sm placeholder:text-white/20"
+                      placeholder="john@company.com"
+                    />
+                  </div>
+                </div>
+
                 <div className="space-y-2">
-                  <label htmlFor="name" className="text-[10px] tracking-widest uppercase text-accent-muted font-semibold">
-                    Full Name
+                  <label htmlFor="company" className="text-[10px] tracking-widest uppercase text-accent-muted font-semibold">
+                    Company / Organization
                   </label>
                   <input
                     type="text"
-                    id="name"
-                    name="name"
+                    id="company"
+                    name="company"
                     required
-                    value={formData.name}
+                    value={formData.company}
                     onChange={handleChange}
                     className="w-full bg-black border border-white/10 p-3 text-sm text-white focus:outline-none focus:border-secondary/50 transition-colors duration-300 rounded-sm placeholder:text-white/20"
-                    placeholder="John Doe"
+                    placeholder="Your Company Name"
                   />
                 </div>
+
                 <div className="space-y-2">
-                  <label htmlFor="email" className="text-[10px] tracking-widest uppercase text-accent-muted font-semibold">
-                    Email Address
+                  <label htmlFor="proposal" className="text-[10px] tracking-widest uppercase text-accent-muted font-semibold">
+                    Partnership Proposal
                   </label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
+                  <textarea
+                    id="proposal"
+                    name="proposal"
                     required
-                    value={formData.email}
+                    rows={5}
+                    value={formData.proposal}
                     onChange={handleChange}
-                    className="w-full bg-black border border-white/10 p-3 text-sm text-white focus:outline-none focus:border-secondary/50 transition-colors duration-300 rounded-sm placeholder:text-white/20"
-                    placeholder="john@company.com"
-                  />
+                    className="w-full bg-black border border-white/10 p-3 text-sm text-white focus:outline-none focus:border-secondary/50 transition-colors duration-300 rounded-sm placeholder:text-white/20 resize-y"
+                    placeholder="Tell us about how we can work together..."
+                  ></textarea>
                 </div>
-              </div>
 
-              <div className="space-y-2">
-                <label htmlFor="company" className="text-[10px] tracking-widest uppercase text-accent-muted font-semibold">
-                  Company / Organization
-                </label>
-                <input
-                  type="text"
-                  id="company"
-                  name="company"
-                  required
-                  value={formData.company}
-                  onChange={handleChange}
-                  className="w-full bg-black border border-white/10 p-3 text-sm text-white focus:outline-none focus:border-secondary/50 transition-colors duration-300 rounded-sm placeholder:text-white/20"
-                  placeholder="Your Company Name"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label htmlFor="proposal" className="text-[10px] tracking-widest uppercase text-accent-muted font-semibold">
-                  Partnership Proposal
-                </label>
-                <textarea
-                  id="proposal"
-                  name="proposal"
-                  required
-                  rows={5}
-                  value={formData.proposal}
-                  onChange={handleChange}
-                  className="w-full bg-black border border-white/10 p-3 text-sm text-white focus:outline-none focus:border-secondary/50 transition-colors duration-300 rounded-sm placeholder:text-white/20 resize-y"
-                  placeholder="Tell us about how we can work together..."
-                ></textarea>
-              </div>
-
-              {submitError && (
-                <div className="text-red-500 text-xs mt-2">{submitError}</div>
-              )}
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full mt-4 bg-secondary text-black py-4 text-xs tracking-widest uppercase font-semibold hover:bg-white hover:text-black transition-colors duration-300 rounded-sm disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isSubmitting ? 'Submitting...' : 'Submit Proposal'}
-              </button>
-            </form>
-          )}
+                {submitError && (
+                  <div className="text-red-500 text-xs mt-2">{submitError}</div>
+                )}
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full mt-4 bg-secondary text-black py-4 text-xs tracking-widest uppercase font-semibold hover:bg-white hover:text-black transition-colors duration-300 rounded-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isSubmitting ? 'Submitting...' : 'Submit Proposal'}
+                </button>
+              </form>
+            )}
           </div>
         </div>
       )}
