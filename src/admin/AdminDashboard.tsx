@@ -544,7 +544,7 @@ export default function AdminDashboard() {
       // Update cache
       try {
         sessionStorage.setItem('viora_photo_submissions_cache', JSON.stringify(updated));
-      } catch (e) {}
+      } catch (e) { }
 
       if (selectedPhotoSubmissionId === id) {
         setSelectedPhotoSubmissionId(updated.length > 0 ? updated[0].id : null);
