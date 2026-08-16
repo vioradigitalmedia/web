@@ -136,7 +136,7 @@ export default function FestivalsScreen() {
           >
             <div className="border border-white/10 bg-zinc-950 p-8 md:p-10 rounded-sm shadow-[0_0_30px_rgba(197,160,89,0.05)] relative overflow-hidden flex flex-col justify-between">
               <div className="inline-block px-3 py-1 bg-white/10 text-secondary border border-secondary/30 font-bold text-[9px] tracking-widest uppercase rounded-sm mb-4 self-start">
-                Submissions Open
+                Submissions Closed
               </div>
 
               <div>
