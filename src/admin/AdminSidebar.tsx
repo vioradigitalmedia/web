@@ -34,7 +34,7 @@ export default function AdminSidebar({
     { id: 'letterhead', label: 'Letterhead', icon: 'fa-solid fa-file-invoice', roles: ['superadmin'] }
   ] as const;
 
-  const visibleMenuItems = menuItems.filter(item => item.roles.includes(role));
+  const visibleMenuItems = menuItems.filter(item => (item.roles as readonly string[]).includes(role));
 
   return (
     <>
