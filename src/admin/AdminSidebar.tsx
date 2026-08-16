@@ -7,6 +7,7 @@ interface AdminSidebarProps {
   onClose?: () => void;
   isCollapsed: boolean;
   onToggleCollapse: () => void;
+  role?: string;
 }
 
 export default function AdminSidebar({
@@ -17,20 +18,23 @@ export default function AdminSidebar({
   isOpen = false,
   onClose,
   isCollapsed,
-  onToggleCollapse
+  onToggleCollapse,
+  role = 'superadmin'
 }: AdminSidebarProps) {
   
   const menuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: 'fa-solid fa-chart-line' },
-    { id: 'messages', label: 'Messages', icon: 'fa-solid fa-envelope' },
-    { id: 'partners', label: 'Partnerships', icon: 'fa-solid fa-handshake' },
-    { id: 'applications', label: 'Applications', icon: 'fa-solid fa-briefcase' },
-    { id: 'cfo', label: 'CFO', icon: 'fa-solid fa-money-bill-trend-up' },
-    { id: 'media', label: 'Media Library', icon: 'fa-solid fa-images' },
-    { id: 'submissions', label: 'Film Submissions', icon: 'fa-solid fa-clapperboard' },
-    { id: 'photo-submissions', label: 'Photo Submissions', icon: 'fa-solid fa-camera' },
-    { id: 'letterhead', label: 'Letterhead', icon: 'fa-solid fa-file-invoice' }
+    { id: 'dashboard', label: 'Dashboard', icon: 'fa-solid fa-chart-line', roles: ['superadmin'] },
+    { id: 'messages', label: 'Messages', icon: 'fa-solid fa-envelope', roles: ['superadmin'] },
+    { id: 'partners', label: 'Partnerships', icon: 'fa-solid fa-handshake', roles: ['superadmin'] },
+    { id: 'applications', label: 'Applications', icon: 'fa-solid fa-briefcase', roles: ['superadmin'] },
+    { id: 'cfo', label: 'CFO', icon: 'fa-solid fa-money-bill-trend-up', roles: ['superadmin'] },
+    { id: 'media', label: 'Media Library', icon: 'fa-solid fa-images', roles: ['superadmin'] },
+    { id: 'submissions', label: 'Film Submissions', icon: 'fa-solid fa-clapperboard', roles: ['superadmin'] },
+    { id: 'photo-submissions', label: 'Photo Submissions', icon: 'fa-solid fa-camera', roles: ['superadmin', 'CPP'] },
+    { id: 'letterhead', label: 'Letterhead', icon: 'fa-solid fa-file-invoice', roles: ['superadmin'] }
   ] as const;
+
+  const visibleMenuItems = menuItems.filter(item => item.roles.includes(role));
 
   return (
     <>
@@ -92,7 +96,7 @@ export default function AdminSidebar({
             </div>
             {!isCollapsed && (
               <div className="flex flex-col text-left overflow-hidden animate-fade-in">
-                <span className="text-[10px] tracking-wider text-accent-muted uppercase font-semibold">Administrator</span>
+                <span className="text-[10px] tracking-wider text-accent-muted uppercase font-semibold">{role === 'CPP' ? 'Partner' : 'Administrator'}</span>
                 <span className="text-xs text-white/80 font-light truncate max-w-[150px]">{userEmail}</span>
               </div>
             )}
@@ -100,7 +104,7 @@ export default function AdminSidebar({
 
           {/* Menu Navigation */}
           <nav className={`space-y-1.5 flex-grow mt-4 transition-all duration-300 ${isCollapsed ? 'px-2' : 'p-4'}`}>
-            {menuItems.map((item) => {
+            {visibleMenuItems.map((item) => {
               const isActive = activeTab === item.id;
               return (
                 <button

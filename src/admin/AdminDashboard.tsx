@@ -97,7 +97,7 @@ export default function AdminDashboard() {
   const [selectedDocKey, setSelectedDocKey] = useState<string | null>(null);
 
   // Admin data for Letterhead auto-fill
-  const [adminData, setAdminData] = useState<{ first_name: string; last_name: string; designation: string; signature?: string | null } | null>(null);
+  const [adminData, setAdminData] = useState<{ first_name: string; last_name: string; designation: string; signature?: string | null; role?: string } | null>(null);
 
   const fetchAdminDocs = async () => {
     setAdminDocsLoading(true);
@@ -353,7 +353,7 @@ export default function AdminDashboard() {
     try {
       const { data, error: fetchError } = await supabase
         .from('admins')
-        .select('first_name, last_name, designation, signature')
+        .select('first_name, last_name, designation, signature, role')
         .eq('id', session.user.id)
         .single();
 
@@ -362,6 +362,9 @@ export default function AdminDashboard() {
         return;
       }
       setAdminData(data);
+      if (data?.role === 'CPP') {
+        setActiveTab('photo-submissions');
+      }
     } catch (err) {
       console.error('Error fetching admin data:', err);
     }
@@ -747,6 +750,14 @@ export default function AdminDashboard() {
 
   // Render individual panels
   const renderActiveView = () => {
+    if (adminData?.role === 'CPP' && activeTab !== 'photo-submissions') {
+      return (
+        <div className="p-6 text-center text-accent-muted h-full flex flex-col items-center justify-center space-y-4">
+          <i className="fa-solid fa-lock text-3xl"></i>
+          <p>Access Restricted to Photo Submissions only.</p>
+        </div>
+      );
+    }
     switch (activeTab) {
       case 'partners':
         return (
@@ -856,6 +867,7 @@ export default function AdminDashboard() {
             fetchPhotoSubmissions={fetchPhotoSubmissions}
             handleDeletePhotoSubmission={handleDeletePhotoSubmission}
             updatingId={updatingId}
+            role={adminData?.role}
             photoPresignedUrl={photoPresignedUrl}
             photoIdPresignedUrl={photoIdPresignedUrl}
             presignedLoading={presignedLoading}
@@ -919,6 +931,7 @@ export default function AdminDashboard() {
           onClose={() => setSidebarOpen(false)}
           isCollapsed={isSidebarCollapsed}
           onToggleCollapse={() => setIsSidebarCollapsed(prev => !prev)}
+          role={adminData?.role}
         />
       </div>
 

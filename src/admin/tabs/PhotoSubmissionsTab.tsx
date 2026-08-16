@@ -14,6 +14,7 @@ interface PhotoSubmissionsTabProps {
   photoPresignedUrl: string | null;
   photoIdPresignedUrl: string | null;
   presignedLoading: boolean;
+  role?: string;
 }
 
 export default function PhotoSubmissionsTab({
@@ -30,6 +31,7 @@ export default function PhotoSubmissionsTab({
   photoPresignedUrl,
   photoIdPresignedUrl,
   presignedLoading,
+  role = "superadmin",
 }: PhotoSubmissionsTabProps) {
   const selectedSubmission = photoSubmissions.find(s => s.id === selectedPhotoSubmissionId);
 
@@ -161,16 +163,18 @@ export default function PhotoSubmissionsTab({
                           )}
                         </div>
 
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeletePhotoSubmission(sub.id);
-                          }}
-                          disabled={updatingId === sub.id}
-                          className="w-full py-2 rounded-sm text-[10px] tracking-widest uppercase font-semibold border border-red-500/20 text-red-400 hover:bg-red-950/20 transition-all duration-300 cursor-pointer text-center disabled:opacity-50"
-                        >
-                          Delete Entry
-                        </button>
+                        {role === 'superadmin' && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeletePhotoSubmission(sub.id);
+                            }}
+                            disabled={updatingId === sub.id}
+                            className="w-full py-2 rounded-sm text-[10px] tracking-widest uppercase font-semibold border border-red-500/20 text-red-400 hover:bg-red-950/20 transition-all duration-300 cursor-pointer text-center disabled:opacity-50"
+                          >
+                            Delete Entry
+                          </button>
+                        )}
                       </div>
                     )}
                   </div>
@@ -308,13 +312,15 @@ export default function PhotoSubmissionsTab({
                 </div>
 
                 <div className="p-6 border-t border-white/5 bg-black/10 flex justify-between items-center">
-                  <button
-                    onClick={() => handleDeletePhotoSubmission(selectedSubmission.id)}
-                    disabled={updatingId === selectedSubmission.id}
-                    className="px-4 py-2 text-[10px] tracking-widest uppercase font-semibold rounded-sm border border-red-500/20 text-red-400 hover:bg-red-950/20 transition-all duration-300 cursor-pointer disabled:opacity-50"
-                  >
-                    <i className="fa-solid fa-trash-can mr-2"></i>Delete Entry
-                  </button>
+                  {role === 'superadmin' && (
+                    <button
+                      onClick={() => handleDeletePhotoSubmission(selectedSubmission.id)}
+                      disabled={updatingId === selectedSubmission.id}
+                      className="px-4 py-2 text-[10px] tracking-widest uppercase font-semibold rounded-sm border border-red-500/20 text-red-400 hover:bg-red-950/20 transition-all duration-300 cursor-pointer disabled:opacity-50"
+                    >
+                      <i className="fa-solid fa-trash-can mr-2"></i>Delete Entry
+                    </button>
+                  )}
                   <span className="text-[10px] text-accent-muted italic">
                     UUID: {selectedSubmission.id}
                   </span>
